@@ -114,6 +114,7 @@ export default function CardDocument({
         },
       });
       toggleView();
+      console.log(response)
     } catch (error) {
       console.error("Error fetching data:", error);
     }
