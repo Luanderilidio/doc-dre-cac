@@ -98,6 +98,7 @@ export default function CardDocument({
         },
       });
       toggleView();
+      console.log(response)
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -129,6 +130,7 @@ export default function CardDocument({
         },
       });
       toggleView();
+      console.log(response)
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -143,6 +145,7 @@ export default function CardDocument({
           id: id + 1,
         },
       });
+      console.log(response)
       toggleView();
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -164,6 +167,7 @@ export default function CardDocument({
       <div className="flex items-center justify-between">
         <p className="text-md font-semibold">{nomeEscolaExtinta}</p>
         <p className="text-md font-semibold">{tipoDocumento}</p>
+        {funcionario &&  <p className="text-md text-blue-500 font-semibold">{funcionario}</p>}
       </div>
       <div className="flex items-center justify-between">
         <p>{qtdDaysMessage()}</p>
