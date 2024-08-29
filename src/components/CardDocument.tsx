@@ -168,14 +168,17 @@ export default function CardDocument({
       <div className="flex items-center justify-between">
         <p className="text-md font-semibold">{nomeEscolaExtinta}</p>
         <p className="text-md font-semibold">{tipoDocumento}</p>
-        {funcionario &&  <p className="text-md text-blue-500 font-semibold">[{funcionario}]</p>}
+        
       </div>
+      
       <div className="flex items-center justify-between">
         <p>{qtdDaysMessage()}</p>
+        
         <Button onClick={openView} endIcon={<RemoveRedEyeIcon />}>
           Visualizar
         </Button>
       </div>
+      {funcionario &&  <p className="text-md text-blue-500 font-semibold">[{funcionario}]</p>}
       <Dialog open={isView} onClose={closeView}>
         <DialogTitle>
           <p className="text-3xl">
