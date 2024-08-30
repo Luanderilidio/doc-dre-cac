@@ -89,7 +89,7 @@ export default function CardDocument({
   // Função para alterar o status para "Negado"
   const handleStatusDenied = async () => {
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await api.get(apiUrl, {
         params: {
           action: "denied",
           id: id + 1,
@@ -107,7 +107,7 @@ export default function CardDocument({
   // Função para alterar o status para "Finalizado"
   const handleStatusFinished = async () => {
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await api.get(apiUrl, {
         params: {
           action: "finished",
           id: id + 1,
@@ -140,7 +140,7 @@ export default function CardDocument({
   // Função para alterar o status para "Liberado"
   const handleStatusDelivery = async () => {
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await api.get(apiUrl, {
         params: {
           action: "delivery",
           id: id + 1,
