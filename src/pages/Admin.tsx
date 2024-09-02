@@ -44,7 +44,16 @@ export default function Admin() {
       });
       console.log("API Response:", response.data.output);
       console.log(response.data.output)
-      setData(response.data.output);
+      const sortedData = response.data.output.sort((a, b) => {
+        if (a.status === "" && b.status !== "") {
+          return -1; // 'a' deve vir antes de 'b'
+        } else if (a.status !== "" && b.status === "") {
+          return 1; // 'b' deve vir antes de 'a'
+        } else {
+          return 0; // mantem a ordem original entre os outros itens
+        }
+      });
+      setData(sortedData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

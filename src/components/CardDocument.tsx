@@ -72,6 +72,12 @@ export default function CardDocument({
   const betwenDays = hoje.diff(dataSolicitada, "days");
 
   const [isView, openView, closeView, toggleView] = useBoolean(false);
+
+  const [isViewAccept, openViewAccept, closeViewAccept, toggleViewAccept] =
+    useBoolean(false);
+  const [isViewDenied, openViewDenied, closeViewDenied, toggleViewDenied] =
+    useBoolean(false);
+
   const [employee, setEmployee] = useState<string>("");
   const [reason, setReason] = useState<string>("");
 
@@ -98,7 +104,7 @@ export default function CardDocument({
         },
       });
       toggleView();
-      console.log(response)
+      console.log(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -114,7 +120,7 @@ export default function CardDocument({
         },
       });
       toggleView();
-      console.log(response)
+      console.log(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -130,8 +136,8 @@ export default function CardDocument({
           employee,
         },
       });
-      toggleView();
-      console.log(response)
+      closeView();
+      console.log(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -146,7 +152,7 @@ export default function CardDocument({
           id: id + 1,
         },
       });
-      console.log(response)
+      console.log(response);
       toggleView();
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -168,17 +174,18 @@ export default function CardDocument({
       <div className="flex items-center justify-between">
         <p className="text-md font-semibold">{nomeEscolaExtinta}</p>
         <p className="text-md font-semibold">{tipoDocumento}</p>
-        
       </div>
-      
+
       <div className="flex items-center justify-between">
         <p>{qtdDaysMessage()}</p>
-        
+
         <Button onClick={openView} endIcon={<RemoveRedEyeIcon />}>
           Visualizar
         </Button>
       </div>
-      {funcionario &&  <p className="text-md text-blue-500 font-semibold">[{funcionario}]</p>}
+      {funcionario && (
+        <p className="text-md text-blue-500 font-semibold">[{funcionario}]</p>
+      )}
       <Dialog open={isView} onClose={closeView}>
         <DialogTitle>
           <p className="text-3xl">
@@ -337,7 +344,32 @@ export default function CardDocument({
               )}/preview`}
               allow="autoplay"
             />
-           <div className="grid grid-cols-2 gap-2 py-2">
+            <div className="grid grid-cols-2 gap-2 py-2">
+              {status === "" && (
+                <>
+                  <Button
+                    onClick={() => {
+                      toggleViewAccept();
+                      closeViewDenied();
+                    }}
+                    variant="contained"
+                    className="col-span-1"
+                  >
+                    Atender
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      toggleViewDenied();
+                      closeViewAccept();
+                    }}
+                    variant="contained"
+                    color="error"
+                    className="col-span-1"
+                  >
+                    Negada
+                  </Button>
+                </>
+              )}
               {status === "in_service" && (
                 <>
                   <Divider className="col-span-2 !mt-4">
@@ -352,9 +384,8 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Funcionario1">Funcionario 1</MenuItem>
-                      <MenuItem value="Funcionario2">Funcionario 2</MenuItem>
-                      <MenuItem value="Funcionario3">Funcionario 3</MenuItem>
+                      <MenuItem value="Ronyer">Ronyer</MenuItem>
+                      <MenuItem value="Carmelito">Carmelito</MenuItem>
                     </Select>
                   </FormControl>
                   <Button
@@ -364,12 +395,41 @@ export default function CardDocument({
                     variant="contained"
                     onClick={() => handleStatusDelivery()}
                   >
-                    Liberar
+                    Enviar Email de Liberação
                   </Button>
                 </>
               )}
 
-              {status === "" && (
+              {status === "delivery" && (
+                <>
+                  <Divider className="col-span-2 !mt-4">
+                    Finalizar Solicitação de Documento
+                  </Divider>
+                  <FormControl variant="outlined" className="col-span-1">
+                    <InputLabel>Funcionario</InputLabel>
+                    <Select
+                      fullWidth
+                      className="col-span-2"
+                      value={employee}
+                      onChange={(event) => setEmployee(event.target.value)}
+                      label="Funcionário"
+                    >
+                      <MenuItem value="Ronyer">Ronyer</MenuItem>
+                      <MenuItem value="Carmelito">Carmelito</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Button
+                    className="col-span-1"
+                    color="success"
+                    variant="contained"
+                    onClick={() => handleStatusFinished()}
+                  >
+                    Finalizar
+                  </Button>
+                </>
+              )}
+
+              {isViewAccept && (
                 <>
                   <Divider className="col-span-2 !mt-4">
                     Atender essa solicitação
@@ -383,9 +443,8 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Funcionario1">Funcionario 1</MenuItem>
-                      <MenuItem value="Funcionario2">Funcionario 2</MenuItem>
-                      <MenuItem value="Funcionario3">Funcionario 3</MenuItem>
+                      <MenuItem value="Ronyer">Ronyer</MenuItem>
+                      <MenuItem value="Carmelito">Carmelito</MenuItem>
                     </Select>
                   </FormControl>
                   <Button
@@ -396,6 +455,11 @@ export default function CardDocument({
                   >
                     Atender
                   </Button>
+                </>
+              )}
+
+              {isViewDenied && (
+                <>
                   <Divider className="col-span-2 !mt-4">
                     Solicitalição de documento Negada
                   </Divider>
@@ -418,9 +482,8 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Funcionario1">Funcionario 1</MenuItem>
-                      <MenuItem value="Funcionario2">Funcionario 2</MenuItem>
-                      <MenuItem value="Funcionario3">Funcionario 3</MenuItem>
+                      <MenuItem value="Ronyer">Ronyer</MenuItem>
+                      <MenuItem value="Carmelito">Carmelito</MenuItem>
                     </Select>
                   </FormControl>
                   <Button
@@ -430,36 +493,6 @@ export default function CardDocument({
                     onClick={() => handleStatusDenied()}
                   >
                     Negado
-                  </Button>
-                </>
-              )}
-
-              {status === "delivery" && (
-                <>
-                  <Divider className="col-span-2 !mt-4">
-                    Finalizar Solicitação de Documento
-                  </Divider>
-                  <FormControl variant="outlined" className="col-span-1">
-                    <InputLabel>Funcionario</InputLabel>
-                    <Select
-                      fullWidth
-                      className="col-span-2"
-                      value={employee}
-                      onChange={(event) => setEmployee(event.target.value)}
-                      label="Funcionário"
-                    >
-                      <MenuItem value="Funcionario1">Funcionario 1</MenuItem>
-                      <MenuItem value="Funcionario2">Funcionario 2</MenuItem>
-                      <MenuItem value="Funcionario3">Funcionario 3</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <Button
-                    className="col-span-1"
-                    color="success"
-                    variant="contained"
-                    onClick={() => handleStatusFinished()}
-                  >
-                    Finalizar
                   </Button>
                 </>
               )}
