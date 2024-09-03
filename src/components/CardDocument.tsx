@@ -103,6 +103,7 @@ export default function CardDocument({
           reason,
         },
       });
+      toggleViewDenied()
       toggleView();
       console.log(response);
     } catch (error) {
@@ -136,6 +137,7 @@ export default function CardDocument({
           employee,
         },
       });
+      toggleViewAccept();
       closeView();
       console.log(response);
     } catch (error) {
@@ -349,7 +351,7 @@ export default function CardDocument({
                 <>
                   <Button
                     onClick={() => {
-                      toggleViewAccept();
+                      openViewAccept();
                       closeViewDenied();
                     }}
                     variant="contained"
@@ -359,7 +361,7 @@ export default function CardDocument({
                   </Button>
                   <Button
                     onClick={() => {
-                      toggleViewDenied();
+                      openViewDenied();
                       closeViewAccept();
                     }}
                     variant="contained"
