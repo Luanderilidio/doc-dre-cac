@@ -33,7 +33,9 @@ export default function Admin() {
 
   const documentTypes = ["Histórico", "Certificado", "Declaração", "Atestado"];
 
-  // Função para buscar dados da API
+  
+  
+
   const fetchData = async () => {
     try {
       const response = await api.get<{ output: CardDocumentProps[] }>(apiUrl, {
@@ -133,9 +135,9 @@ export default function Admin() {
               onChange={(event) => setEmployee(event.target.value)}
               label="Funcionário"
             >
-              <MenuItem value="ronyer">Ronyer</MenuItem>
-              <MenuItem value="carmelito">Carmelito</MenuItem>
-              <MenuItem value="luander">Luander</MenuItem>
+              <MenuItem value="Ronyer">Ronyer</MenuItem>
+              <MenuItem value="Carmelito">Carmelito</MenuItem>
+              <MenuItem value="Luander">Luander</MenuItem>
             </Select>
             {employee && (
               <IconButton
