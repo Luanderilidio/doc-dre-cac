@@ -403,7 +403,9 @@ export default function Psicossocial() {
 
   return (
     <div className="grid grid-cols-12 px-4 pt-5 gap-4">
-      <p className="col-span-12 text-4xl font-bold flex items-center justify-center uppercase">Relatório Busca Ativa - Psicossocial</p>
+      <p className="text-center col-span-12 text-blue-700 font-bold font-Anton text-5xl">
+          PAINEL DE SOLICITAÇÕES DE DOCUMENTOS - DRE CÁCERES
+        </p>
       <div className="col-span-12">{loading && <LinearProgress />}</div>
       <div className="col-span-12 grid grid-cols-12 gap-5 bg-gray-100/60 p-4 rounded-2xl">
         <Autocomplete
