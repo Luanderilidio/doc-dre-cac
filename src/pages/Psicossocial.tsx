@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
@@ -13,9 +13,7 @@ import {
   Zoom,
 } from "@mui/material";
 import axios from "axios";
-import { DataGrid, GridRenderCellParams, GridColDef } from "@mui/x-data-grid";
-import BasicGauges from "../components/Gauge";
-import GraficoEnviaram from "../components/Gauge";
+import { DataGrid, GridRenderCellParams} from "@mui/x-data-grid";
 import { Gauge, gaugeClasses } from "@mui/x-charts";
 
 interface Arquivo {
