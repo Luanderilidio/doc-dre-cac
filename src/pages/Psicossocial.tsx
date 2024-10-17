@@ -13,8 +13,10 @@ import {
   Zoom,
 } from "@mui/material";
 import axios from "axios";
-import { DataGrid, GridRenderCellParams} from "@mui/x-data-grid";
-import { Gauge, gaugeClasses } from "@mui/x-charts";
+import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
+import { Gauge } from "@mui/x-charts";
+import ChartsOverviewDemo from "../components/barChartMediacao";
+import { escolas, meses } from "../utils/data_select";
 
 interface Arquivo {
   nome: string;
@@ -22,7 +24,7 @@ interface Arquivo {
   tipo: string;
 }
 
-interface RelatorioMediacao {
+export interface RelatorioMediacao {
   id: number;
   cidade: string;
   escola: string;
@@ -32,261 +34,6 @@ interface RelatorioMediacao {
   arquivos: Arquivo[];
 }
 
-export const escolas = [
-  {
-    id: 0,
-    cidade: "CACERES",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE 12 DE OUTUBRO",
-      },
-      {
-        id: 1,
-        nome: "EE ANA MARIA",
-      },
-      {
-        id: 2,
-        nome: "EE DEMETRIO",
-      },
-      {
-        id: 3,
-        nome: "EE FREI AMBROSIO",
-      },
-      {
-        id: 4,
-        nome: "EE JOAO FLORENTINO",
-      },
-      {
-        id: 5,
-        nome: "EE LEOPOLDO AMBROSIO",
-      },
-      {
-        id: 6,
-        nome: "EE MARIO MOTTA",
-      },
-      {
-        id: 7,
-        nome: "EE MILTON MARQUES",
-      },
-      {
-        id: 8,
-        nome: "EE ONZE DE MARCO",
-      },
-      {
-        id: 9,
-        nome: "EE SÃO LUIZ",
-      },
-      {
-        id: 10,
-        nome: "EE TIRADENTES",
-      },
-      {
-        id: 11,
-        nome: "EE UNIAO E FORCA",
-      },
-    ],
-  },
-  {
-    id: 1,
-    cidade: "ARAPUTANGA",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE JOAO SATO",
-      },
-      {
-        id: 1,
-        nome: "EE NOSSA SENHORA",
-      },
-      {
-        id: 2,
-        nome: "EE TANCREDO NEVES",
-      },
-    ],
-  },
-  {
-    id: 2,
-    cidade: "CURVELANDIA",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE BOA ESPERANCA",
-      },
-    ],
-  },
-  {
-    id: 3,
-    cidade: "GLORIA D'OESTE",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE JOSE BEJO",
-      },
-      {
-        id: 1,
-        nome: "EE RUI BARBOSA",
-      },
-    ],
-  },
-  {
-    id: 4,
-    cidade: "INDIAVAI",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE PAULINO MODESTO",
-      },
-    ],
-  },
-  {
-    id: 5,
-    cidade: "LAMBARI",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE PADRE JOSE ANCHIETA",
-      },
-    ],
-  },
-  {
-    id: 6,
-    cidade: "MIRASSOL",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE 12 DE OUTUBRO",
-      },
-      {
-        id: 1,
-        nome: "EE BOA VISTA",
-      },
-      {
-        id: 2,
-        nome: "EE JOAO DE CAMPOS WIDAL",
-      },
-      {
-        id: 3,
-        nome: "EE MADRE CRISTINA",
-      },
-      {
-        id: 4,
-        nome: "EE PADRE JOSE DE ANCHIETA",
-      },
-      {
-        id: 5,
-        nome: "EE PADRE TIAGO",
-      },
-      {
-        id: 6,
-        nome: "EE PEDRO GALHARDO",
-      },
-    ],
-  },
-  {
-    id: 7,
-    cidade: "PORTO ESPERIDIAO",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE 13 DE MAIO",
-      },
-      {
-        id: 1,
-        nome: "EE INDIGENA CHIQUITANO",
-      },
-      {
-        id: 2,
-        nome: "EE INDIGENA JOSE TURIBIO",
-      },
-      {
-        id: 3,
-        nome: "EE SAO GERALDO",
-      },
-    ],
-  },
-  {
-    id: 8,
-    cidade: "QUATRO MARCOS",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE 15 DE JUNHO",
-      },
-      {
-        id: 1,
-        nome: "EE BENTO ALEXANDRE",
-      },
-      {
-        id: 2,
-        nome: "EE BERTOLDO FREIRE",
-      },
-      {
-        id: 3,
-        nome: "EE LOURENÇO PERUCHI",
-      },
-      {
-        id: 4,
-        nome: "EE MIGUEL BARBOSA",
-      },
-      {
-        id: 5,
-        nome: "EE SANTA ROSA",
-      },
-    ],
-  },
-  {
-    id: 9,
-    cidade: "RESERVA DO CABACAL",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE DEMETRIO PEREIRA",
-      },
-    ],
-  },
-  {
-    id: 10,
-    cidade: "RIO BRANCO",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE RANGEL TORRES",
-      },
-    ],
-  },
-  {
-    id: 11,
-    cidade: "SALTO DO CEU",
-    escolas: [
-      {
-        id: 0,
-        nome: "EE FRANCISCO VILLANOVA",
-      },
-      {
-        id: 1,
-        nome: "EE VILA PROGRESSO",
-      },
-    ],
-  },
-];
-
-const meses = [
-  "JANEIRO",
-  "FEVEREIRO",
-  "MARÇO",
-  "ABRIL",
-  "MAIO",
-  "JUNHO",
-  "JULHO",
-  "AGOSTO",
-  "SETEMBRO",
-  "OUTUBRO",
-  "NOVEMBRO",
-  "DEZEMBRO",
-];
-
-
 export default function Psicossocial() {
   const [data, setData] = useState<RelatorioMediacao[] | null>(null);
   const [cidade, setCidade] = useState(null);
@@ -294,7 +41,7 @@ export default function Psicossocial() {
   const [mes, setMes] = useState(null);
   const [url, setUrl] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [quantidade, setQuantidade] = useState(0)
+  const [quantidade, setQuantidade] = useState(0);
 
   const columns = [
     { field: "cidade", headerName: "Cidade", width: 150 },
@@ -373,16 +120,19 @@ export default function Psicossocial() {
         }
       );
       setData(response.data);
-      const quantidade2 = response.data?.filter(item => item.enviou === "Sim")
-      console.log(quantidade2.length)
-      setQuantidade(quantidade2.length)
+      // console.log(response.data);
+      const quantidade2 = response.data?.filter(
+        (item) => item.enviou === "Sim"
+      );
+      console.log(quantidade2.length);
+      setQuantidade(quantidade2.length);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
-      
     }
   };
+  // console.log(data);
 
   const cidades = useMemo(
     () => escolas.map((escola) => escola.cidade),
@@ -399,13 +149,32 @@ export default function Psicossocial() {
     return [""];
   }, [cidade, escolas]);
 
+  const cidadesUnicas = new Set(data?.map((row) => row.cidade));
+  const escolasUnicas = new Set(data?.map((row) => row.escola));
+
+  const contagemEnvios = data?.reduce(
+    (acc, curr) => {
+      if (curr.enviou === "Sim") {
+        acc.enviaram += 1;
+      } else if (curr.enviou === "Não") {
+        acc.naoEnviaram += 1;
+      }
+      return acc;
+    },
+    { enviaram: 0, naoEnviaram: 0 } // Valores iniciais do acumulador
+  );
+
+  // A quantidade de cidades únicas
+  const quantidadeCidades = cidadesUnicas.size;
+  const quantidadeEscolas = escolasUnicas.size;
+
   return (
-    <div className="grid grid-cols-12 px-4 pt-5 gap-4">
+    <div className="grid grid-cols-12 px-4 pt-5 gap-4 ">
       <p className="text-center col-span-12 text-blue-700 font-bold font-Anton text-5xl">
-          PAINEL DE SOLICITAÇÕES DE DOCUMENTOS - DRE CÁCERES
-        </p>
+        PAINEL MEDIAÇÃO ESCOLAR - DRE CÁCERES
+      </p>
       <div className="col-span-12">{loading && <LinearProgress />}</div>
-      <div className="col-span-12 grid grid-cols-12 gap-5 bg-gray-100/60 p-4 rounded-2xl">
+      <div className="col-span-12 grid grid-cols-12 gap-5 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
         <Autocomplete
           className="col-span-3"
           fullWidth
@@ -446,17 +215,67 @@ export default function Psicossocial() {
           }}
           className="col-span-3"
         >
-          Procurar
+          PESQUISAR
         </Button>
+      </div>
+      <div className="col-span-2 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
+        <p className="font-semibold">Cidades</p>
+        <p className="text-3xl font-bold">{quantidadeCidades}</p>
+      </div>
+      <div className="col-span-2 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
+        <p className="font-semibold">Escolas</p>
+        <p className="text-3xl font-bold">{quantidadeEscolas}</p>
+      </div>
+      <div className="col-span-2 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
+        <p className="font-semibold">Mês</p>
+        <p className="text-3xl font-bold">{data ? mes : "N/D"}</p>
+      </div>
+      <div className="col-span-2 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
+        <p className="font-semibold">Enviaram</p>
+        <p className="text-3xl font-bold">
+          {data ? contagemEnvios?.enviaram : 0}
+        </p>
+      </div>
+      <div className="col-span-2 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
+        <p className="font-semibold">Não Enviaram</p>
+        <p className="text-3xl font-bold">
+          {data ? contagemEnvios?.naoEnviaram : 0}
+        </p>
+      </div>
+      <div className="col-span-2 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
+        {/* <Gauge
+          className="w-fit borer-2"
+          value={quantidade}
+          startAngle={-110}
+          endAngle={110}
+          valueMax={41}
+          sx={{
+            [`& .${gaugeClasses.valueText}`]: {
+              fontSize: 20,
+              transform: "translate(0px, 0px)",
+            },
+          }}
+          text={({ value, valueMax }) => `${value} / ${valueMax}`}
+        /> */}
+         <Gauge value={quantidade} valueMax={41} startAngle={-90} endAngle={90} text={({ value, valueMax }) => `${value} / ${valueMax}`} />
       </div>
 
       <div className="col-span-7 h-[500px]">
-        <DataGrid rows={data ?? []} columns={columns} />
-        <div className="grid grid-cols-3 justify-between !h-[120px]">
+        <DataGrid
+          rows={data ?? []}
+          columns={columns}
+          getRowClassName={
+            (params) =>
+              params.row.enviou === "Sim"
+                ? "text-green-500  hover:bg-green-700" // Classe Tailwind para fundo verde claro e texto verde escuro
+                : "text-red-500 font-bold hover:bg-red-700" // Classe Tailwind para fundo vermelho claro e texto vermelho escuro
+          }
+        />
+        <div className="hidden grid grid-cols-3 justify-between !h-[120px]">
           <p className="col-span-2 text-2xl font-bold font-Roboto text-black/80 flex items-center">
             Quantidade de escolas <br /> que enviaram
           </p>
-          <div className="col-span-1">
+          {/* <div className="col-span-1">
             <Gauge
               className="w-fit borer-2"
               value={quantidade}
@@ -471,7 +290,7 @@ export default function Psicossocial() {
               }}
               text={({ value, valueMax }) => `${value} / ${valueMax}`}
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="col-span-5 pr-4 bg-gray-100/60 p-4 rounded-2xl">
@@ -492,7 +311,7 @@ export default function Psicossocial() {
         )}
       </div>
       <div className="col-span-12 border-red-500">
-
+        <ChartsOverviewDemo data={data ?? []} />
       </div>
     </div>
   );
