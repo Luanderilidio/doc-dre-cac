@@ -271,27 +271,7 @@ export default function Psicossocial() {
                 : "text-red-500 font-bold hover:bg-red-700" // Classe Tailwind para fundo vermelho claro e texto vermelho escuro
           }
         />
-        <div className="hidden grid grid-cols-3 justify-between !h-[120px]">
-          <p className="col-span-2 text-2xl font-bold font-Roboto text-black/80 flex items-center">
-            Quantidade de escolas <br /> que enviaram
-          </p>
-          {/* <div className="col-span-1">
-            <Gauge
-              className="w-fit borer-2"
-              value={quantidade}
-              startAngle={-110}
-              endAngle={110}
-              valueMax={41}
-              sx={{
-                [`& .${gaugeClasses.valueText}`]: {
-                  fontSize: 20,
-                  transform: "translate(0px, 0px)",
-                },
-              }}
-              text={({ value, valueMax }) => `${value} / ${valueMax}`}
-            />
-          </div> */}
-        </div>
+        
       </div>
       <div className="col-span-5 pr-4 bg-gray-100/60 p-4 rounded-2xl">
         {url && (
@@ -310,7 +290,7 @@ export default function Psicossocial() {
           </div>
         )}
       </div>
-      <div className="col-span-12 border-red-500">
+      <div className="col-span-12">
         <ChartsOverviewDemo data={data ?? []} />
       </div>
     </div>
