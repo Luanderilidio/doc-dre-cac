@@ -25,7 +25,7 @@ export default function Home() {
           },
         }
       );
-      console.log("API Response:", response.data.output);
+      // console.log("API Response:", response.data.output);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

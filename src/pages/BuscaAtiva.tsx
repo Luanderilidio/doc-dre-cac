@@ -34,7 +34,7 @@ export interface RelatorioMediacao {
   arquivos: Arquivo[];
 }
 
-export default function Psicossocial() {
+export default function BuscaAtiva() {
   const [data, setData] = useState<RelatorioMediacao[] | null>(null);
   const [cidade, setCidade] = useState(null);
   const [escola, setEscola] = useState(null);
@@ -109,10 +109,10 @@ export default function Psicossocial() {
   const fetchData = async () => {
     try {
       const response = await axios.get<RelatorioMediacao[]>(
-        "https://script.google.com/macros/s/AKfycbypqdRvOEULH4_YrGWOQXbIRR5jCzIQkk083Fq3jwDCGLB0AbWmJwKN-PGN0F4PCaPfQA/exec",
+        "https://script.google.com/macros/s/AKfycbwkX7hY-xi7631UhFlUsqRUrTgP2ShZzvZErk1ot4TaMvHHVWXbzMY64zUeK9zi0gZU/exec",
         {
           params: {
-            action: "GET",
+            action: "getAll",
             cidade: cidade,
             escola: escola,
             mes: mes,
@@ -124,7 +124,7 @@ export default function Psicossocial() {
       const quantidade2 = response.data?.filter(
         (item) => item.enviou === "Sim"
       );
-      console.log(quantidade2.length);
+      // console.log(quantidade2.length);
       setQuantidade(quantidade2.length);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -142,7 +142,7 @@ export default function Psicossocial() {
   const escolasFiltradas = useMemo(() => {
     if (cidade) {
       const cidadeEscolas = escolas.find((e) => e.cidade === cidade);
-      console.log("cidadeEscolas", cidadeEscolas);
+      // console.log("cidadeEscolas", cidadeEscolas);
       const nomeEscolas = cidadeEscolas?.escolas.map((item) => item.nome);
       return nomeEscolas;
     }
@@ -171,7 +171,7 @@ export default function Psicossocial() {
   return (
     <div className="grid grid-cols-12 px-4 pt-5 gap-4 ">
       <p className="text-center col-span-12 text-blue-700 font-bold font-Anton text-5xl">
-        PAINEL MEDIAÇÃO ESCOLAR - DRE CÁCERES
+        PAINEL BUSCA ATIVA - DRE CÁCERES
       </p>
       <div className="col-span-12">{loading && <LinearProgress />}</div>
       <div className="col-span-12 grid grid-cols-12 gap-5 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
@@ -211,7 +211,7 @@ export default function Psicossocial() {
             setLoading(true);
             fetchData();
 
-            console.log(cidade, escola, mes);
+            // console.log(cidade, escola, mes);
           }}
           className="col-span-3"
         >
@@ -264,6 +264,7 @@ export default function Psicossocial() {
         <DataGrid
           rows={data ?? []}
           columns={columns}
+          getRowId={() => Math.random().toString(36).substr(2, 9)}
           getRowClassName={
             (params) =>
               params.row.enviou === "Sim"

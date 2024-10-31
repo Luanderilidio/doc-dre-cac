@@ -105,7 +105,7 @@ export default function CardDocument({
       });
       toggleViewDenied()
       toggleView();
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -121,7 +121,7 @@ export default function CardDocument({
         },
       });
       toggleView();
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -139,7 +139,7 @@ export default function CardDocument({
       });
       toggleViewAccept();
       closeView();
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -154,7 +154,7 @@ export default function CardDocument({
           id: id + 1,
         },
       });
-      console.log(response);
+      // console.log(response);
       toggleView();
     } catch (error) {
       console.error("Error fetching data:", error);

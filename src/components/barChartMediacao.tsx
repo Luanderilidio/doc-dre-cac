@@ -1,5 +1,5 @@
 import { BarChart } from '@mui/x-charts/BarChart';
-import { RelatorioMediacao } from '../pages/Psicossocial';
+import { RelatorioMediacao } from '../pages/MediacaoEscolar';
 
 interface Props {
   data: RelatorioMediacao[];
@@ -8,7 +8,7 @@ interface Props {
 export default function ChartsOverviewDemo({ data }: Props) {
 
 
- console.log(data)
+//  console.log(data)
     
   // Processa os dados para contar quantas escolas enviaram por cidade
   const escolaPorCidade = data.reduce<Record<string, number>>((acc, curr) => {
@@ -22,10 +22,10 @@ export default function ChartsOverviewDemo({ data }: Props) {
 
   const quantidades = Object.values(escolaPorCidade);
 
-console.log(data)
-console.log("escolaPorCidade",escolaPorCidade)
-console.log("quantidades", quantidades)
-console.log("cidades", cidades)
+// console.log(data)
+// console.log("escolaPorCidade",escolaPorCidade)
+// console.log("quantidades", quantidades)
+// console.log("cidades", cidades)
 
 
 

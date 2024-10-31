@@ -44,8 +44,8 @@ export default function Admin() {
           sheet: "DadosFormulario",
         },
       });
-      console.log("API Response:", response.data.output);
-      console.log(response.data.output)
+      // console.log("API Response:", response.data.output);
+      // console.log(response.data.output)
       const sortedData = response.data.output.sort((a, b) => {
         if (a.status === "" && b.status !== "") {
           return -1; // 'a' deve vir antes de 'b'
@@ -65,7 +65,7 @@ export default function Admin() {
     fetchData();
   }, []);
 
-  console.log("API URL:", apiUrl);
+  // console.log("API URL:", apiUrl);
 
   useEffect(() => {
     const filtro = data.filter((item) => {

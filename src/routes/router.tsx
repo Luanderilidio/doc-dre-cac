@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Admin from "../pages/Admin";
 import Home from "../pages/Home";
-import Psicossocial from "../pages/Psicossocial";
+import Contatos from "../pages/Contatos";
+import BuscaAtiva from "../pages/BuscaAtiva";
+import MediacaoEscolar from "../pages/MediacaoEscolar";
 
 
 const AppRoutes = () => {
@@ -11,7 +13,9 @@ const AppRoutes = () => {
         <Routes>
         <Route path={`/`} element={<Home />} />
         <Route path={`/admin`} element={<Admin />} />
-        <Route path={`/psicossocial`} element={<Psicossocial />} />
+        <Route path={`/mediacao-escolar`} element={<MediacaoEscolar />} />
+        <Route path={`/busca-ativa`} element={<BuscaAtiva />} />
+        <Route path={`/contatos`} element={<Contatos />} />
           <Route path="*" element={<>No Match</>} />
         </Routes>
       </BrowserRouter>
