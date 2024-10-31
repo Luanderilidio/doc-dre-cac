@@ -26,6 +26,7 @@
     "react-dom": "^18.3.1",
     "react-google-docs-viewer": "^1.0.1",
     "react-hooks-shareable": "^1.53.0",
+    "react-organizational-chart": "^2.2.1",
     "react-router-dom": "^6.26.1"
   },
   "devDependencies": {

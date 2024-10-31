@@ -1,54 +1,54 @@
-import { ApexOptions } from "apexcharts";
-import Chart from "react-apexcharts";
+import { Tree, TreeNode } from "react-organizational-chart";
+import { contatos } from "./data";
 
-export default function Contatos () {
-  const series = [
-    {
-      data: [
-        {
-          x: "Department A",
-          y: 10,
-          children: [
-            { x: "Team A1", y: 4 },
-            { x: "Team A2", y: 3 },
-            { x: "Team A3", y: 3 },
-          ],
-        },
-        {
-          x: "Department B",
-          y: 20,
-          children: [
-            { x: "Team B1", y: 5 },
-            { x: "Team B2", y: 7 },
-            { x: "Team B3", y: 8 },
-          ],
-        },
-        {
-          x: "Department C",
-          y: 15,
-          children: [
-            { x: "Team C1", y: 6 },
-            { x: "Team C2", y: 5 },
-            { x: "Team C3", y: 4 },
-          ],
-        },
-      ],
-    },
-  ];
-
-  const options = {
-    chart: {
-      type: "treemap",
-    },
-    title: {
-      text: "Tree Chart Example",
-    },
-  } as ApexOptions;
+export default function Contatos() {
+  const cidades = Array.from(new Set(contatos.map((item) => item.cidade)));
 
   return (
-    <div>
-      <Chart options={options} series={series} type="treemap" height={350} />
-    </div>
-  );
-};
+    <Tree
+      lineWidth={"2px"}
+      lineColor={"green"}
+      lineBorderRadius={"10px"}
+      label={<div>Organograma</div>}
+    >
+      {cidades.map((cidade) => {
+        const escolasNaCidade = Array.from(
+          new Set(
+            contatos
+              .filter((item: any) => item.cidade === cidade)
+              .map((item: any) => item.escola)
+          )
+        );
 
+        return (
+          <TreeNode label={<div>{cidade}</div>} key={cidade}>
+            {escolasNaCidade.map((escola) => {
+              const funcionarios = contatos.filter(
+                (item: any) => item.cidade === cidade && item.escola === escola
+              );
+
+              return (
+                <TreeNode label={<div>{escola}</div>} key={escola}>
+                  {funcionarios.map((func) => (
+                    <TreeNode
+                      key={func.nome + func.funcao}
+                      label={
+                        <div>
+                          <strong>{func.funcao}</strong>: {func.nome}
+                          <br />
+                          Contato: {func.contato}
+                          <br />
+                          Email: {func.email}
+                        </div>
+                      }
+                    />
+                  ))}
+                </TreeNode>
+              );
+            })}
+          </TreeNode>
+        );
+      })}
+    </Tree>
+  );
+}

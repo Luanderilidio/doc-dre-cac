@@ -46,15 +46,15 @@ export default function BuscaAtiva() {
   const columns = [
     { field: "cidade", headerName: "Cidade", width: 150 },
     { field: "escola", headerName: "Escola", width: 200 },
-    { field: "mes", headerName: "Mês", width: 100 },
+    { field: "mes", headerName: "Mês", width: 88 },
     {
       field: "linkPasta",
       headerName: "Pasta",
-      width: 80,
+      width: 65,
       renderCell: (params: GridRenderCellParams<any, string>) => (
         <a href={params.value} target="_blank" rel="noopener noreferrer">
           <IconButton>
-            <FolderCopyIcon />
+            <FolderCopyIcon className="text-yellow-600" />
           </IconButton>
         </a>
       ),
@@ -69,7 +69,7 @@ export default function BuscaAtiva() {
           { nome: string; link: string; tipo: string }[]
         >
       ) => (
-        <div className="flex gap-4">
+        <div className="flex">
           {params.value?.map((arquivo, index) => (
             <Tooltip
               key={index} // Adicione uma key para cada item do array
@@ -79,8 +79,8 @@ export default function BuscaAtiva() {
               arrow
             >
               <IconButton onClick={() => setUrl(arquivo.link)}>
-                {arquivo.tipo === "DOCX" && <TextSnippetIcon />}
-                {arquivo.tipo === "PDF" && <PictureAsPdfIcon />}
+                {arquivo.tipo === "DOCX" && <TextSnippetIcon className="text-blue-500" />}
+                {arquivo.tipo === "PDF" && <PictureAsPdfIcon className="text-red-700" />}
               </IconButton>
             </Tooltip>
           ))}
@@ -260,7 +260,7 @@ export default function BuscaAtiva() {
          <Gauge value={quantidade} valueMax={41} startAngle={-90} endAngle={90} text={({ value, valueMax }) => `${value} / ${valueMax}`} />
       </div>
 
-      <div className="col-span-7 h-[500px]">
+      <div className="col-span-6 h-[500px]">
         <DataGrid
           rows={data ?? []}
           columns={columns}
@@ -268,13 +268,13 @@ export default function BuscaAtiva() {
           getRowClassName={
             (params) =>
               params.row.enviou === "Sim"
-                ? "text-green-500  hover:bg-green-700" // Classe Tailwind para fundo verde claro e texto verde escuro
-                : "text-red-500 font-bold hover:bg-red-700" // Classe Tailwind para fundo vermelho claro e texto vermelho escuro
+                ? "text-green-500 font-bold hover:bg-green-700" // Classe Tailwind para fundo verde claro e texto verde escuro
+                : "text-red-500  hover:bg-red-700" // Classe Tailwind para fundo vermelho claro e texto vermelho escuro
           }
         />
         
       </div>
-      <div className="col-span-5 pr-4 bg-gray-100/60 p-4 rounded-2xl">
+      <div className="col-span-6 pr-4 bg-gray-100/60 p-4 rounded-2xl">
         {url && (
           <div>
             <p className="text-2xl font-Roboto font-semibold mb-4">
