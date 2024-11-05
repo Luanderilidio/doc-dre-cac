@@ -120,7 +120,7 @@ export default function BuscaAtiva() {
         }
       );
       setData(response.data);
-      // console.log(response.data);
+      console.log(response.data);
       const quantidade2 = response.data?.filter(
         (item) => item.enviou === "Sim"
       );
@@ -150,7 +150,6 @@ export default function BuscaAtiva() {
   }, [cidade, escolas]);
 
   const cidadesUnicas = new Set(data?.map((row) => row.cidade));
-  const escolasUnicas = new Set(data?.map((row) => row.escola));
 
   const contagemEnvios = data?.reduce(
     (acc, curr) => {
@@ -166,7 +165,8 @@ export default function BuscaAtiva() {
 
   // A quantidade de cidades únicas
   const quantidadeCidades = cidadesUnicas.size;
-  const quantidadeEscolas = escolasUnicas.size;
+  const quantidadeEscolas = data?.length;
+
 
   return (
     <div className="grid grid-cols-12 px-4 pt-5 gap-4 ">

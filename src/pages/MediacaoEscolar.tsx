@@ -150,7 +150,6 @@ export default function MediacaoEscolar() {
   }, [cidade, escolas]);
 
   const cidadesUnicas = new Set(data?.map((row) => row.cidade));
-  const escolasUnicas = new Set(data?.map((row) => row.escola));
 
   const contagemEnvios = data?.reduce(
     (acc, curr) => {
@@ -166,7 +165,7 @@ export default function MediacaoEscolar() {
 
   // A quantidade de cidades únicas
   const quantidadeCidades = cidadesUnicas.size;
-  const quantidadeEscolas = escolasUnicas.size;
+  const quantidadeEscolas = data?.length;
 
   return (
     <div className="grid grid-cols-12 px-4 pt-5 gap-4 ">
