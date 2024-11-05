@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import axios from "axios";
-import ChartProgress from "../components/ChartProgress";
+// import { useEffect } from "react";
+// import axios from "axios";
+// import ChartProgress from "../components/ChartProgress";
 
 
 export interface DataItem {
@@ -13,6 +13,11 @@ export interface DataItem {
     funcionario:string;
   }
 export default function Home() {
+
+    // const [data, setData] = useState<DataItem[]>([]);
+
+
+
 
   return <div>
 
