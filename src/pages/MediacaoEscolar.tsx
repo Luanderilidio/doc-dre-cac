@@ -7,7 +7,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import {
   Accordion,
-  AccordionActions,
   AccordionDetails,
   AccordionSummary,
   Autocomplete,
@@ -21,7 +20,6 @@ import {
 import axios from "axios";
 import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
 import { Gauge } from "@mui/x-charts";
-import ChartsOverviewDemo from "../components/barChartMediacao";
 import { escolas, meses } from "../utils/data_select";
 import { data2 } from "./data";
 import ChartProgress from "../components/ChartProgress";
@@ -114,33 +112,32 @@ export default function MediacaoEscolar() {
     return null; // Caso não encontre um ID válido
   };
 
-  // const fetchData = async () => {
-  //   try {
-  //     const response = await axios.get<RelatorioMediacao[]>(
-  //       "https://script.google.com/macros/s/AKfycbxExyD0Ihfmru1cds__FPl6zUyMvkrMm1SY6M_YiHYQ5nPHBDkLyHlXx8E8SFfjm2QS/exec",
-  //       {
-  //         params: {
-  //           action: "getAll",
-  //           cidade: cidade,
-  //           escola: escola,
-  //           mes: mes,
-  //         },
-  //       }
-  //     );
-  //     setData(response.data);
-  //     console.log(response.data);
-  //     const quantidade2 = response.data?.filter(
-  //       (item) => item.enviou === "Sim"
-  //     );
-  //     // console.log(quantidade2.length);
-  //     setQuantidade(quantidade2.length);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  // console.log(data);
+  const fetchData = async () => {
+    try {
+      const response = await axios.get<RelatorioMediacao[]>(
+        "https://script.google.com/macros/s/AKfycbxExyD0Ihfmru1cds__FPl6zUyMvkrMm1SY6M_YiHYQ5nPHBDkLyHlXx8E8SFfjm2QS/exec",
+        {
+          params: {
+            action: "getAll",
+            cidade: cidade,
+            escola: escola,
+            mes: mes,
+          },
+        }
+      );
+      setData(response.data);
+      console.log(response.data);
+      const quantidade2 = response.data?.filter(
+        (item) => item.enviou === "Sim"
+      );
+ 
+      setQuantidade(quantidade2.length);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const cidades = useMemo(
     () => escolas.map((escola) => escola.cidade),
@@ -168,7 +165,7 @@ export default function MediacaoEscolar() {
       }
       return acc;
     },
-    { enviaram: 0, naoEnviaram: 0 } // Valores iniciais do acumulador
+    { enviaram: 0, naoEnviaram: 0 } 
   );
 
   // A quantidade de cidades únicas
@@ -231,7 +228,7 @@ export default function MediacaoEscolar() {
           endIcon={<RefreshIcon />}
           onClick={() => {
             setLoading(true);
-            // fetchData();
+            fetchData();
 
             // console.log(cidade, escola, mes);
           }}
