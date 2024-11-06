@@ -1,6 +1,6 @@
 // import { useEffect } from "react";
 // import axios from "axios";
-// import ChartProgress from "../components/ChartProgress";
+import ChartProgress from "../components/ChartProgress";
 
 
 export interface DataItem {

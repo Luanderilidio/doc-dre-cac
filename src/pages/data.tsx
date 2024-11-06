@@ -296,7 +296,7 @@ export const data2 = [
     cidade: "CACERES",
     escola: "EE DEMETRIO",
     mes: "AGOSTO",
-    enviou: "não",
+    enviou: "nao",
     linkPasta:
       "https://drive.google.com/drive/folders/1ULglydIsiFjLSzZEpcsB2yK9UKPiTYK5",
     arquivos: [
@@ -364,7 +364,7 @@ export const data2 = [
     cidade: "CACERES",
     escola: "EE MILTON MARQUES",
     mes: "AGOSTO",
-    enviou: "não",
+    enviou: "nao",
     linkPasta:
       "https://drive.google.com/drive/folders/1MJfCRDoncR4UCHJAqtHYbIgznpiuUhI6",
     arquivos: [
@@ -422,7 +422,7 @@ export const data2 = [
     cidade: "CACERES",
     escola: "EE JOAO FLORENTINO",
     mes: "AGOSTO",
-    enviou: "não",
+    enviou: "nao",
     linkPasta:
       "https://drive.google.com/drive/folders/1Cb8Cv73JdR_1TJRJQ9lDFzaT5VZHiVQ6",
     arquivos: [
@@ -475,7 +475,7 @@ export const data2 = [
     cidade: "RESERVA DO CABACAL",
     escola: "EE DEMETRIO PEREIRA",
     mes: "AGOSTO",
-    enviou: "não",
+    enviou: "nao",
     linkPasta:
       "https://drive.google.com/drive/folders/1fkMfhFvXSi3VzgEuIHaGx5eXEpAXy4SW",
     arquivos: [
@@ -507,7 +507,7 @@ export const data2 = [
     cidade: "PORTO ESPERIDIAO",
     escola: "EE INDIGENA JOSE TURIBIO",
     mes: "AGOSTO",
-    enviou: "Não",
+    enviou: "nao",
     linkPasta:
       "https://drive.google.com/drive/folders/1Tzatf--cprRHVXiNiRQFW5RvrslXJNMI",
     arquivos: [],
