@@ -21,7 +21,6 @@ import axios from "axios";
 import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
 import { Gauge } from "@mui/x-charts";
 import { escolas, meses } from "../utils/data_select";
-import { data2 } from "./data";
 import ChartProgress from "../components/ChartProgress";
 
 interface Arquivo {
@@ -41,7 +40,7 @@ export interface RelatorioMediacao {
 }
 
 export default function MediacaoEscolar() {
-  const [data, setData] = useState<RelatorioMediacao[] | null>(data2);
+  const [data, setData] = useState<RelatorioMediacao[] | null>();
   const [cidade, setCidade] = useState(null);
   const [escola, setEscola] = useState(null);
   const [mes, setMes] = useState(null);
@@ -126,11 +125,10 @@ export default function MediacaoEscolar() {
         }
       );
       setData(response.data);
-      console.log(response.data);
       const quantidade2 = response.data?.filter(
         (item) => item.enviou === "Sim"
       );
- 
+
       setQuantidade(quantidade2.length);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -165,25 +163,27 @@ export default function MediacaoEscolar() {
       }
       return acc;
     },
-    { enviaram: 0, naoEnviaram: 0 } 
+    { enviaram: 0, naoEnviaram: 0 }
   );
 
   // A quantidade de cidades únicas
   const quantidadeCidades = cidadesUnicas.size;
   const quantidadeEscolas = data?.length;
 
-  const groupedData = Object.values(
-    data?.reduce((acc: any, item: any) => {
-      if (!acc[item.cidade]) {
-        acc[item.cidade] = { cidade: item.cidade, escolas: [] };
-      }
-      acc[item.cidade].escolas.push({
-        escola: item.escola,
-        enviou: item.enviou,
-      });
-      return acc;
-    }, {})
-  );
+  const groupedData = data
+    ? Object.values(
+        data.reduce((acc: Record<string, any>, item: any) => {
+          if (!acc[item.cidade]) {
+            acc[item.cidade] = { cidade: item.cidade, escolas: [] };
+          }
+          acc[item.cidade].escolas.push({
+            escola: item.escola,
+            enviou: item.enviou,
+          });
+          return acc;
+        }, {})
+      )
+    : [];
 
   console.log(groupedData);
 
@@ -203,12 +203,11 @@ export default function MediacaoEscolar() {
           renderInput={(params) => <TextField {...params} label="Cidade" />}
         />
 
-        {/* AutoComplete para Escola */}
         <Autocomplete
           className="col-span-3"
           fullWidth
-          value={escola} // Agora é o objeto da escola, não apenas o nome
-          options={escolasFiltradas || []} // Lista de escolas filtrada pela cidade
+          value={escola} 
+          options={escolasFiltradas || []}
           onChange={(_event, newValue: any) => setEscola(newValue)} // Armazena o objeto completo da escola
           renderInput={(params) => <TextField {...params} label="Escola" />}
         />
@@ -315,19 +314,16 @@ export default function MediacaoEscolar() {
           </div>
         )}
       </div>
-   
+
       <div className="col-span-12">
-        {groupedData.map((item:any) => (
+        {groupedData.map((item: any) => (
           <Accordion className="!bg-gray-300/30 mt-2">
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1-content"
               id="panel1-header"
             >
-              <p className="font-Montserrat font-bold ">
-
-              {item.cidade}
-              </p>
+              <p className="font-Montserrat font-bold ">{item.cidade}</p>
             </AccordionSummary>
             <AccordionDetails>
               <ChartProgress data={item.escolas} />
