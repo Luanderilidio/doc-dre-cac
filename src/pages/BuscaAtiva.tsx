@@ -15,7 +15,6 @@ import {
 import axios from "axios";
 import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
 import { Gauge } from "@mui/x-charts";
-import ChartsOverviewDemo from "../components/barChartMediacao";
 import { escolas, meses } from "../utils/data_select";
 import ChartProgress from "../components/ChartProgress";
 
