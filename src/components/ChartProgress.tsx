@@ -1,9 +1,9 @@
-import GaugeComponent from "react-gauge-component";
-import { Button, Tooltip, Zoom } from "@mui/material";
+import { Tooltip, Zoom } from "@mui/material";
 
 interface ChartProgressProps {
   escola: string;
   enviou: string;
+  cidade: string;
 }
 
 interface ChartProgressPropsComponent {
@@ -14,57 +14,48 @@ export default function ChartProgress({ data }: ChartProgressPropsComponent) {
   const qtdEnviou = data.filter((item) => item.enviou === "Sim");
 
   const sortedData = data.sort((a, b) => {
-    if (a.enviou === "Sim" && b.enviou === "nao") return -1;
-    if (a.enviou === "nao" && b.enviou === "Sim") return 1;
+    if (a.enviou === "Sim" && b.enviou === "nao") return 1;
+    if (a.enviou === "nao" && b.enviou === "Sim") return -1;
     return 0;
   });
+  console.log("data", data);
 
   console.log("sortedData", sortedData);
   console.log("qtdEnviou", qtdEnviou.length);
 
   return (
-    <div className="flex items-center justify-start w-full h-full">
-      <div className="h-24 flex items-center justify-start gap-[6px]">
+    <div className="">
+      <div className="h-full flex flex-col items-end justify-end gap-[4px] mx-[4px]">
+        <p className="text-xs font-bold font-Montserrat text-center w-full">
+          {qtdEnviou.length} / {data.length}{" "}
+        </p>
         {sortedData.map((item, index) => (
-          <div className="h-14 !w-22" key={index}>
+          <div
+            className={`transition ease-in-out cursor-pointer w-full rounded-sm px-1 ${
+              item.enviou === "Sim"
+                ? "bg-green-500 hover:bg-green-600"
+                : "bg-red-500 hover:bg-red-600"
+            }`}
+            key={index}
+          >
             <Tooltip
               title={item.escola}
               placement="top"
               TransitionComponent={Zoom}
               arrow
             >
-              <Button
-                variant="contained"
-                size="small"
-                className="h-14"
-                color={item.enviou === "Sim" ? "success" : "error"} // Corrigido a comparação com "sim"
-              >
-                <p className="font-bold font-Montserrat text-[.6rem]">
-                  {item.escola.slice(3).substring(0, 14)}
-                </p>
-              </Button>
+              <p className="font-bold font-Montserrat text-[.6rem] text-white text-nowrap text-center leading-none py-1 ">
+                {item.escola.slice(3).substring(0, 14)}
+              </p>
             </Tooltip>
-
           </div>
         ))}
       </div>
-      <div className="!w-[200px]">
-        <GaugeComponent
-          type="semicircle"
-          arc={{
-            colorArray: ["#FF2121", "#00FF15"],
-            padding: 0.02,
-            subArcs: [
-              { limit: data.length * 0.4 },
-              { limit: data.length * 0.6 },
-              { limit: data.length * 0.8 },
-            ],
-          }}
-          pointer={{ type: "arrow", animationDelay: 0 }}
-          value={qtdEnviou.length}
-          maxValue={data.length}
-        />
-      </div>
+
+      <p className="text-[.5rem] border-t-[1px] mt-[2px] border-black/30 font-semibold font-Montserrat text-center w-full flex flex-col items-center justify-center">
+      <div className="h-[5px] w-[1px] bg-black/30" />
+        {data[0].cidade}
+      </p>
     </div>
   );
 }

@@ -3,12 +3,8 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Autocomplete,
   Button,
   IconButton,
@@ -51,15 +47,15 @@ export default function MediacaoEscolar() {
   const columns = [
     { field: "cidade", headerName: "Cidade", width: 150 },
     { field: "escola", headerName: "Escola", width: 200 },
-    { field: "mes", headerName: "Mês", width: 100 },
+    { field: "mes", headerName: "Mês", width: 88 },
     {
       field: "linkPasta",
       headerName: "Pasta",
-      width: 80,
+      width: 65,
       renderCell: (params: GridRenderCellParams<any, string>) => (
         <a href={params.value} target="_blank" rel="noopener noreferrer">
           <IconButton>
-            <FolderCopyIcon />
+            <FolderCopyIcon className="text-yellow-600" />
           </IconButton>
         </a>
       ),
@@ -74,7 +70,7 @@ export default function MediacaoEscolar() {
           { nome: string; link: string; tipo: string }[]
         >
       ) => (
-        <div className="flex gap-4">
+        <div className="flex">
           {params.value?.map((arquivo, index) => (
             <Tooltip
               key={index} // Adicione uma key para cada item do array
@@ -84,8 +80,8 @@ export default function MediacaoEscolar() {
               arrow
             >
               <IconButton onClick={() => setUrl(arquivo.link)}>
-                {arquivo.tipo === "DOCX" && <TextSnippetIcon />}
-                {arquivo.tipo === "PDF" && <PictureAsPdfIcon />}
+                {arquivo.tipo === "DOCX" && <TextSnippetIcon className="text-blue-500" />}
+                {arquivo.tipo === "PDF" && <PictureAsPdfIcon className="text-red-700" />}
               </IconButton>
             </Tooltip>
           ))}
@@ -177,6 +173,7 @@ export default function MediacaoEscolar() {
             acc[item.cidade] = { cidade: item.cidade, escolas: [] };
           }
           acc[item.cidade].escolas.push({
+            cidade: item.cidade,
             escola: item.escola,
             enviou: item.enviou,
           });
@@ -206,7 +203,7 @@ export default function MediacaoEscolar() {
         <Autocomplete
           className="col-span-3"
           fullWidth
-          value={escola} 
+          value={escola}
           options={escolasFiltradas || []}
           onChange={(_event, newValue: any) => setEscola(newValue)} // Armazena o objeto completo da escola
           renderInput={(params) => <TextField {...params} label="Escola" />}
@@ -261,20 +258,6 @@ export default function MediacaoEscolar() {
         </p>
       </div>
       <div className="col-span-2 border border-black/10 bg-gray-100/60 p-4 rounded-2xl shadow-black/80 drop-shadow-lg">
-        {/* <Gauge
-          className="w-fit borer-2"
-          value={quantidade}
-          startAngle={-110}
-          endAngle={110}
-          valueMax={41}
-          sx={{
-            [`& .${gaugeClasses.valueText}`]: {
-              fontSize: 20,
-              transform: "translate(0px, 0px)",
-            },
-          }}
-          text={({ value, valueMax }) => `${value} / ${valueMax}`}
-        /> */}
         <Gauge
           value={quantidade}
           valueMax={41}
@@ -314,23 +297,16 @@ export default function MediacaoEscolar() {
           </div>
         )}
       </div>
-
-      <div className="col-span-12">
-        {groupedData.map((item: any) => (
-          <Accordion className="!bg-gray-300/30 mt-2">
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <p className="font-Montserrat font-bold ">{item.cidade}</p>
-            </AccordionSummary>
-            <AccordionDetails>
-              <ChartProgress data={item.escolas} />
-            </AccordionDetails>
-          </Accordion>
-        ))}
-      </div>
+      {data && (
+        <div className="col-span-12  flex border pb-8 pl-4 pt-5 mb-10 border-black/10 bg-gray-100/90  rounded-2xl shadow-black/80 drop-shadow-lg">
+          <p className="absolute top-2 font-bold font-Montserrat text-black/80">
+            Grafico de quantidade de envios{" "}
+          </p>
+          {groupedData.map((item: any) => (
+            <ChartProgress data={item.escolas} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

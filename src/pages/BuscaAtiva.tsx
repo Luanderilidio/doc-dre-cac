@@ -17,6 +17,7 @@ import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
 import { Gauge } from "@mui/x-charts";
 import ChartsOverviewDemo from "../components/barChartMediacao";
 import { escolas, meses } from "../utils/data_select";
+import ChartProgress from "../components/ChartProgress";
 
 interface Arquivo {
   nome: string;
@@ -163,7 +164,24 @@ export default function BuscaAtiva() {
     { enviaram: 0, naoEnviaram: 0 } // Valores iniciais do acumulador
   );
 
-  // A quantidade de cidades únicas
+  
+
+  const groupedData = data
+  ? Object.values(
+      data.reduce((acc: Record<string, any>, item: any) => {
+        if (!acc[item.cidade]) {
+          acc[item.cidade] = { cidade: item.cidade, escolas: [] };
+        }
+        acc[item.cidade].escolas.push({
+          cidade: item.cidade,
+          escola: item.escola,
+          enviou: item.enviou,
+        });
+        return acc;
+      }, {})
+    )
+  : [];
+
   const quantidadeCidades = cidadesUnicas.size;
   const quantidadeEscolas = data?.length;
 
@@ -291,9 +309,16 @@ export default function BuscaAtiva() {
           </div>
         )}
       </div>
-      <div className="col-span-12">
-        <ChartsOverviewDemo data={data ?? []} />
-      </div>
+      {data && (
+        <div className="col-span-12  flex border pb-8 pl-4 pt-5 mb-10 border-black/10 bg-gray-100/90  rounded-2xl shadow-black/80 drop-shadow-lg">
+          <p className="absolute top-2 font-bold font-Montserrat text-black/80">
+            Grafico de quantidade de envios{" "}
+          </p>
+          {groupedData.map((item: any) => (
+            <ChartProgress data={item.escolas} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
