@@ -103,7 +103,7 @@ export default function CardDocument({
           reason,
         },
       });
-      toggleViewDenied()
+      toggleViewDenied();
       toggleView();
       console.log(response);
     } catch (error) {
@@ -174,7 +174,9 @@ export default function CardDocument({
         <StatusChip status={status} />
       </div>
       <div className="flex items-center justify-between">
-        <p className="text-md font-semibold">{nomeEscolaExtinta}</p>
+        <p className="text-md font-semibold !capitalize">
+          {nomeEscolaExtinta}{" "}
+        </p>
         <p className="text-md font-semibold">{tipoDocumento}</p>
       </div>
 
@@ -386,7 +388,7 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Ronyer">Ronyer</MenuItem>
+                      <MenuItem value="Luciano">Luciano</MenuItem>
                       <MenuItem value="Carmelito">Carmelito</MenuItem>
                     </Select>
                   </FormControl>
@@ -416,7 +418,7 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Ronyer">Ronyer</MenuItem>
+                      <MenuItem value="Luciano">Luciano</MenuItem>
                       <MenuItem value="Carmelito">Carmelito</MenuItem>
                     </Select>
                   </FormControl>
@@ -445,7 +447,7 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Ronyer">Ronyer</MenuItem>
+                      <MenuItem value="Luciano">Luciano</MenuItem>
                       <MenuItem value="Carmelito">Carmelito</MenuItem>
                     </Select>
                   </FormControl>
@@ -484,7 +486,7 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Ronyer">Ronyer</MenuItem>
+                      <MenuItem value="Luciano">Luciano</MenuItem>
                       <MenuItem value="Carmelito">Carmelito</MenuItem>
                     </Select>
                   </FormControl>

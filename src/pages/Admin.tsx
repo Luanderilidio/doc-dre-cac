@@ -135,7 +135,7 @@ export default function Admin() {
               onChange={(event) => setEmployee(event.target.value)}
               label="Funcionário"
             >
-              <MenuItem value="Ronyer">Ronyer</MenuItem>
+              <MenuItem value="Luciano">Luciano</MenuItem>
               <MenuItem value="Carmelito">Carmelito</MenuItem>
               <MenuItem value="Luander">Luander</MenuItem>
             </Select>
