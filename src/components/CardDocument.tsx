@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import moment from "moment";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { useBoolean } from "react-hooks-shareable";
 import { useState } from "react";
 import StatusChip from "./StatusChip";
@@ -24,6 +25,7 @@ export interface CardDocumentProps {
   id: string;
   timestamp: string;
   nomeCompleto: string;
+  nomeDaMae: string;
   nomeEscolaExtinta: string;
   municipioEscolaExtinta: string;
   anoConclusao: string;
@@ -47,6 +49,7 @@ export default function CardDocument({
   id,
   timestamp,
   nomeCompleto,
+  nomeDaMae,
   nomeEscolaExtinta,
   municipioEscolaExtinta,
   anoConclusao,
@@ -65,6 +68,7 @@ export default function CardDocument({
   status,
   funcionario,
 }: CardDocumentProps) {
+
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
 
   const dataSolicitada = moment(timestamp);
@@ -77,6 +81,8 @@ export default function CardDocument({
     useBoolean(false);
   const [isViewDenied, openViewDenied, closeViewDenied, toggleViewDenied] =
     useBoolean(false);
+
+    
 
   const [employee, setEmployee] = useState<string>("");
   const [reason, setReason] = useState<string>("");
@@ -167,15 +173,30 @@ export default function CardDocument({
     return match ? match[1] : null;
   };
 
+  function formatToNumbers(input: String) {
+    if (typeof input !== "string") {
+      // Converter outros tipos para string ou retornar vazio
+      input = String(input || "");
+    }
+    return input.replace(/[^0-9]/g, "");
+  }
+
+  // Exemplo de uso
+  const formattedNumber = formatToNumbers(telefoneContato);
+
+  // const formattedNumber = telefoneContato.replace(/\D/g, '');
+
   return (
     <div className="col-span-1 font-Montserrat flex flex-col border rounded-lg p-4 shadow-black/30 drop-shadow-sm m-2">
       <div className="flex items-center justify-between">
-        <p className="text-2xl font-bold">{nomeCompleto.substring(0, 12)}...</p>
+        <p className="text-2xl font-bold uppercase">
+          {nomeCompleto.substring(0, 12)}...
+        </p>
         <StatusChip status={status} />
       </div>
       <div className="flex items-center justify-between">
-        <p className="text-md font-semibold !capitalize">
-          {nomeEscolaExtinta}{" "}
+        <p className="w-8/12 text-md font-semibold lowercase leading-none">
+          {nomeEscolaExtinta}
         </p>
         <p className="text-md font-semibold">{tipoDocumento}</p>
       </div>
@@ -277,6 +298,14 @@ export default function CardDocument({
               />
               <TextField
                 size="small"
+                className="col-span-2"
+                value={nomeDaMae}
+                label="Nome da Mãe"
+                variant="outlined"
+                autoFocus
+              />
+              <TextField
+                size="small"
                 className="col-span-1"
                 value={cpf}
                 label="CPF"
@@ -323,6 +352,19 @@ export default function CardDocument({
                 variant="outlined"
                 autoFocus
               />
+              <Button
+                onClick={() =>
+                  window.open(
+                    `https://api.whatsapp.com/send?phone=${formattedNumber}`,
+                    "_blank"
+                  )
+                }
+                variant="contained"
+                color="success"
+                startIcon={<WhatsAppIcon />}
+              >
+                Avisar no Whatsapp
+              </Button>
 
               {comprovanteEndereco && (
                 <div className="col-span-2">

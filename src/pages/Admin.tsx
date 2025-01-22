@@ -17,8 +17,6 @@ import {
 import api from "../services/api";
 import CardDocument, { CardDocumentProps } from "../components/CardDocument";
 
-
-
 export default function Admin() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
 
@@ -30,11 +28,9 @@ export default function Admin() {
   const [status, setStatus] = useState<string>("");
   const [employee, setEmployee] = useState<string>("");
   const [documentType, setDocumetType] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   const documentTypes = ["Histórico", "Certificado", "Declaração", "Atestado"];
-
-  
-  
 
   const fetchData = async () => {
     try {
@@ -44,24 +40,41 @@ export default function Admin() {
           sheet: "DadosFormulario",
         },
       });
-      // console.log("API Response:", response.data.output);
-      // console.log(response.data.output)
+
+      // Ordem de prioridade dos status
+      const statusOrder = [
+        "sem atendimento",
+        "em atendimento",
+        "liberado",
+        "finalizado",
+        "negado",
+      ];
+
       const sortedData = response.data.output.sort((a, b) => {
-        if (a.status === "" && b.status !== "") {
-          return -1; // 'a' deve vir antes de 'b'
-        } else if (a.status !== "" && b.status === "") {
-          return 1; // 'b' deve vir antes de 'a'
-        } else {
-          return 0; // mantem a ordem original entre os outros itens
+        // Ordenação primária: status com base na prioridade definida
+        const statusA = statusOrder.indexOf(a.status.toLowerCase());
+        const statusB = statusOrder.indexOf(b.status.toLowerCase());
+
+        if (statusA !== statusB) {
+          return statusA - statusB; // Ordem com base na posição na lista
         }
+
+        // Ordenação secundária: timestamp, mais recentes primeiro
+        const dateA = new Date(a.timestamp).getTime();
+        const dateB = new Date(b.timestamp).getTime();
+        return dateB - dateA; // Mais recente vem primeiro
       });
-      setData(sortedData);
+
+      setData(sortedData); // Atualiza o estado com os dados ordenados
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
+    setLoading(true);
     fetchData();
   }, []);
 
@@ -88,6 +101,7 @@ export default function Admin() {
         </p>
         <div className="col-span-12 grid grid-cols-12 gap-5 bg-gray-100/60 p-4 rounded-lg">
           <p className="col-span-12 font-bold">Filtros</p>
+
           <Autocomplete
             className="col-span-3"
             fullWidth
@@ -185,13 +199,21 @@ export default function Admin() {
           </FormControl>
           <Button
             variant="outlined"
-            endIcon={<RefreshIcon />}
-            onClick={fetchData}
+            endIcon={
+              <RefreshIcon
+                className={`transition ${loading && "animate-spin"} `}
+              />
+            }
+            onClick={() => {
+              setFilteredData([]);
+              fetchData();
+            }}
             className="col-span-3"
           >
-            Atualizar
+            {loading ? "Atualizando" : "Atualizar"}
           </Button>
         </div>
+        {/* <div className="col-span-12">{loading && <LinearProgress />}</div> */}
       </div>
       <div className="grid grid-cols-3">
         {filteredData.length > 0 ? (
