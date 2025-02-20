@@ -17,6 +17,7 @@ import {
 import api from "../services/api";
 import CardDocument, { CardDocumentProps } from "../components/CardDocument";
 
+
 export default function Admin() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
 
@@ -51,7 +52,7 @@ export default function Admin() {
       ];
 
       const sortedData = response.data.output.sort((a, b) => {
-        // Ordenação primária: status com base na prioridade definida
+        
         const statusA = statusOrder.indexOf(a.status.toLowerCase());
         const statusB = statusOrder.indexOf(b.status.toLowerCase());
 
@@ -65,6 +66,7 @@ export default function Admin() {
         return dateB - dateA; // Mais recente vem primeiro
       });
 
+      console.log(response.data);
       setData(sortedData); // Atualiza o estado com os dados ordenados
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -121,7 +123,7 @@ export default function Admin() {
               label="Status"
             >
               <MenuItem value="in_service">Em Atendimento</MenuItem>
-              <MenuItem value="">Sem Atendimento</MenuItem>
+              <MenuItem value="no_service">Sem Atendimento</MenuItem>
               <MenuItem value="denied">Negado</MenuItem>
               <MenuItem value="finished">Finalizado</MenuItem>
               <MenuItem value="delivery">Liberado</MenuItem>
@@ -151,7 +153,7 @@ export default function Admin() {
             >
               <MenuItem value="Luciano">Luciano</MenuItem>
               <MenuItem value="Carmelito">Carmelito</MenuItem>
-              <MenuItem value="Luander">Luander</MenuItem>
+              <MenuItem value="Graciane">Graciane</MenuItem>
             </Select>
             {employee && (
               <IconButton

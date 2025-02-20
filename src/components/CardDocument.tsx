@@ -391,7 +391,7 @@ export default function CardDocument({
               allow="autoplay"
             />
             <div className="grid grid-cols-2 gap-2 py-2">
-              {status === "" && (
+              {status === "no_service" && (
                 <>
                   <Button
                     onClick={() => {
@@ -430,8 +430,9 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Luciano">Luciano</MenuItem>
+                      <MenuItem value="Graciane">Gracine</MenuItem>
                       <MenuItem value="Carmelito">Carmelito</MenuItem>
+                      <MenuItem value="Luander">Luander</MenuItem>
                     </Select>
                   </FormControl>
                   <Button
@@ -460,8 +461,9 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Luciano">Luciano</MenuItem>
+                      <MenuItem value="Graciane">Gracine</MenuItem>
                       <MenuItem value="Carmelito">Carmelito</MenuItem>
+                      <MenuItem value="Luander">Luander</MenuItem>
                     </Select>
                   </FormControl>
                   <Button
@@ -489,8 +491,9 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Luciano">Luciano</MenuItem>
+                      <MenuItem value="Graciane">Gracine</MenuItem>
                       <MenuItem value="Carmelito">Carmelito</MenuItem>
+                      <MenuItem value="Luander">Luander</MenuItem>
                     </Select>
                   </FormControl>
                   <Button
@@ -528,8 +531,9 @@ export default function CardDocument({
                       onChange={(event) => setEmployee(event.target.value)}
                       label="Funcionário"
                     >
-                      <MenuItem value="Luciano">Luciano</MenuItem>
+                      <MenuItem value="Graciane">Gracine</MenuItem>
                       <MenuItem value="Carmelito">Carmelito</MenuItem>
+                      <MenuItem value="Luander">Luander</MenuItem>
                     </Select>
                   </FormControl>
                   <Button
