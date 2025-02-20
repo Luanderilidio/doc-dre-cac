@@ -2,8 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Admin from "../pages/Admin";
 import Home from "../pages/Home";
 import Contatos from "../pages/Contatos";
-import BuscaAtiva from "../pages/BuscaAtiva";
-import MediacaoEscolar from "../pages/MediacaoEscolar";
+
 
 
 const AppRoutes = () => {

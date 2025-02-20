@@ -91,8 +91,7 @@ export default function CardDocument({
 
   const [isView, openView, closeView, toggleView] = useBoolean(false);
 
-  const [isLoanding, openLoanding, closeLoanding, toggleLoanding] =
-    useBoolean(false);
+  const [loading, setLoanding] = useState(false);
 
   const [employee, setEmployee] = useState<string>(funcionario || "");
   const [reason, setReason] = useState<string>(motivo || "");
@@ -128,7 +127,7 @@ export default function CardDocument({
       const response = await api.get(apiUrl, { params });
 
       toggleView();
-      closeLoanding();
+      setLoanding(false);
       console.log(response);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -464,13 +463,13 @@ export default function CardDocument({
               )}
               <Button
                 onClick={() => {
-                  openLoanding();
+                  setLoanding(true);
                   handleStatusOrder(statusOrder, employee, reason);
                 }}
                 variant="contained"
                 className="col-span-6"
               >
-                {isLoanding === true ? (
+                {loading === true ? (
                   <>
                     Alterando <RefreshIcon className="animate-spin" />
                   </>
