@@ -13,8 +13,8 @@ const AppRoutes = () => {
         <Routes>
         <Route path={`/`} element={<Home />} />
         <Route path={`/arquivo`} element={<Admin />} />
-        <Route path={`/mediacao-escolar`} element={<MediacaoEscolar />} />
-        <Route path={`/busca-ativa`} element={<BuscaAtiva />} />
+        {/* <Route path={`/mediacao-escolar`} element={<MediacaoEscolar />} />
+        <Route path={`/busca-ativa`} element={<BuscaAtiva />} /> */}
         <Route path={`/contatos`} element={<Contatos />} />
           <Route path="*" element={<>No Match</>} />
         </Routes>
