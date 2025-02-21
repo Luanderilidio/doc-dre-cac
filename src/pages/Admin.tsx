@@ -42,32 +42,8 @@ export default function Admin() {
         },
       });
 
-      // Ordem de prioridade dos status
-      const statusOrder = [
-        "sem atendimento",
-        "em atendimento",
-        "liberado",
-        "finalizado",
-        "negado",
-      ];
-
-      const sortedData = response.data.output.sort((a, b) => {
-        
-        const statusA = statusOrder.indexOf(a.status.toLowerCase());
-        const statusB = statusOrder.indexOf(b.status.toLowerCase());
-
-        if (statusA !== statusB) {
-          return statusA - statusB; // Ordem com base na posição na lista
-        }
-
-        // Ordenação secundária: timestamp, mais recentes primeiro
-        const dateA = new Date(a.timestamp).getTime();
-        const dateB = new Date(b.timestamp).getTime();
-        return dateB - dateA; // Mais recente vem primeiro
-      });
-
       console.log(response.data);
-      setData(sortedData); // Atualiza o estado com os dados ordenados
+      setData(response.data.output); 
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
