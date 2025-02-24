@@ -17,6 +17,7 @@
     "@mui/material": "^6.0.1",
     "@mui/x-charts": "^7.20.0",
     "@mui/x-data-grid": "^7.20.0",
+    "@ramonak/react-progress-bar": "^5.3.0",
     "apex-grid": "^1.0.1",
     "apexcharts": "^3.54.1",
     "axios": "^1.7.5",
