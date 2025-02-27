@@ -165,7 +165,7 @@ export default function Admin() {
         <p className="text-center text-blue-700 font-bold font-Anton col-span-12 text-5xl">
           PAINEL DE SOLICITAÇÕES DE DOCUMENTOS - DRE CÁCERES
         </p>
-        <div className="col-span-12 border grid grid-cols-12 gap-5 bg-gray-100/60 p-4 rounded-lg">
+        <div className="col-span-12 border grid grid-cols-12 gap-5 mt-10 bg-gray-100/60 p-4 rounded-lg">
           <p className="col-span-12 font-bold">Filtros</p>
 
           <Autocomplete
