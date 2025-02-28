@@ -226,7 +226,7 @@ export default function Solicitacao() {
 
           <div className="my-10 text-center">
             <p className="text-lg">
-              Precisa de ajuda? entre em contato conosco!
+              Precisa de mais informações? Entre em contato conosco!
             </p>
             <p className="font-bold font-Montserrat text-xl">
               arquivo.drecac@gmail.com
