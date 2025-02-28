@@ -69,7 +69,7 @@ export default function Solicitacao() {
           </h1>
 
           <p className="text-md text-center mt-5">
-            O seu documento solicitado <br /> está com o status
+            O seu documento solicitado <br /> está com o Status
           </p>
 
           <div className="flex items-center justify-center mt-5">
