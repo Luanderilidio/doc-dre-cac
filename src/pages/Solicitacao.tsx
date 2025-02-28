@@ -5,20 +5,18 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useEffect, useState } from "react";
 import InfoIcon from "@mui/icons-material/Info";
-import { Container, Step, StepLabel, Stepper, TextField } from "@mui/material";
+import { Step, StepLabel, Stepper, TextField } from "@mui/material";
 
 export default function Solicitacao() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
   const { id } = useParams<{ id: string }>();
 
   const [data, setData] = useState<CardDocumentProps | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // const [statusOrder, setStatusOrder] = useState<string | 'no_service'>();
 
   const fetchData = async () => {
-    setLoading(true);
+
     try {
       const response = await api.get<{ output: CardDocumentProps[] }>(apiUrl, {
         params: { action: "slugCpf", cpf: id },
@@ -34,9 +32,7 @@ export default function Solicitacao() {
       }
     } catch (error) {
       console.error("Erro ao buscar os dados:", error);
-      setError("Erro ao carregar dados");
-    } finally {
-      setLoading(false);
+
     }
   };
 
