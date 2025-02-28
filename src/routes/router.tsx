@@ -12,8 +12,7 @@ const AppRoutes = () => {
           <Route path={`/`} element={<Home />} />
           <Route path={`/arquivo`} element={<Admin />} />
           <Route path={`/solicitacao/:id`} element={<Solicitacao />} />
-          {/* <Route path={`/mediacao-escolar`} element={<MediacaoEscolar />} />
-        <Route path={`/busca-ativa`} element={<BuscaAtiva />} /> */}
+
           <Route path={`/contatos`} element={<Contatos />} />
           <Route path="*" element={<>No Match</>} />
         </Routes>
