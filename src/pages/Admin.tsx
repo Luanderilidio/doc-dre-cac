@@ -3,6 +3,9 @@ import { styled } from "@mui/material/styles";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { linearProgressClasses } from "@mui/material/LinearProgress";
 import ClearIcon from "@mui/icons-material/Clear";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
+import "swiper/css";
 
 import {
   Autocomplete,
@@ -17,6 +20,10 @@ import {
 } from "@mui/material";
 import api from "../services/api";
 import CardDocument, { CardDocumentProps } from "../components/CardDocument";
+import SolicitationChart from "../components/MuiLineChart";
+import QtdServiceEmployee from "../components/QtdServiceEmployee";
+import CountEmployee from "../utils/countEmployee";
+
 
 export default function Admin() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
@@ -112,6 +119,8 @@ export default function Admin() {
     setFilteredData(filtro);
   }, [nome, status, documentType, employee, data]);
 
+  const combinedData = [...data, ...dataFinishedAndDenied];
+
   useEffect(() => {
     const combinedData = [...data, ...dataFinishedAndDenied];
     // Contagem de status
@@ -138,7 +147,7 @@ export default function Admin() {
 
     setStatusCounts(statusCounts);
     setDocumentTypeCounts(documentCounts);
-  }, [loading2]); // Esse useEffect será executado uma vez quando o componente for montado
+  }, [loading2]);
 
   const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 20,
@@ -157,6 +166,8 @@ export default function Admin() {
       }),
     },
   }));
+
+  const countEmployee = CountEmployee(combinedData);
 
   return (
     <div className="w-full px-4">
@@ -360,6 +371,30 @@ export default function Admin() {
             </div>
           </div>
         </div>
+        <div className="col-span-6">
+          <SolicitationChart
+            timestamps={combinedData?.map((item) => item.timestamp)}
+          />
+        </div>
+        <div className="col-span-6">
+          <Swiper
+            spaceBetween={10}
+            slidesPerView={4}
+            autoplay={{
+              delay: 2500,
+              disableOnInteraction: false,
+            }}
+            modules={[Autoplay]}
+            pagination={{ clickable: true }}
+            className=" border-red-500 flex"
+          >
+            {countEmployee.map((item, index) => (
+              <SwiperSlide key={index} className=" border-red-500">
+                <QtdServiceEmployee name={item.nome} qtd={item.quantidade} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </div>
       <div className="grid grid-cols-3 mt-10">
         {filteredData.length > 0 ? (
@@ -372,18 +407,6 @@ export default function Admin() {
           </div>
         )}
       </div>
-
-      {/* <div className="grid grid-cols-3 mt-10">
-        {dataFinishedAndDenied ? (
-          dataFinishedAndDenied.map((item: CardDocumentProps, index) => (
-            <CardDocument key={index} {...item} />
-          ))
-        ) : (
-          <div className="text-center col-span-3 text-4xl text-blue-600 font-extrabold font-Anton">
-            Carregando Dados...
-          </div>
-        )}
-      </div> */}
     </div>
   );
 }
