@@ -21,6 +21,7 @@ import {
 import { useBoolean } from "react-hooks-shareable";
 import FormGremioAluno from "./FormGremioAluno";
 import FormGremioProfessor from "./FormGremioProfessor";
+import FormGremioChapa from "./FormGremioChapa";
 
 export interface AlunosGremio {
   id: string;
@@ -164,7 +165,7 @@ export default function GremioCard({
             escola={escola}
           />
 
-          <Divider className={`col-span-12 !mt-4 text-sm font-semibold`}>
+          {/* <Divider className={`col-span-12 !mt-4 text-sm font-semibold`}>
             Informações da Chapa
           </Divider>
           <TextField
@@ -219,7 +220,14 @@ export default function GremioCard({
             onClick={() => window.open(`${link_plano_acao}`, "_blank")}
           >
             PLANO DE AÇÃO
-          </Button>
+          </Button> */}
+          <FormGremioChapa
+            data_nomeacao={data_nomeacao}
+            data_vigencia={data_vigencia}
+            escola={escola}
+            nome_chapa={nome_chapa}
+            link_plano_acao={link_plano_acao}
+          />
 
           {alunos.map((aluno) => (
             <FormGremioAluno dadosAluno={aluno} />

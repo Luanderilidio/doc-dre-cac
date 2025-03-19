@@ -81,9 +81,8 @@ export default function Gremios() {
 
   return (
     <div className="w-full px-4 ">
-      
       <div className="grid grid-cols-12 gap-4">
-      <div className="col-span-12">{loading && <LinearProgress />}</div>
+        <div className="col-span-12">{loading && <LinearProgress />}</div>
         <div className="col-span-12 mt-3">
           <p className="text-center text-blue-700 font-bold font-Anton col-span-12 text-5xl">
             PAINEL DE GESTÃO DOS GRÊMIOS - DRE CÁCERES

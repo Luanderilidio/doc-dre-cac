@@ -64,7 +64,7 @@ export default function FormGremioAluno({ dadosAluno }: FormGremioAlunoProps) {
 
   return (
     <>
-      <Divider className="col-span-12 !mt-10 text-sm font-semibold">
+      <Divider className="col-span-12 !mt-10 text-sm font-semibold capitalize">
         {aluno.cargo}
       </Divider>
 
@@ -193,7 +193,13 @@ export default function FormGremioAluno({ dadosAluno }: FormGremioAlunoProps) {
               size="small"
               variant="contained"
               color="primary"
-              startIcon={loading ? <DataSaverOffIcon className="animate-spin" /> : <SaveIcon />}
+              startIcon={
+                loading ? (
+                  <DataSaverOffIcon className="animate-spin" />
+                ) : (
+                  <SaveIcon />
+                )
+              }
               onClick={() => handleDataStudent()}
             >
               Salvar

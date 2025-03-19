@@ -1,6 +1,9 @@
 import { useState } from "react";
+
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { Divider, InputAdornment, TextField, Button } from "@mui/material";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
+import EventBusyIcon from "@mui/icons-material/EventBusy";
 import EmailIcon from "@mui/icons-material/Email";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -9,41 +12,44 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 
-interface FormGremioProfessorProps {
+interface FormGremioChapaProps {
   escola: string;
-  nome_professor: string;
-  contato_professor: string;
-  email_professor: string;
+  nome_chapa: string;
+  data_nomeacao: string;
+  data_vigencia: string;
+  link_plano_acao: string;
 }
 
-export default function FormGremioProfessor({
+export default function FormGremioChapa({
   escola,
-  nome_professor,
-  contato_professor,
-  email_professor,
-}: FormGremioProfessorProps) {
+  nome_chapa,
+  data_nomeacao,
+  data_vigencia,
+  link_plano_acao,
+}: FormGremioChapaProps) {
   const apiUrl = import.meta.env.VITE_BACK_END_URL_GREMIOS as string;
 
-  const [professor, setProfessor] = useState({
+  const [chapa, setChapa] = useState({
     escola: escola,
-    nome: nome_professor,
-    contato: contato_professor,
-    email: email_professor,
+    chapa: nome_chapa,
+    nomeacao: data_nomeacao,
+    vigencia: data_vigencia,  
+    plano: link_plano_acao,
   });
 
-  const [backupProfessor, setBackupProfessor] = useState({ ...professor });
+  const [backupChapa, setBackupChapa] = useState({ ...chapa });
   const [loading, setLoading] = useState(false);
   const [editando, setEditando] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProfessor((prev) => ({ ...prev, [name]: value }));
+    setChapa((prev) => ({ ...prev, [name]: value }));
   };
 
   const iniciarEdicao = () => setEditando(true);
 
   const handleCancel = () => {
-    setProfessor(backupProfessor);
+    setChapa(backupChapa);
     setEditando(false);
   };
 
@@ -51,11 +57,11 @@ export default function FormGremioProfessor({
     setLoading(true);
     try {
       const paramsUrl = {
-        action: "alterProfessor",
-        ...professor,
+        action: "alterChapa",
+        ...chapa,
       };
 
-      console.log("alterProfessor", paramsUrl);
+      console.log("alterChapa", paramsUrl);
       const response = await axios.get(apiUrl, { params: paramsUrl });
       console.log(response.data);
     } catch (error) {
@@ -68,19 +74,19 @@ export default function FormGremioProfessor({
 
   return (
     <>
-      <Divider className="col-span-12 font-semibold">
-        Professor Interlocutor / Mediador
+      <Divider className="col-span-12 font-semibold ">
+        Informações da Chapa
       </Divider>
 
       <TextField
         fullWidth
-        className="col-span-6"
+        className="col-span-12"
         size="small"
-        name="nome"
-        label="Nome Professor"
+        name="chapa"
+        label="Nome da Chapa"
         variant="outlined"
-        error={professor.nome === "N/A"}
-        value={professor.nome}
+        error={chapa.chapa === "N/A"}
+        value={chapa.chapa}
         onChange={handleChange}
         disabled={!editando}
       />
@@ -88,18 +94,18 @@ export default function FormGremioProfessor({
       <TextField
         fullWidth
         size="small"
-        name="contato"
-        label="Contato"
+        name="nomeacao"
+        label="Nomeação"
         className="col-span-6"
         variant="outlined"
-        error={professor.contato === "N/A"}
-        value={professor.contato}
+        error={chapa.nomeacao === "N/A"}
+        value={chapa.nomeacao}
         onChange={handleChange}
         disabled={!editando}
         InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <WhatsAppIcon
+          startAdornment: (
+            <InputAdornment position="start">
+              <EventAvailableIcon
                 sx={{
                   fontSize: 20,
                   cursor: "pointer",
@@ -114,12 +120,37 @@ export default function FormGremioProfessor({
       <TextField
         fullWidth
         size="small"
-        name="email"
-        label="Email"
-        className="col-span-12"
+        name="vigencia"
+        label="Término da Vigência"
+        className="col-span-6"
         variant="outlined"
-        error={professor.email === "N/A"}
-        value={professor.email}
+        error={chapa.vigencia === "N/A"}
+        value={chapa.vigencia}
+        onChange={handleChange}
+        disabled={!editando}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <EventBusyIcon
+                sx={{
+                  fontSize: 20,
+                  cursor: "pointer",
+                  color: "red",
+                }}
+              />
+            </InputAdornment>
+          ),
+        }}
+      />
+      <TextField
+        fullWidth
+        className="col-span-12"
+        size="small"
+        name="plano"
+        label="Plano de Ação"
+        variant="outlined"
+        error={chapa.plano === "N/A"}
+        value={chapa.plano}
         onChange={handleChange}
         disabled={!editando}
         InputProps={{
@@ -127,10 +158,6 @@ export default function FormGremioProfessor({
             <InputAdornment position="end">
               <ContentCopyIcon
                 className="cursor-pointer hover:text-red-600"
-                sx={{ fontSize: 20 }}
-              />
-              <EmailIcon
-                className="cursor-pointer hover:text-red-600 ml-2"
                 sx={{ fontSize: 20 }}
               />
             </InputAdornment>
