@@ -83,8 +83,8 @@ export default function GremioCard({
               <CheckCircleIcon />
             )}
 
-            <p className="font-Inter font-bold text-xs text-[0.7rem] white">
-              {qtdNAGremio ? "Inativo" : "Ativo"}
+            <p className="font-Inter font-bold text-xs text-[0.7rem] white capitalize">
+            {status}
             </p>
           </div>
 

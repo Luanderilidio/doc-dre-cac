@@ -2,13 +2,17 @@ import {
   Autocomplete,
   Button,
   FormControl,
+  IconButton,
   InputLabel,
   LinearProgress,
   MenuItem,
   Select,
   TextField,
 } from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
+import ClearIcon from "@mui/icons-material/Clear";
 import GremioCard, { GremioCardProps } from "../components/GremioCard";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -57,9 +61,15 @@ export default function Gremios() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL_GREMIOS as string;
 
   const [data, setData] = useState<GremioCardProps[]>([]);
+  const [filteredData, setFilteredData] = useState<GremioCardProps[]>([]);
+  const [nome, setNome] = useState<string | null>(null);
+  const [cidade, setCidade] = useState<string | null>(null);
+  const [escola, setEscola] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await axios.get<GremioCardProps[]>(apiUrl, {
         params: { action: "get" },
@@ -79,6 +89,22 @@ export default function Gremios() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const combinedData = [...data];
+    const filtro = combinedData.filter((item) => {
+      return (
+        (nome === null ||
+          item.nome_chapa.toLowerCase().includes(nome.toLowerCase())) &&
+        (status === "" || item.status === status) &&
+        (cidade === null ||
+          item.cidade.toLowerCase().includes(cidade.toLowerCase())) &&
+        (escola === null ||
+          item.escola.toLowerCase().includes(escola.toLowerCase()))
+      );
+    });
+    setFilteredData(filtro);
+  }, [nome, cidade, status, escola, data]);
+
   return (
     <div className="w-full px-4 ">
       <div className="grid grid-cols-12 gap-4">
@@ -91,42 +117,74 @@ export default function Gremios() {
         <div className="col-span-12 border grid grid-cols-12 gap-5 mt-10 bg-gray-100/60 p-4 rounded-lg">
           <p className="col-span-12 font-bold">Filtros</p>
           <Autocomplete
+            className="col-span-3"
             fullWidth
-            className="col-span-2"
-            disablePortal
-            options={["Luamnder", "Brenda"]}
+            value={nome}
+            options={[...new Set(data.map((item) => item.nome_chapa))]}
+            onChange={(_event, newValue) => setNome(newValue)}
             renderInput={(params) => (
-              <TextField {...params} label="Nome do Gremio" />
+              <TextField {...params} label="Nome da Chapa" />
             )}
           />
-          <FormControl fullWidth className="col-span-2">
-            <InputLabel id="demo-simple-select-label">Cidade</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              label="Cidade"
-            >
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
-            </Select>
-          </FormControl>
+          <Autocomplete
+            className="col-span-2"
+            fullWidth
+            value={cidade}
+            options={[...new Set(data.map((item) => item.cidade))]}
+            onChange={(_event, newValue) => setCidade(newValue)}
+            renderInput={(params) => <TextField {...params} label="Cidade" />}
+          />
+          <Autocomplete
+            className="col-span-3"
+            fullWidth
+            value={escola}
+            options={[...new Set(data.map((item) => item.escola))]}
+            onChange={(_event, newValue) => setEscola(newValue)}
+            renderInput={(params) => <TextField {...params} label="Escola" />}
+          />
           <FormControl fullWidth className="col-span-2">
             <InputLabel>Status</InputLabel>
-            <Select label="Cidade">
-              <MenuItem value={10}>Em Vigência</MenuItem>
-              <MenuItem value={12}>Sem Vigência</MenuItem>
+            <Select
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+              label="Cidade"
+            >
+              <MenuItem value="ativo">Em Vigência</MenuItem>
+              <MenuItem value="inativo">Sem Vigência</MenuItem>
             </Select>
+            {status && (
+              <IconButton
+                size="small"
+                onClick={() => setStatus("")}
+                style={{
+                  position: "absolute",
+                  right: 20,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
+              >
+                <ClearIcon fontSize="small" />
+              </IconButton>
+            )}
           </FormControl>
           <Button
-            variant="outlined"
-            endIcon={<RefreshIcon />}
-            className="col-span-3"
+            onClick={() => fetchData()}
+            className="col-span-1"
+            variant="contained"
+            color="primary"
           >
-            Atualizar
+            {loading ? (
+              <DataSaverOffIcon className="animate-spin" />
+            ) : (
+              <RefreshIcon sx={{ fontSize: 30 }} />
+            )}
+          </Button>
+
+          <Button className="col-span-1" variant="outlined" color="primary">
+            <AddCircleOutlineIcon sx={{ fontSize: 30 }} />
           </Button>
         </div>
-        {data.map((item, index) => (
+        {filteredData.map((item, index) => (
           <GremioCard
             key={index}
             cidade={item.cidade}

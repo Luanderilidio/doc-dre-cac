@@ -4,8 +4,6 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { Divider, InputAdornment, TextField, Button } from "@mui/material";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
-import EmailIcon from "@mui/icons-material/Email";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";

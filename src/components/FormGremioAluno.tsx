@@ -47,7 +47,7 @@ export default function FormGremioAluno({ dadosAluno }: FormGremioAlunoProps) {
     setLoading(true);
     try {
       const paramsUrl = {
-        action: "alterStudant",
+        action: "alterEstudante",
         ...aluno,
       };
 
