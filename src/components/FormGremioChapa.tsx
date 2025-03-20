@@ -35,7 +35,7 @@ export default function FormGremioChapa({
     plano: link_plano_acao,
   });
 
-  const [backupChapa, setBackupChapa] = useState({ ...chapa });
+  const [backupChapa] = useState({ ...chapa });
   const [loading, setLoading] = useState(false);
   const [editando, setEditando] = useState(false);
 

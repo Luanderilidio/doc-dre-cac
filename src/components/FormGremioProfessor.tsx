@@ -31,7 +31,7 @@ export default function FormGremioProfessor({
     email: email_professor,
   });
 
-  const [backupProfessor, setBackupProfessor] = useState({ ...professor });
+  const [backupProfessor] = useState({ ...professor });
   const [loading, setLoading] = useState(false);
   const [editando, setEditando] = useState(false);
 

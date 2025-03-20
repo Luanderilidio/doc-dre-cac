@@ -1,21 +1,14 @@
-import WarningIcon from "@mui/icons-material/Warning";
+
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import EmailIcon from "@mui/icons-material/Email";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
-import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
-import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogTitle,
   Divider,
-  InputAdornment,
   TextField,
 } from "@mui/material";
 import { useBoolean } from "react-hooks-shareable";
@@ -63,7 +56,7 @@ export default function GremioCard({
   status,
   alunos,
 }: GremioCardProps) {
-  const [isView, openView, closeView, toggleView] = useBoolean(false);
+  const [isView, openView, closeView] = useBoolean(false);
 
   const qtdNAGremio =
     alunos.filter((aluno) => aluno.nome === "N/A").length == 11;
