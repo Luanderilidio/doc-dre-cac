@@ -52,7 +52,7 @@ export default function Solicitacao() {
         return 3;
       default:
         console.warn("Status desconhecido:", statusOrder);
-        return 0; // Retorna 0 por padrão para evitar erros
+        return 0; 
     }
   };
 
