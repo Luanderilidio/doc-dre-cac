@@ -44,18 +44,16 @@ export default function FormsDocument() {
           message: "O nome deve ter pelo menos duas palavras completas",
         }
       ),
-    nomeEscolaExtinta: z
-      .string()
-      .nonempty("Campo Obrigatório")
-      .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome só pode conter letras")
-      .transform((nome) => nome.trim()) // Remove espaços extras no começo e no final
-      .refine(
-        (nome) =>
-          nome.split(/\s+/).filter((palavra) => palavra.length > 0).length >= 1,
-        {
-          message: "O nome deve ter pelo menos uma palavra completa",
-        }
-      ),
+    nomeEscolaExtinta: z.string(),
+    // .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome só pode conter letras")
+    // .transform((nome) => nome.trim()) // Remove espaços extras no começo e no final
+    // .refine(
+    //   (nome) =>
+    //     nome.split(/\s+/).filter((palavra) => palavra.length > 0).length >= 1,
+    //   {
+    //     message: "O nome deve ter pelo menos uma palavra completa",
+    //   }
+    // )
     municipioEscolaExtinta: z
       .string()
       .nonempty("Campo Obrigatório")
@@ -68,7 +66,8 @@ export default function FormsDocument() {
           message: "Escreva pelo menos uma palavra",
         }
       ),
-    anoConclusao: z.string().regex(/^\d{4}$/, "Ano inválido"),
+    anoConclusao: z.string().default(""),
+    // .regex(/^\d{4}$/, "Ano inválido").optional(),
     modalidadeEnsino: z.string().min(1, "Selecione a modalidade de ensino"),
     modalidadeSolicitada: z
       .string()
@@ -79,42 +78,40 @@ export default function FormsDocument() {
     status: z.string().nonempty("Selecione um Status"),
     tipoDocumento: z.string().nonempty("Selecione um documento"),
     via: z.string().nonempty("Selecione a Via"),
-    cpf: z
+    cpf: z.string().default(""),
+    // .refine((cpf) => /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf), {
+    //   message: "O CPF formato: 000.000.000-00",
+    // }).optional(),
+    numeroRg: z.string().default(""),
+    // .regex(/^\d+$/, "O RG deve conter apenas números")
+    // .transform((rg) => rg.trim()).optional(),
+
+    orgaoExpedidorRg: z.string().default(""),
+    // .transform((nome) => nome.trim()) // Remove espaços extras no começo e no final
+    // .refine(
+    //   (nome) =>
+    //     nome.split(/\s+/).filter((palavra) => palavra.length > 0).length >= 1,
+    //   {
+    //     message: "Escreva pelo menos uma palavra",
+    //   }
+    // ).optional(),
+    naturalidade: z.string().default(""),
+    // .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome só pode conter letras")
+    // .transform((nome) => nome.trim()) // Remove espaços extras no começo e no final
+    // .refine(
+    //   (nome) =>
+    //     nome.split(/\s+/).filter((palavra) => palavra.length > 0).length >= 1,
+    //   {
+    //     message: "Escreva pelo menos uma palavra",
+    //   }
+    // ).optional(),
+    email: z.string().default(""),
+    // .email("E-mail inválido")
+    // .optional(),
+    telefoneContato: z
       .string()
-      .nonempty("O CPF não pode ser vazio")
-      .refine((cpf) => /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf), {
-        message: "O CPF formato: 000.000.000-00",
-      }),
-    numeroRg: z
-      .string()
-      .nonempty("Campo Obrigatório")
-      .regex(/^\d+$/, "O RG deve conter apenas números")
-      .transform((rg) => rg.trim()),
-    orgaoExpedidorRg: z
-      .string()
-      .nonempty("Campo Obrigatório")
-      .transform((nome) => nome.trim()) // Remove espaços extras no começo e no final
-      .refine(
-        (nome) =>
-          nome.split(/\s+/).filter((palavra) => palavra.length > 0).length >= 1,
-        {
-          message: "Escreva pelo menos uma palavra",
-        }
-      ),
-    naturalidade: z
-      .string()
-      .nonempty("Campo Obrigatório")
-      .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome só pode conter letras")
-      .transform((nome) => nome.trim()) // Remove espaços extras no começo e no final
-      .refine(
-        (nome) =>
-          nome.split(/\s+/).filter((palavra) => palavra.length > 0).length >= 1,
-        {
-          message: "Escreva pelo menos uma palavra",
-        }
-      ),
-    email: z.string().nonempty("Campo Obrigatório").email("E-mail inválido"),
-    telefoneContato: z.string().regex(/^\d{11}$/, "Telefone inválido"),
+      .regex(/^\d{11}$/, "Telefone inválido")
+      .nonempty("Campo é Obrigatório"),
   });
 
   const [loading, setLoading] = useState(false);
@@ -129,7 +126,6 @@ export default function FormsDocument() {
     resolver: zodResolver(formSchema),
     mode: "onChange",
   });
-
 
   const selectedModalidade = watch("modalidadeEnsino");
 
@@ -180,7 +176,6 @@ export default function FormsDocument() {
 
       <TextField
         size="small"
-        required
         className="col-span-6"
         label="CPF"
         placeholder="ex: "
@@ -191,7 +186,6 @@ export default function FormsDocument() {
       />
       <TextField
         size="small"
-        required
         className="col-span-6"
         label="Numero do RG"
         variant="outlined"
@@ -202,7 +196,6 @@ export default function FormsDocument() {
 
       <TextField
         size="small"
-        required
         className="col-span-6"
         label="Orgão Expeditor do RG"
         variant="outlined"
@@ -211,7 +204,6 @@ export default function FormsDocument() {
         helperText={errors.orgaoExpedidorRg?.message}
       />
       <TextField
-        required
         size="small"
         className="col-span-6"
         label="Naturalidade"
@@ -223,7 +215,6 @@ export default function FormsDocument() {
       />
 
       <TextField
-        required
         size="small"
         className="col-span-6"
         label="E-mail"
@@ -250,7 +241,6 @@ export default function FormsDocument() {
       </Divider>
 
       <TextField
-        required
         size="small"
         className="col-span-6"
         label="Nome da Escola Extinta"
