@@ -6,11 +6,13 @@ import { linearProgressClasses } from "@mui/material/LinearProgress";
 import ClearIcon from "@mui/icons-material/Clear";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import "swiper/css";
 
 import {
   Autocomplete,
   Button,
+  Collapse,
   Dialog,
   DialogContent,
   DialogContentText,
@@ -32,6 +34,7 @@ import CardDocument, { CardDocumentProps } from "../components/CardDocument";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import { useBoolean } from "react-hooks-shareable";
 import FormsDocument from "../components/FormsDocument";
+import { ExpandMore } from "../utils/transition";
 
 export default function Admin() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
@@ -50,6 +53,13 @@ export default function Admin() {
   const [documentType, setDocumetType] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const [expanded, setExpanded] = useState(false);
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
 
   const [isViewAdd, openViewAdd, closeViewAdd, toggleViewAdd] =
     useBoolean(false);
@@ -106,15 +116,15 @@ export default function Admin() {
     }
   };
 
-  useEffect(() => {
-    setLoading(true);
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   fetchData();
+  // }, []);
 
-  useEffect(() => {
-    setLoading2(true);
-    fetchData2();
-  }, []);
+  // useEffect(() => {
+  //   setLoading2(true);
+  //   fetchData2();
+  // }, []);
 
   useEffect(() => {
     const combinedData = [...data, ...dataFinishedAndDenied];
@@ -160,6 +170,10 @@ export default function Admin() {
     setDocumentTypeCounts(documentCounts);
   }, [loading2]);
 
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768); // Se a largura for menor que 768px, é mobile
+  }, []);
+
   const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 20,
     borderRadius: 3,
@@ -185,154 +199,184 @@ export default function Admin() {
       <div className="w-full px-4">
         <div className="col-span-12">{loading && <LinearProgress />}</div>
         <div className="grid grid-cols-12 gap-3 px-2 mt-5">
-          <p className="text-center text-blue-700 font-bold font-Anton col-span-12 text-5xl">
+          <p className="text-center text-blue-700 font-bold font-Anton col-span-12 text-2xl md:text-5xl">
             PAINEL DE SOLICITAÇÕES DE DOCUMENTOS - DRE CÁCERES
           </p>
-          <div className="col-span-12 border grid grid-cols-12 gap-5 mt-10 bg-gray-100/60 p-4 rounded-lg">
-            <p className="col-span-12 font-bold">Filtros</p>
-
-            <Autocomplete
-              className="col-span-3"
-              fullWidth
-              value={nome}
-              options={data.map((item) => item.nomeCompleto)}
-              onChange={(_event, newValue) => setNome(newValue)}
-              renderInput={(params) => (
-                <TextField {...params} label="Nome Aluno" />
-              )}
-            />
-
-            <FormControl variant="outlined" className="col-span-2">
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={status}
-                onChange={(event) => setStatus(event.target.value)}
-                label="Status"
-              >
-                <MenuItem value="in_service">Em Atendimento</MenuItem>
-                <MenuItem value="no_service">Sem Atendimento</MenuItem>
-                <MenuItem value="denied">Negado</MenuItem>
-                <MenuItem value="finished">Finalizado</MenuItem>
-                <MenuItem value="delivery">Liberado</MenuItem>
-              </Select>
-              {status && (
-                <IconButton
-                  size="small"
-                  onClick={() => setStatus("")}
-                  style={{
-                    position: "absolute",
-                    right: 20,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
+          <div className="col-span-12 bg-gray-100/60 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <p className="w-full text-left font-bold">Filtros</p>
+              <div className="md:hidden">
+                <ExpandMore
+                  expand={expanded}
+                  onClick={handleExpandClick}
+                  aria-expanded={expanded}
                 >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              )}
-            </FormControl>
+                  <ExpandMoreIcon />
+                </ExpandMore>
+              </div>
+            </div>
 
-            <FormControl variant="outlined" className="col-span-2">
-              <InputLabel>Funcionário</InputLabel>
-              <Select
-                value={employee}
-                onChange={(event) => setEmployee(event.target.value)}
-                label="Funcionário"
-              >
-                <MenuItem value="Luciano">Luciano</MenuItem>
-                <MenuItem value="Carmelito">Carmelito</MenuItem>
-                <MenuItem value="Graciane">Graciane</MenuItem>
-              </Select>
-              {employee && (
-                <IconButton
-                  size="small"
-                  onClick={() => setEmployee("")}
-                  style={{
-                    position: "absolute",
-                    right: 20,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
-                >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              )}
-            </FormControl>
-
-            <FormControl variant="outlined" className="col-span-2">
-              <InputLabel>Tipo de Documento</InputLabel>
-              <Select
-                value={documentType}
-                onChange={(event) => setDocumetType(event.target.value)}
-                label="Tipo de Documento"
-              >
-                {documentTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-              {documentType && (
-                <IconButton
-                  size="small"
-                  onClick={() => setDocumetType("")}
-                  style={{
-                    position: "absolute",
-                    right: 20,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
-                >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              )}
-            </FormControl>
-
-            <Button
-              onClick={() => fetchData()}
-              className="col-span-1"
-              variant="contained"
-              color="primary"
+            <Collapse
+              in={isMobile ? expanded : true}
+              timeout="auto"
+              unmountOnExit
             >
-              {loading ? (
-                <DataSaverOffIcon className="animate-spin" />
-              ) : (
-                <RefreshIcon sx={{ fontSize: 30 }} />
-              )}
-            </Button>
+              <div className="w-full grid grid-cols-12 gap-2 md:gap-5  mt-5">
+                <Autocomplete
+                  className="col-span-12 md:col-span-3"
+                  fullWidth
+                  value={nome}
+                  options={data.map((item) => item.nomeCompleto)}
+                  onChange={(_event, newValue) => setNome(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Nome Aluno" />
+                  )}
+                />
 
-            <Button
-              className="col-span-2"
-              variant="outlined"
-              color="primary"
-              onClick={openViewAdd}
-              startIcon={<AddCircleOutlineIcon sx={{ fontSize: 30 }} />}
-            >
-              Adicionar
-            </Button>
+                <FormControl
+                  variant="outlined"
+                  className="col-span-6 md:col-span-2"
+                >
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={status}
+                    onChange={(event) => setStatus(event.target.value)}
+                    label="Status"
+                  >
+                    <MenuItem value="in_service">Em Atendimento</MenuItem>
+                    <MenuItem value="no_service">Sem Atendimento</MenuItem>
+                    <MenuItem value="denied">Negado</MenuItem>
+                    <MenuItem value="finished">Finalizado</MenuItem>
+                    <MenuItem value="delivery">Liberado</MenuItem>
+                  </Select>
+                  {status && (
+                    <IconButton
+                      size="small"
+                      onClick={() => setStatus("")}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </FormControl>
+
+                <FormControl
+                  variant="outlined"
+                  className="col-span-6 md:col-span-2"
+                >
+                  <InputLabel>Funcionário</InputLabel>
+                  <Select
+                    value={employee}
+                    onChange={(event) => setEmployee(event.target.value)}
+                    label="Funcionário"
+                  >
+                    <MenuItem value="Luciano">Luciano</MenuItem>
+                    <MenuItem value="Carmelito">Carmelito</MenuItem>
+                    <MenuItem value="Graciane">Graciane</MenuItem>
+                  </Select>
+                  {employee && (
+                    <IconButton
+                      size="small"
+                      onClick={() => setEmployee("")}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </FormControl>
+
+                <FormControl
+                  variant="outlined"
+                  className="col-span-6 md:col-span-2"
+                >
+                  <InputLabel>Tipo de Documento</InputLabel>
+                  <Select
+                    value={documentType}
+                    onChange={(event) => setDocumetType(event.target.value)}
+                    label="Tipo de Documento"
+                  >
+                    {documentTypes.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {documentType && (
+                    <IconButton
+                      size="small"
+                      onClick={() => setDocumetType("")}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </FormControl>
+
+                <Button
+                  onClick={() => fetchData()}
+                  className="col-span-3 md:col-span-1"
+                  variant="contained"
+                  color="primary"
+                >
+                  {loading ? (
+                    <DataSaverOffIcon className="animate-spin" />
+                  ) : (
+                    <RefreshIcon sx={{ fontSize: 30 }} />
+                  )}
+                </Button>
+
+                <Button
+                  className="col-span-3 md:col-span-2"
+                  variant="outlined"
+                  color="primary"
+                  onClick={openViewAdd}
+                >
+                  <div className="w-full flex items-center justify-center gap-3 ">
+                    <p className="hidden md:block ">Adicionar</p>
+                    <AddCircleOutlineIcon sx={{ fontSize: 25 }} />
+                  </div>
+                </Button>
+              </div>
+            </Collapse>
           </div>
 
-          <div className="col-span-12 grid grid-cols-15 gap-3">
-            <div className="col-span-2 border border-black/10 bg-orange-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-md">S/ Atendimento</p>
-              <p className="text-5xl font-bold">{statusCounts.no_service}</p>
+          <div className="col-span-12 grid grid-cols-12 md:grid-cols-15 gap-3">
+            <div className="col-span-4 md:col-span-2 border flex md:flex-col items-center md:items-start justify-center gap-1 border-black/10 bg-orange-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+              <p className="font-semibold text-xs text-nowrap ">S/ Atendimento</p>
+              <p className="text-lg md:text-5xl font-bold">{statusCounts.no_service}</p>
             </div>
-            <div className="col-span-2 border border-black/10 bg-blue-100/60 py-4 pl-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-lg">Em Atendimento</p>
-              <p className="text-4xl font-bold">{statusCounts.in_service}</p>
+            <div className="col-span-4 md:col-span-2 border flex md:flex-col items-center md:items-start justify-center gap-1 border-black/10 bg-blue-100/60 py-4 pl-4 rounded-lg shadow-black/80 drop-shadow-lg">
+              <p className="font-semibold text-xs text-nowrap">Em Atendimento</p>
+              <p className="text-lg md:text-5xl font-bold">{statusCounts.in_service}</p>
             </div>
-            <div className="col-span-2 border border-black/10 bg-violet-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-xl">Liberados</p>
-              <p className="text-4xl font-bold">{statusCounts.delivery}</p>
+            <div className="col-span-4 md:col-span-2  flex md:flex-col items-center md:items-start justify-center gap-1 border border-black/10 bg-violet-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+              <p className="font-semibold text-xs text-nowrap">Liberados</p>
+              <p className="text-lg md:text-5xl font-bold">{statusCounts.delivery}</p>
             </div>
-            <div className="col-span-2 border border-black/10 bg-green-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-xl">Finalizados</p>
-              <p className="text-4xl font-bold">{statusCounts.finished}</p>
+            <div className="col-span-4 md:col-span-2  flex md:flex-col items-center md:items-start justify-center gap-1 border border-black/10 bg-green-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+              <p className="font-semibold text-sm text-nowrap">Finalizados</p>
+              <p className="text-lg md:text-5xl font-bold">{statusCounts.finished}</p>
             </div>
-            <div className="col-span-2 border border-black/10 bg-red-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-xl">Negados</p>
-              <p className="text-4xl font-bold">{statusCounts.denied}</p>
+            <div className="col-span-6 md:col-span-2  flex md:flex-col items-center md:items-start justify-center gap-1 border border-black/10 bg-red-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+              <p className="font-semibold text-sm text-nowrap">Negados</p>
+              <p className="text-lg md:text-5xl font-bold">{statusCounts.denied}</p>
             </div>
-            <div className="col-span-5  border border-black/10 bg-gray-100/60 p-2 rounded-lg shadow-black/80 drop-shadow-lg">
+            <div className="col-span-12 md:col-span-5  border border-black/10 bg-gray-100/60 p-2 rounded-lg shadow-black/80 drop-shadow-lg">
               <div className="grid grid-cols-12 gap-2 items-center justify-center ">
                 <p className="col-span-3  border-red-500 font-semibold text-right">
                   Certificados
@@ -391,7 +435,7 @@ export default function Admin() {
               </div>
             </div>
           </div>
-          <div className="col-span-6">
+          <div className="hidden md:block col-span-6">
             <SolicitationChart
               timestamps={combinedData?.map((item) => item.timestamp)}
             />
@@ -434,7 +478,7 @@ export default function Admin() {
             <div />
             <p className="text-3xl">Adicionar nova Solicitação</p>
             <IconButton onClick={closeViewAdd}>
-              <CloseIcon sx={{fontSize: 30}} />
+              <CloseIcon sx={{ fontSize: 30 }} />
             </IconButton>
           </div>
         </DialogTitle>
