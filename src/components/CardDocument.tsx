@@ -15,7 +15,6 @@ import {
   Stepper,
   TextField,
 } from "@mui/material";
-import moment from "moment";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -23,6 +22,10 @@ import { useBoolean } from "react-hooks-shareable";
 import { useState } from "react";
 import StatusChip from "./StatusChip";
 import api from "../services/api";
+import moment from 'moment/min/moment-with-locales';
+import "moment/locale/pt-br";
+
+moment.locale("pt-br");
 
 // Tipagem para as props do componente
 export interface CardDocumentProps {
@@ -85,6 +88,7 @@ export default function CardDocument({
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
 
   const dataSolicitada = moment(timestamp);
+  const dataFormatada = moment(timestamp).format("L");
   const hoje = moment();
 
   const betwenDays = hoje.diff(dataSolicitada, "days");
@@ -188,9 +192,13 @@ export default function CardDocument({
           Visualizar
         </Button>
       </div>
-      {funcionario && (
-        <p className="text-md text-blue-500 font-semibold">[{funcionario}]</p>
-      )}
+      <div className="w-full flex items-center justify-between">
+        {funcionario && (
+          <p className="text-md text-blue-500 font-semibold">[{funcionario}]</p>
+        )}
+
+        <p className="font-bold text-sm">{dataFormatada}</p>
+      </div>
       <Dialog open={isView} onClose={closeView}>
         <DialogTitle>
           <p className="text-3xl">

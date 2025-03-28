@@ -32,6 +32,7 @@ import CardDocument, { CardDocumentProps } from "../components/CardDocument";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import { useBoolean } from "react-hooks-shareable";
 import FormsDocument from "../components/FormsDocument";
+import GradientText from "../components/reactbits/GradientText";
 
 export default function Admin() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
@@ -183,11 +184,21 @@ export default function Admin() {
   return (
     <>
       <div className="w-full px-4">
+        
+
         <div className="col-span-12">{loading && <LinearProgress />}</div>
         <div className="grid grid-cols-12 gap-3 px-2 mt-5">
-          <p className="text-center text-blue-700 font-bold font-Anton col-span-12 text-5xl">
+          <GradientText
+            colors={["#40ffaa", "#4079ff", "#ff5608", "#4079ff", "#7940ff"]}
+            animationSpeed={3}
+            showBorder={false}
+            className="text-center font-bold font-Anton col-span-12 text-5xl"
+          >
             PAINEL DE SOLICITAÇÕES DE DOCUMENTOS - DRE CÁCERES
-          </p>
+          </GradientText>
+          {/* <p className="text-center text-blue-700 font-bold font-Anton col-span-12 text-5xl">
+            
+          </p> */}
           <div className="col-span-12 border grid grid-cols-12 gap-5 mt-10 bg-gray-100/60 p-4 rounded-lg">
             <p className="col-span-12 font-bold">Filtros</p>
 
@@ -434,7 +445,7 @@ export default function Admin() {
             <div />
             <p className="text-3xl">Adicionar nova Solicitação</p>
             <IconButton onClick={closeViewAdd}>
-              <CloseIcon sx={{fontSize: 30}} />
+              <CloseIcon sx={{ fontSize: 30 }} />
             </IconButton>
           </div>
         </DialogTitle>

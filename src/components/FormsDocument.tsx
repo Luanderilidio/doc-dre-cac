@@ -115,12 +115,14 @@ export default function FormsDocument() {
   });
 
   const [loading, setLoading] = useState(false);
+  // const [isFocused, setIsFocused] = useState(false);
 
   const {
     control,
     register,
     handleSubmit,
     watch,
+    // setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -128,6 +130,7 @@ export default function FormsDocument() {
   });
 
   const selectedModalidade = watch("modalidadeEnsino");
+  // const writingNome = watch("nomeCompleto");
 
   const handleDataDocument = async (data: any) => {
     setLoading(true);
@@ -162,7 +165,22 @@ export default function FormsDocument() {
         {...register("nomeCompleto")}
         error={!!errors.nomeCompleto}
         helperText={errors.nomeCompleto?.message}
+        // slotProps={{
+        //   input: {
+        //     endAdornment: (
+        //       <InputAdornment position="end">
+               
+        //           <IconButton>
+        //             <ClearIcon />
+        //           </IconButton>
+               
+        //       </InputAdornment>
+        //     ),
+        //   },
+        // }}
       />
+
+ 
       <TextField
         size="small"
         required
