@@ -20,6 +20,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { useBoolean } from "react-hooks-shareable";
 import { useState } from "react";
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import StatusChip from "./StatusChip";
 import api from "../services/api";
 import moment from 'moment/min/moment-with-locales';
@@ -96,6 +97,7 @@ export default function CardDocument({
   const [isView, openView, closeView, toggleView] = useBoolean(false);
 
   const [loading, setLoanding] = useState(false);
+ 
 
   const [employee, setEmployee] = useState<string>(funcionario || "");
   const [reason, setReason] = useState<string>(motivo || "");
@@ -103,6 +105,7 @@ export default function CardDocument({
     status || "no_service"
   );
 
+ 
   // Função para calcular a mensagem de diferença de dias
   const qtdDaysMessage = (): string => {
     if (betwenDays === 0) {
@@ -171,15 +174,15 @@ export default function CardDocument({
   };
 
   return (
-    <div className="col-span-3 md:col-span-1 font-Montserrat flex flex-col border rounded-lg p-4 shadow-black/30 drop-shadow-sm m-2">
+    <div className="col-span-3 md:col-span-1 font-Montserrat flex flex-col border rounded-lg p-4 shadow-black/20 shadow-sm drop-shadow-md ">
       <div className="flex items-center justify-between">
-        <p className="text-2xl font-bold uppercase">
+        <p className="text-xl md:text-2xl font-bold uppercase">
           {nomeCompleto.substring(0, 12)}...
         </p>
         <StatusChip status={status} />
       </div>
       <div className="flex items-center justify-between">
-        <p className="w-8/12 text-md font-semibold lowercase leading-none">
+        <p className="w-8/12 text-sm md:text-md font-semibold capitalize leading-none">
           {nomeEscolaExtinta}
         </p>
         <p className="text-md font-semibold">{tipoDocumento}</p>
@@ -194,7 +197,7 @@ export default function CardDocument({
       </div>
       <div className="w-full flex items-center justify-between">
         {funcionario && (
-          <p className="text-md text-blue-500 font-semibold">[{funcionario}]</p>
+          <p className="text-md text-blue-500 font-semibold flex items-center justify-start gap-1"><AccountCircleOutlinedIcon /> [{funcionario}]</p>
         )}
 
         <p className="font-bold text-sm">{dataFormatada}</p>

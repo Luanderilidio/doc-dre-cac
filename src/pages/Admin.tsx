@@ -5,16 +5,19 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import { linearProgressClasses } from "@mui/material/LinearProgress";
 import ClearIcon from "@mui/icons-material/Clear";
 import { Swiper, SwiperSlide } from "swiper/react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 
 import {
   Autocomplete,
   Button,
+  Collapse,
   Dialog,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   FormControl,
   IconButton,
   InputLabel,
@@ -33,6 +36,7 @@ import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import { useBoolean } from "react-hooks-shareable";
 import FormsDocument from "../components/FormsDocument";
 import GradientText from "../components/reactbits/GradientText";
+import { ExpandMore } from "../utils/colappse";
 
 export default function Admin() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
@@ -51,6 +55,10 @@ export default function Admin() {
   const [documentType, setDocumetType] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [openDashboard, setOpenDashboard] = useState(false);
+
+  const [isMobile, setIsMobile] = useState(false);
 
   const [isViewAdd, openViewAdd, closeViewAdd, toggleViewAdd] =
     useBoolean(false);
@@ -161,6 +169,10 @@ export default function Admin() {
     setDocumentTypeCounts(documentCounts);
   }, [loading2]);
 
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768); // Se a largura for menor que 768px, é mobile
+  }, []);
+
   const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 20,
     borderRadius: 3,
@@ -184,250 +196,322 @@ export default function Admin() {
   return (
     <>
       <div className="w-full px-4">
-        
-
         <div className="col-span-12">{loading && <LinearProgress />}</div>
-        <div className="grid grid-cols-12 gap-3 px-2 mt-5">
+        <div className="grid grid-cols-12 gap-3  mt-5">
           <GradientText
             colors={["#40ffaa", "#4079ff", "#ff5608", "#4079ff", "#7940ff"]}
             animationSpeed={3}
             showBorder={false}
-            className="text-center font-bold font-Anton col-span-12 text-5xl"
+            className="text-center font-bold font-Anton col-span-12 text-3xl md:text-5xl"
           >
             PAINEL DE SOLICITAÇÕES DE DOCUMENTOS - DRE CÁCERES
           </GradientText>
-          {/* <p className="text-center text-blue-700 font-bold font-Anton col-span-12 text-5xl">
-            
-          </p> */}
-          <div className="col-span-12 border grid grid-cols-12 gap-5 mt-10 bg-gray-100/60 p-4 rounded-lg">
-            <p className="col-span-12 font-bold">Filtros</p>
-
-            <Autocomplete
-              className="col-span-3"
-              fullWidth
-              value={nome}
-              options={data.map((item) => item.nomeCompleto)}
-              onChange={(_event, newValue) => setNome(newValue)}
-              renderInput={(params) => (
-                <TextField {...params} label="Nome Aluno" />
-              )}
-            />
-
-            <FormControl variant="outlined" className="col-span-2">
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={status}
-                onChange={(event) => setStatus(event.target.value)}
-                label="Status"
-              >
-                <MenuItem value="in_service">Em Atendimento</MenuItem>
-                <MenuItem value="no_service">Sem Atendimento</MenuItem>
-                <MenuItem value="denied">Negado</MenuItem>
-                <MenuItem value="finished">Finalizado</MenuItem>
-                <MenuItem value="delivery">Liberado</MenuItem>
-              </Select>
-              {status && (
-                <IconButton
-                  size="small"
-                  onClick={() => setStatus("")}
-                  style={{
-                    position: "absolute",
-                    right: 20,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
+          <div className="col-span-12 mt-5 md:mt-10 bg-gray-100/60 p-4 rounded-lg border">
+            <div className="flex justify-between items-center md:mb-3">
+              <p className="col-span-12 font-bold">Filtros</p>
+              <div className="block md:hidden">
+                <ExpandMore
+                  expand={openFilter}
+                  onClick={() => setOpenFilter(!openFilter)}
                 >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              )}
-            </FormControl>
-
-            <FormControl variant="outlined" className="col-span-2">
-              <InputLabel>Funcionário</InputLabel>
-              <Select
-                value={employee}
-                onChange={(event) => setEmployee(event.target.value)}
-                label="Funcionário"
-              >
-                <MenuItem value="Luciano">Luciano</MenuItem>
-                <MenuItem value="Carmelito">Carmelito</MenuItem>
-                <MenuItem value="Graciane">Graciane</MenuItem>
-              </Select>
-              {employee && (
-                <IconButton
-                  size="small"
-                  onClick={() => setEmployee("")}
-                  style={{
-                    position: "absolute",
-                    right: 20,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
-                >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              )}
-            </FormControl>
-
-            <FormControl variant="outlined" className="col-span-2">
-              <InputLabel>Tipo de Documento</InputLabel>
-              <Select
-                value={documentType}
-                onChange={(event) => setDocumetType(event.target.value)}
-                label="Tipo de Documento"
-              >
-                {documentTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-              {documentType && (
-                <IconButton
-                  size="small"
-                  onClick={() => setDocumetType("")}
-                  style={{
-                    position: "absolute",
-                    right: 20,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
-                >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              )}
-            </FormControl>
-
-            <Button
-              onClick={() => fetchData()}
-              className="col-span-1"
-              variant="contained"
-              color="primary"
+                  <ExpandMoreIcon />
+                </ExpandMore>
+              </div>
+            </div>
+            <Collapse
+              in={isMobile ? openFilter : true}
+              timeout="auto"
+              unmountOnExit
             >
-              {loading ? (
-                <DataSaverOffIcon className="animate-spin" />
-              ) : (
-                <RefreshIcon sx={{ fontSize: 30 }} />
-              )}
-            </Button>
+              <div className="grid grid-cols-12 gap-2 md:gap-2  ">
+                <Autocomplete
+                  className="col-span-12 md:col-span-3"
+                  fullWidth
+                  value={nome}
+                  options={data.map((item) => item.nomeCompleto)}
+                  onChange={(_event, newValue) => setNome(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Nome Aluno" />
+                  )}
+                />
 
-            <Button
-              className="col-span-2"
-              variant="outlined"
-              color="primary"
-              onClick={openViewAdd}
-              startIcon={<AddCircleOutlineIcon sx={{ fontSize: 30 }} />}
-            >
-              Adicionar
-            </Button>
+                <FormControl
+                  variant="outlined"
+                  className="col-span-6 md:col-span-2"
+                >
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={status}
+                    onChange={(event) => setStatus(event.target.value)}
+                    label="Status"
+                  >
+                    <MenuItem value="in_service">Em Atendimento</MenuItem>
+                    <MenuItem value="no_service">Sem Atendimento</MenuItem>
+                    <MenuItem value="denied">Negado</MenuItem>
+                    <MenuItem value="finished">Finalizado</MenuItem>
+                    <MenuItem value="delivery">Liberado</MenuItem>
+                  </Select>
+                  {status && (
+                    <IconButton
+                      size="small"
+                      onClick={() => setStatus("")}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </FormControl>
+
+                <FormControl
+                  variant="outlined"
+                  className="col-span-6 md:col-span-2"
+                >
+                  <InputLabel>Funcionário</InputLabel>
+                  <Select
+                    value={employee}
+                    onChange={(event) => setEmployee(event.target.value)}
+                    label="Funcionário"
+                  >
+                    <MenuItem value="Luciano">Luciano</MenuItem>
+                    <MenuItem value="Carmelito">Carmelito</MenuItem>
+                    <MenuItem value="Graciane">Graciane</MenuItem>
+                  </Select>
+                  {employee && (
+                    <IconButton
+                      size="small"
+                      onClick={() => setEmployee("")}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </FormControl>
+
+                <FormControl
+                  variant="outlined"
+                  className="col-span-6 md:col-span-2"
+                >
+                  <InputLabel>Tipo de Documento</InputLabel>
+                  <Select
+                    value={documentType}
+                    onChange={(event) => setDocumetType(event.target.value)}
+                    label="Tipo de Documento"
+                  >
+                    {documentTypes.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {documentType && (
+                    <IconButton
+                      size="small"
+                      onClick={() => setDocumetType("")}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </FormControl>
+
+                <Button
+                  onClick={() => fetchData()}
+                  className="col-span-3 md:col-span-1"
+                  variant="contained"
+                  color="primary"
+                >
+                  {loading ? (
+                    <DataSaverOffIcon className="animate-spin" />
+                  ) : (
+                    <RefreshIcon sx={{ fontSize: 30 }} />
+                  )}
+                </Button>
+
+                <Button
+                  className="col-span-3 md:col-span-2"
+                  variant="outlined"
+                  color="primary"
+                  onClick={openViewAdd}
+                >
+                  <div className="flex items-center justify-evenly gap-0 md:gap-3">
+                    <AddCircleOutlineIcon sx={{ fontSize: 30 }} />
+                    <p className="hidden md:block">Adicionar</p>
+                  </div>
+                </Button>
+              </div>
+            </Collapse>
           </div>
 
-          <div className="col-span-12 grid grid-cols-15 gap-3">
-            <div className="col-span-2 border border-black/10 bg-orange-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-md">S/ Atendimento</p>
-              <p className="text-5xl font-bold">{statusCounts.no_service}</p>
-            </div>
-            <div className="col-span-2 border border-black/10 bg-blue-100/60 py-4 pl-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-lg">Em Atendimento</p>
-              <p className="text-4xl font-bold">{statusCounts.in_service}</p>
-            </div>
-            <div className="col-span-2 border border-black/10 bg-violet-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-xl">Liberados</p>
-              <p className="text-4xl font-bold">{statusCounts.delivery}</p>
-            </div>
-            <div className="col-span-2 border border-black/10 bg-green-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-xl">Finalizados</p>
-              <p className="text-4xl font-bold">{statusCounts.finished}</p>
-            </div>
-            <div className="col-span-2 border border-black/10 bg-red-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
-              <p className="font-semibold text-xl">Negados</p>
-              <p className="text-4xl font-bold">{statusCounts.denied}</p>
-            </div>
-            <div className="col-span-5  border border-black/10 bg-gray-100/60 p-2 rounded-lg shadow-black/80 drop-shadow-lg">
-              <div className="grid grid-cols-12 gap-2 items-center justify-center ">
-                <p className="col-span-3  border-red-500 font-semibold text-right">
-                  Certificados
-                </p>
-                <div className="col-span-8 w-full border-red-500  ">
-                  <BorderLinearProgress
-                    variant="determinate"
-                    value={documentTypeCounts.Certificado}
-                  />
-                </div>
-                <p className="col-span-1 text-center  border-red-500 font-semibold">
-                  {documentTypeCounts.Certificado}
-                </p>
-              </div>
-              <div className="grid grid-cols-12 gap-2 items-center justify-center ">
-                <p className="col-span-3  border-red-500 font-semibold text-right">
-                  Históricos
-                </p>
-                <div className="col-span-8 w-full  border-red-500  ">
-                  <BorderLinearProgress
-                    variant="determinate"
-                    value={documentTypeCounts.Histórico}
-                  />
-                </div>
-                <p className="col-span-1 text-center  border-red-500 font-semibold">
-                  {documentTypeCounts.Histórico}
-                </p>
-              </div>
-              <div className="grid grid-cols-12 gap-2 items-center justify-center ">
-                <p className="col-span-3  border-red-500 font-semibold text-right">
-                  Declarações
-                </p>
-                <div className="col-span-8 w-full  border-red-500  ">
-                  <BorderLinearProgress
-                    variant="determinate"
-                    value={documentTypeCounts.Declaração}
-                  />
-                </div>
-                <p className="col-span-1 text-center  border-red-500 font-semibold">
-                  {documentTypeCounts.Declaração}
-                </p>
-              </div>
-              <div className="grid grid-cols-12 gap-2 items-center justify-center ">
-                <p className="col-span-3  border-red-500 font-semibold text-right">
-                  Atestados
-                </p>
-                <div className="col-span-8 w-full border-red-500  ">
-                  <BorderLinearProgress
-                    variant="determinate"
-                    value={documentTypeCounts.Atestado}
-                  />
-                </div>
-                <p className="col-span-1 text-center  border-red-500 font-semibold">
-                  {documentTypeCounts.Atestado}
-                </p>
+          <div className="col-span-12 bg-gray-100/60 p-4 rounded-lg border">
+            <div className="flex justify-between items-center md:mb-3">
+              <p className="font-bold">Dashboard</p>
+              <div className="block md:hidden">
+                <ExpandMore
+                  expand={openDashboard}
+                  onClick={() => setOpenDashboard(!openDashboard)}
+                >
+                  <ExpandMoreIcon />
+                </ExpandMore>
               </div>
             </div>
-          </div>
-          <div className="col-span-6">
-            <SolicitationChart
-              timestamps={combinedData?.map((item) => item.timestamp)}
-            />
-          </div>
-          <div className="col-span-6">
-            <Swiper
-              spaceBetween={10}
-              slidesPerView={4}
-              autoplay={{
-                delay: 2500,
-                disableOnInteraction: false,
-              }}
-              modules={[Autoplay]}
-              pagination={{ clickable: true }}
-              className=" border-red-500 flex"
+            <Collapse
+              in={isMobile ? openDashboard : true}
+              timeout="auto"
+              unmountOnExit
             >
-              {countEmployee.map((item, index) => (
-                <SwiperSlide key={index} className=" border-red-500">
-                  <QtdServiceEmployee name={item.nome} qtd={item.quantidade} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
+              <div className="w-full grid grid-cols-12 md:grid-cols-15 gap-3">
+                <div className="col-span-6 md:col-span-2 flex md:flex-col items-center md:items-start justify-center md:justify-start gap-1 border border-orange-700 bg-orange-200 text-orange-700 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+                  <p className="font-semibold text-md text-nowrap leading-none">
+                    S/ Atendimento
+                  </p>
+                  <p className="text-lg md:text-5xl font-bold leading-none">
+                    {statusCounts.no_service}
+                  </p>
+                </div>
+                <div className="col-span-6 md:col-span-2 flex md:flex-col items-center md:items-start justify-center md:justify-start gap-1 border border-blue-700 bg-blue-200 text-blue-700 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+                  <p className="font-semibold  text-md text-nowrap leading-none flex items-center gap-1">
+                    <span className="hidden md:block">Em</span> Atendimento
+                  </p>
+                  <p className="text-lg md:text-5xl font-bold leading-none">
+                    {statusCounts.in_service}
+                  </p>
+                </div>
+                <div className="col-span-6 md:col-span-2 flex md:flex-col items-center md:items-start justify-center md:justify-start gap-1 border border-violet-700 bg-violet-200 text-violet-700 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+                  <p className="font-semibold text-lg md:text-md text-nowrap leading-none">
+                    Liberados
+                  </p>
+                  <p className="text-lg md:text-5xl font-bold leading-none">
+                    {statusCounts.delivery}
+                  </p>
+                </div>
+                <div className="col-span-6 md:col-span-2 flex md:flex-col items-center md:items-start justify-center md:justify-start gap-1 border border-green-700 bg-green-200 text-green-700 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+                  <p className="font-semibold text-md text-nowrap leading-none">
+                    Finalizados
+                  </p>
+                  <p className="text-lg md:text-5xl font-bold leading-none">
+                    {statusCounts.finished}
+                  </p>
+                </div>
+                <div className="col-span-12 md:col-span-2 flex md:flex-col items-center md:items-start justify-center md:justify-start gap-1 border border-red-700 bg-red-200 text-red-700 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+                  <p className="font-semibold text-md text-nowrap leading-none">
+                    Negados
+                  </p>
+                  <p className="text-lg md:text-5xl font-bold leading-none">
+                    {statusCounts.denied}
+                  </p>
+                </div>
+                <div className="col-span-12 md:col-span-5  border border-black/10 bg-gray-100/60 p-2 rounded-lg shadow-black/80 drop-shadow-lg">
+                  <div className="grid grid-cols-12 gap-2 items-center justify-center ">
+                    <p className="col-span-4 md:col-span-3  border-red-500 font-semibold text-right">
+                      Certificados
+                    </p>
+                    <div className="col-span-7 md:col-span-8 w-full border-red-500  ">
+                      <BorderLinearProgress
+                        variant="determinate"
+                        value={documentTypeCounts.Certificado}
+                      />
+                    </div>
+                    <p className="col-span-1 text-center  border-red-500 font-semibold">
+                      {documentTypeCounts.Certificado}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-12 gap-2 items-center justify-center ">
+                    <p className="col-span-4 md:col-span-3  border-red-500 font-semibold text-right">
+                      Históricos
+                    </p>
+                    <div className="col-span-7 md:col-span-8 w-full  border-red-500  ">
+                      <BorderLinearProgress
+                        variant="determinate"
+                        value={documentTypeCounts.Histórico}
+                      />
+                    </div>
+                    <p className="col-span-1 text-center  border-red-500 font-semibold">
+                      {documentTypeCounts.Histórico}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-12 gap-2 items-center justify-center ">
+                    <p className="col-span-4 md:col-span-3  border-red-500 font-semibold text-right">
+                      Declarações
+                    </p>
+                    <div className="col-span-7 md:col-span-8 w-full  border-red-500  ">
+                      <BorderLinearProgress
+                        variant="determinate"
+                        value={documentTypeCounts.Declaração}
+                      />
+                    </div>
+                    <p className="col-span-1 text-center  border-red-500 font-semibold">
+                      {documentTypeCounts.Declaração}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-12 gap-2 items-center justify-center ">
+                    <p className="col-span-4 md:col-span-3  border-red-500 font-semibold text-right">
+                      Atestados
+                    </p>
+                    <div className="col-span-7 md:col-span-8 w-full border-red-500  ">
+                      <BorderLinearProgress
+                        variant="determinate"
+                        value={documentTypeCounts.Atestado}
+                      />
+                    </div>
+                    <p className="col-span-1 text-center  border-red-500 font-semibold">
+                      {documentTypeCounts.Atestado}
+                    </p>
+                  </div>
+                </div>
+                <div className="col-span-12 md:col-span-8">
+                  <SolicitationChart
+                    timestamps={combinedData?.map((item) => item.timestamp)}
+                  />
+                </div>
+                <div className="col-span-12 md:col-span-7">
+                  <Swiper
+                    spaceBetween={10}
+                    slidesPerView={isMobile ? 2 : 4}
+                    autoplay={{
+                      delay: 2500,
+                      disableOnInteraction: false,
+                    }}
+                    modules={[Autoplay]}
+                    pagination={{ clickable: true }}
+                    className=" border-red-500 flex"
+                  >
+                    {countEmployee.map((item, index) => (
+                      <SwiperSlide key={index} className=" border-red-500">
+                        <QtdServiceEmployee
+                          name={item.nome}
+                          qtd={item.quantidade}
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              </div>
+            </Collapse>
           </div>
         </div>
-        <div className="grid grid-cols-3 mt-10">
+        <div className="grid grid-cols-3 mt-10 gap-4">
+          <div className="w-full col-span-3">
+            <Divider>
+              <p className="font-bold text-xl md:text-3xl mb-2 text-gray-400">
+                Solicitações
+              </p>
+            </Divider>
+          </div>
           {filteredData.length > 0 ? (
             filteredData.map((item: CardDocumentProps, index) => (
               <CardDocument key={index} {...item} />
@@ -442,8 +526,12 @@ export default function Admin() {
       <Dialog open={isViewAdd} onClose={toggleViewAdd} fullWidth maxWidth="sm">
         <DialogTitle>
           <div className="w-full flex  items-center justify-between">
-            <div />
-            <p className="text-3xl">Adicionar nova Solicitação</p>
+            <IconButton onClick={closeViewAdd} className="invisible">
+              <CloseIcon sx={{ fontSize: 30 }} />
+            </IconButton>
+            <p className="text-xl text-center md:text-3xl">
+              Adicionar nova Solicitação
+            </p>
             <IconButton onClick={closeViewAdd}>
               <CloseIcon sx={{ fontSize: 30 }} />
             </IconButton>

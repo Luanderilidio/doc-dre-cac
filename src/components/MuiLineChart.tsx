@@ -33,7 +33,7 @@ const SolicitationChart: React.FC<SolicitationChartProps> = ({
   const { xLabels, yValues } = processTimestamps(timestamps);
 
   return (
-    <div className="w-full border  border-black/10 bg-blue-100/60 p-4 rounded-lg shadow-black/80 drop-shadow-lg">
+    <div className="w-full border  border-black/10 bg-blue-100/60 rounded-lg shadow-black/80 drop-shadow-lg">
       <LineChart
         xAxis={[{ scaleType: "band", data: xLabels }]} // Eixo X com meses formatados
         series={[
@@ -44,7 +44,6 @@ const SolicitationChart: React.FC<SolicitationChartProps> = ({
             color: "#007BFF",
           },
         ]}
-        width={600}
         height={200}
       />
     </div>
