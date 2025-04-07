@@ -38,7 +38,7 @@ import FormsDocument from "../components/FormsDocument";
 import GradientText from "../components/reactbits/GradientText";
 import { ExpandMore } from "../utils/colappse";
 
-export default function Admin() {
+export default function Arquivo() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
 
   // Definindo os tipos dos estados
