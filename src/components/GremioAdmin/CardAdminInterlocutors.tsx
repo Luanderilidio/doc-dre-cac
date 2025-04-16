@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, Button, Dialog, IconButton, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditNoteIcon from "@mui/icons-material/EditNote";
 import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -11,7 +10,7 @@ import { z } from "zod";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import SaveIcon from "@mui/icons-material/Save";
 
-type Interlocutor = {
+export type Interlocutor = {
   id: string;
   name: string;
   email: string;
@@ -68,8 +67,8 @@ export default function CardAdminInterlocutors() {
 
   const handleDataPath = async (
     newRow: Interlocutor,
-    oldRow: Interlocutor,
-    params: { rowId: GridRowId }
+    _oldRow: Interlocutor,
+    _params: { rowId: GridRowId }
   ): Promise<Interlocutor> => {
     try {
       // Chama sua API para atualizar o backend
@@ -147,11 +146,8 @@ export default function CardAdminInterlocutors() {
   ];
 
   const {
-    control,
     register,
     handleSubmit,
-    watch,
-    // setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -162,11 +158,12 @@ export default function CardAdminInterlocutors() {
     setLoading(true);
     try {
       console.log(data);
-      const response = await axios.post(`${apiUrl}/interlocutors`, { ...data });
+      const response = await axios.post<Interlocutor>(`${apiUrl}/interlocutors`, { ...data });
 
       console.log(response.status);
       setStatusCode(response.status);
       console.log(response.data);
+      setRows((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Erro ao cadastrar interlocutor:", error);
     } finally {
@@ -178,7 +175,7 @@ export default function CardAdminInterlocutors() {
     <div className="w-full flex flex-col items-center justify-between border gap-3 rounded-lg p-4">
       <div className="w-full flex items-center justify-between">
         <h1 className="font-Montserrat font-bold text-gray-400">
-          Cadastrar Novo Interlocutor
+          Cadastrar Interlocutor
         </h1>
         <div className="flex gap-3">
           <Button onClick={openViewAdd} variant="contained" size="small">
@@ -265,22 +262,24 @@ export default function CardAdminInterlocutors() {
       </Dialog>
 
       <div className="w-full">
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          rowHeight={50}
-          getRowId={(row) => row.id}
-          loading={loading}
-          editMode="row"
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 5 },
-            },
-          }}
-          processRowUpdate={handleDataPath}
-          pageSizeOptions={[5, 10]}
-          disableRowSelectionOnClick
-        />
+        <div className="w-full !h-96">
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            rowHeight={50}
+            getRowId={(row) => row.id}
+            loading={loading}
+            editMode="row"
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 5 },
+              },
+            }}
+            processRowUpdate={handleDataPath}
+            pageSizeOptions={[5, 10]}
+            disableRowSelectionOnClick
+          />
+        </div>
       </div>
     </div>
   );

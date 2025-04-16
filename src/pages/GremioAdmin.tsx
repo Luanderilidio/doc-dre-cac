@@ -1,15 +1,13 @@
-import { Button, Dialog } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
-import { useBoolean } from "react-hooks-shareable";
-import { z } from "zod";
+// import { useBoolean } from "react-hooks-shareable";
 import CardAdminSchools from "../components/GremioAdmin/CardAdminSchools";
 import CardAdminInterlocutors from "../components/GremioAdmin/CardAdminInterlocutors";
 import CardAdminStudents from "../components/GremioAdmin/CardAdminStudents";
 uuidv4();
 
 export default function GremioAdmin() {
-  const [isViewAdd, openViewAdd, closeViewAdd, toggleViewAdd] =
-    useBoolean(false);
+  // const [isViewAdd, openViewAdd, closeViewAdd, toggleViewAdd] =
+  //   useBoolean(false);
 
   return (
     <div className="w-full grid grid-cols-12  border-red-500">

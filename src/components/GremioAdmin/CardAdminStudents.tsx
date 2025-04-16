@@ -1,12 +1,24 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Button, Dialog, IconButton, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Dialog,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useBoolean } from "react-hooks-shareable";
 import { z } from "zod";
+import PersonIcon from "@mui/icons-material/Person";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import SaveIcon from "@mui/icons-material/Save";
 
@@ -18,7 +30,7 @@ type Student = {
   email: string;
   series: string;
   status: boolean;
-  shift: string,
+  shift: string;
   url_profile: string;
   created_at: string;
   disabled_at: string | null;
@@ -87,7 +99,7 @@ export default function CardAdminStudents() {
         series: newRow.series,
         status: newRow.status,
         shift: newRow.shift,
-        url_profile: newRow.url_profile
+        url_profile: newRow.url_profile,
       });
 
       // Atualiza localmente
@@ -103,6 +115,24 @@ export default function CardAdminStudents() {
     }
   };
 
+  const handleDataPost = async (data: any) => {
+    setLoading(true);
+    try {
+      console.log({ ...data });
+      const response = await axios.post<Student>(`${apiUrl}/students/`, data);
+
+      console.log(response.status);
+      setStatusCode(response.status);
+      console.log(response.data);
+
+      setRows((prev) => [...prev, response.data]);
+    } catch (error) {
+      console.error("Erro ao cadastrar Escola:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     handleDataGet();
   }, []);
@@ -110,12 +140,22 @@ export default function CardAdminStudents() {
   const columns: GridColDef<Student>[] = [
     { field: "id", headerName: "ID", width: 30 },
     { field: "name", headerName: "Escola", width: 140, editable: true },
-    { field: "registration", headerName: "Matrícula", width: 100, editable: true },
+    {
+      field: "registration",
+      headerName: "Matrícula",
+      width: 100,
+      editable: true,
+    },
     { field: "contact", headerName: "Contato", width: 100, editable: true },
     { field: "email", headerName: "Email", width: 100, editable: true },
     { field: "series", headerName: "Série", width: 100, editable: true },
     { field: "shift", headerName: "Turno", width: 100, editable: true },
-    { field: "url_profile", headerName: "Foto Perfil", width: 100, editable: true },
+    {
+      field: "url_profile",
+      headerName: "Foto Perfil",
+      width: 100,
+      editable: true,
+    },
     {
       field: "status",
       headerName: "Status",
@@ -172,27 +212,11 @@ export default function CardAdminStudents() {
     mode: "onChange",
   });
 
-  const handleDataPost = async (data: any) => {
-    setLoading(true);
-    try {
-      console.log(data);
-      const response = await axios.post(`${apiUrl}/students`, { ...data });
-
-      console.log(response.status);
-      setStatusCode(response.status);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Erro ao cadastrar Escola:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="w-full flex flex-col items-center justify-between border gap-3 rounded-lg p-4">
       <div className="w-full flex items-center justify-between">
         <h1 className="font-Montserrat font-bold text-gray-400">
-          Cadastrar Novo Aluno
+          Cadastrar Aluno
         </h1>
         <div className="flex gap-3">
           <Button onClick={openViewAdd} variant="contained" size="small">
@@ -206,82 +230,115 @@ export default function CardAdminStudents() {
       <Dialog open={isViewAdd} onClose={toggleViewAdd} fullWidth maxWidth="xs">
         <div className="p-4 flex flex-col gap-3">
           {statusCode === 201 && (
-            <Alert severity="success">Escola Cadastrada com Sucesso!</Alert>
+            <Alert severity="success">Aluno Cadastrado com Sucesso!</Alert>
           )}
 
           <h1 className="w-full text-3xl font-bold font-Roboto text-center mb-3">
-            CADASTRE UMA ESCOLA
+            CADASTRE UM ESTUDANTE
           </h1>
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Nome do Aluno"
-            variant="outlined"
-            {...register("name")}
-            error={!!errors.name}
-            helperText={errors.name?.message}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Cidade"
-            variant="outlined"
-            {...register("registration")}
-            error={!!errors.registration}
-            helperText={errors.registration?.message}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Contato"
-            variant="outlined"
-            {...register("contact")}
-            error={!!errors.contact}
-            helperText={errors.contact?.message}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Email"
-            variant="outlined"
-            {...register("email")}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Série"
-            variant="outlined"
-            {...register("series")}
-            error={!!errors.series}
-            helperText={errors.series?.message}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Turno"
-            variant="outlined"
-            {...register("shift")}
-            error={!!errors.shift}
-            helperText={errors.shift?.message}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Url Perfil"
-            variant="outlined"
-            {...register("url_profile")}
-            error={!!errors.url_profile}
-            helperText={errors.url_profile?.message}
-          />
+          <div className="grid grid-cols-12 gap-2">
+            <TextField
+              fullWidth
+              required
+              size="small"
+              label="Nome do Aluno"
+              variant="outlined"
+              className="col-span-10"
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+            <div className="h-full col-span-2 row-span-2 rounded-md shadow-sm shadow-black/30 flex items-center justify-center">
+              <PersonIcon sx={{ fontSize: 50 }} />
+            </div>
+            <TextField
+              fullWidth
+              size="small"
+              required
+              label="Contato"
+              variant="outlined"
+              className="col-span-5"
+              {...register("contact")}
+              error={!!errors.contact}
+              helperText={errors.contact?.message}
+            />
+            <TextField
+              fullWidth
+              required
+              size="small"
+              label="Matrícula"
+              variant="outlined"
+              className="col-span-5"
+              {...register("registration")}
+              error={!!errors.registration}
+              helperText={errors.registration?.message}
+            />
+
+            <TextField
+              fullWidth
+              size="small"
+              required
+              label="Email"
+              variant="outlined"
+              className="col-span-12"
+              {...register("email")}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+            <TextField
+              fullWidth
+              size="small"
+              required
+              label="Série"
+              className="col-span-6"
+              variant="outlined"
+              {...register("series")}
+              error={!!errors.series}
+              helperText={errors.series?.message}
+            />
+            <FormControl
+              required
+              size="small"
+              variant="outlined"
+              className="col-span-6"
+              fullWidth
+              error={!!errors.shift}
+            >
+              <InputLabel>Turno</InputLabel>
+              <Controller
+                name="shift"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    labelId="modalidade-label"
+                    label="Turno"
+                    onChange={(event) => field.onChange(event.target.value)}
+                  >
+                    <MenuItem value="" disabled>
+                      Selecione...
+                    </MenuItem>
+                    <MenuItem value="matutino">Matutino</MenuItem>
+                    <MenuItem value="vespertino">Vespertino</MenuItem>
+                    <MenuItem value="noturno">Noturno</MenuItem>
+                    <MenuItem value="integral">Integral</MenuItem>
+                  </Select>
+                )}
+              />
+              <FormHelperText>{errors.shift?.message}</FormHelperText>
+            </FormControl>
+            <TextField
+              fullWidth
+              size="small"
+              label="Url Perfil"
+              variant="outlined"
+              className="col-span-12"
+              {...register("url_profile")}
+              error={!!errors.url_profile}
+              helperText={errors.url_profile?.message}
+            />
+          </div>
           <div className="w-full flex items-center justify-end gap-3">
             <Button
               onClick={closeViewAdd}
@@ -311,23 +368,24 @@ export default function CardAdminStudents() {
           </div>
         </div>
       </Dialog>
-
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        rowHeight={50}
-        getRowId={(row) => row.id}
-        loading={loading}
-        editMode="row"
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 5 },
-          },
-        }}
-        processRowUpdate={handleDataPath}
-        pageSizeOptions={[5, 10]}
-        disableRowSelectionOnClick
-      />
+      <div className="w-full !h-96">
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          rowHeight={50}
+          getRowId={(row) => row.id}
+          loading={loading}
+          editMode="row"
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 5 },
+            },
+          }}
+          processRowUpdate={handleDataPath}
+          pageSizeOptions={[5, 10]}
+          disableRowSelectionOnClick
+        />
+      </div>
     </div>
   );
 }

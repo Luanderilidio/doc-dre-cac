@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, Button, Dialog, IconButton, TextField } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditNoteIcon from "@mui/icons-material/EditNote";
+import DeleteIcon from "@mui/icons-material/Delete"; 
 import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -11,7 +10,7 @@ import { z } from "zod";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import SaveIcon from "@mui/icons-material/Save";
 
-type School = {
+export type School = {
   id: string;
   name: string;
   city: string;
@@ -71,8 +70,8 @@ export default function CardAdminSchools() {
 
   const handleDataPath = async (
     newRow: School,
-    oldRow: School,
-    params: { rowId: GridRowId }
+    _oldRow: School,
+    _params: { rowId: GridRowId }
   ): Promise<School> => {
     try {
       // Chama sua API para atualizar o backend
@@ -163,11 +162,12 @@ export default function CardAdminSchools() {
     setLoading(true);
     try {
       console.log(data);
-      const response = await axios.post(`${apiUrl}/schools`, { ...data });
+      const response = await axios.post<School>(`${apiUrl}/schools`, { ...data });
 
       console.log(response.status);
       setStatusCode(response.status);
       console.log(response.data);
+      setRows((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Erro ao cadastrar Escola:", error);
     } finally {
@@ -179,7 +179,7 @@ export default function CardAdminSchools() {
     <div className="w-full flex flex-col items-center justify-between border gap-3 rounded-lg p-4">
       <div className="w-full flex items-center justify-between">
         <h1 className="font-Montserrat font-bold text-gray-400">
-          Cadastrar Nova Escola
+          Cadastrar Escola
         </h1>
         <div className="flex gap-3">
           <Button onClick={openViewAdd} variant="contained" size="small">
@@ -248,6 +248,7 @@ export default function CardAdminSchools() {
           </div>
         </div>
       </Dialog>
+      <div className="w-full !h-96">
 
       <DataGrid
         rows={rows}
@@ -265,6 +266,7 @@ export default function CardAdminSchools() {
         pageSizeOptions={[5, 10]}
         disableRowSelectionOnClick
       />
+      </div>
     </div>
   );
 }
