@@ -12,51 +12,32 @@ import {
   TextField,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import axios from "axios";
+import { faker } from "@faker-js/faker";
+
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useBoolean } from "react-hooks-shareable";
-import { z } from "zod";
 import PersonIcon from "@mui/icons-material/Person";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import SaveIcon from "@mui/icons-material/Save";
-
-type Student = {
-  id: string;
-  registration: string;
-  name: string;
-  contact: string;
-  email: string;
-  series: string;
-  status: boolean;
-  shift: string;
-  url_profile: string;
-  created_at: string;
-  disabled_at: string | null;
-  updated_at: string | null;
-  deleted_at: string | null;
-};
-
-const formSchema = z.object({
-  registration: z.string(),
-  name: z.string().min(1),
-  contact: z.string(),
-  email: z.string().email(),
-  series: z.string(),
-  shift: z.string(),
-  url_profile: z.string().nullable().optional(),
-});
+import {
+  Student,
+  StudentCreate,
+  StudentCreateSchema,
+} from "./SchemaGremioAdmin";
 
 export default function CardAdminStudents() {
   const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
-  const [isViewAdd, openViewAdd, closeViewAdd, toggleViewAdd] =
-    useBoolean(false);
 
+  console.log(import.meta.env.VITE_BACK_END_API_DRE);
+  const [isViewAdd, openViewAdd, closeViewAdd] = useBoolean(false);
   const [loading, setLoading] = useState(false);
   const [statusCode, setStatusCode] = useState<number>();
   const [rows, setRows] = useState<Student[]>([]);
 
+  // Buscar estudantes
   const handleDataGet = async () => {
     setLoading(true);
     try {
@@ -70,64 +51,47 @@ export default function CardAdminStudents() {
     }
   };
 
+  // Deletar estudante
   const handleDataDelete = async (id: string) => {
     setLoading(true);
     try {
-      console.log(id);
       const response = await axios.delete(`${apiUrl}/students/${id}`);
       setRows((prev) => prev.filter((row) => row.id !== id));
       setStatusCode(response.status);
     } catch (error) {
-      console.error("Erro ao deletar escola:", error);
+      console.error("Erro ao deletar estudante:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDataPath = async (
-    newRow: Student,
-    oldRow: Student,
-    params: { rowId: GridRowId }
-  ): Promise<Student> => {
+  // Atualizar estudante
+  const handleDataUpdate = async (newRow: Student, oldRow: Student) => {
     try {
-      // Chama sua API para atualizar o backend
-      await axios.patch(`${apiUrl}/students/${newRow.id}`, {
-        registration: newRow.registration,
-        name: newRow.name,
-        contact: newRow.contact,
-        email: newRow.email,
-        series: newRow.series,
-        status: newRow.status,
-        shift: newRow.shift,
-        url_profile: newRow.url_profile,
-      });
-
-      // Atualiza localmente
-      const updatedRows = rows.map((row) =>
-        row.id === newRow.id ? newRow : row
+      await axios.patch(`${apiUrl}/students/${newRow.id}`, newRow);
+      setRows((prev) =>
+        prev.map((row) => (row.id === newRow.id ? newRow : row))
       );
-      setRows(updatedRows);
-
-      return newRow; // 👈 obrigatório retornar a row final
+      return newRow;
     } catch (error) {
-      console.error("Erro ao atualizar escola:", error);
-      throw error; // o DataGrid trata esse erro automaticamente
+      console.error("Erro ao atualizar estudante:", error);
+      throw error;
     }
   };
 
-  const handleDataPost = async (data: any) => {
+  // Cadastrar novo estudante
+  const handleDataPost = async (data: StudentCreate) => {
+    console.log(data);
     setLoading(true);
     try {
-      console.log({ ...data });
-      const response = await axios.post<Student>(`${apiUrl}/students/`, data);
-
-      console.log(response.status);
-      setStatusCode(response.status);
-      console.log(response.data);
-
+      const response = await axios.post<Student>(`${apiUrl}/students`, data);
       setRows((prev) => [...prev, response.data]);
+      setStatusCode(response.status);
+      
+      reset();
+      console.log("POST ESTUDANTE", response.data);
     } catch (error) {
-      console.error("Erro ao cadastrar Escola:", error);
+      console.error("Erro ao cadastrar estudante:", error);
     } finally {
       setLoading(false);
     }
@@ -138,86 +102,80 @@ export default function CardAdminStudents() {
   }, []);
 
   const columns: GridColDef<Student>[] = [
-    { field: "id", headerName: "ID", width: 30 },
-    { field: "name", headerName: "Escola", width: 140, editable: true },
-    {
-      field: "registration",
-      headerName: "Matrícula",
-      width: 100,
-      editable: true,
-    },
-    { field: "contact", headerName: "Contato", width: 100, editable: true },
-    { field: "email", headerName: "Email", width: 100, editable: true },
+    { field: "id", headerName: "ID", width: 70 },
+    { field: "name", headerName: "Nome", width: 150, editable: true },
+    { field: "registration", headerName: "Matrícula", width: 120, editable: true },
+    { field: "contact", headerName: "Contato", width: 120, editable: true },
+    { field: "email", headerName: "Email", width: 180, editable: true },
     { field: "series", headerName: "Série", width: 100, editable: true },
-    { field: "shift", headerName: "Turno", width: 100, editable: true },
+    {
+      field: "shift",
+      headerName: "Turno",
+      width: 120,
+      editable: true,
+      type: "singleSelect",
+      valueOptions: ["matutino", "vespertino", "noturno", "integral"],
+    },
     {
       field: "url_profile",
-      headerName: "Foto Perfil",
-      width: 100,
+      headerName: "Foto",
+      width: 150,
       editable: true,
+      renderCell: (params) => (
+        params.value ? <a href={params.value} target="_blank" rel="noopener noreferrer">Ver foto</a> : "Nenhuma"
+      ),
     },
     {
       field: "status",
       headerName: "Status",
-      width: 70,
+      width: 100,
       editable: true,
+      type: "boolean",
       renderCell: (params) => (params.value ? "Ativo" : "Inativo"),
-      renderEditCell: (params) => (
-        <select
-          value={params.value ? "true" : "false"}
-          onChange={(e) => {
-            const value = e.target.value === "true";
-            params.api.setEditCellValue(
-              { id: params.id, field: params.field, value },
-              e
-            );
-          }}
-          autoFocus
-        >
-          <option value="true">Ativo</option>
-          <option value="false">Inativo</option>
-        </select>
-      ),
     },
     {
       field: "actions",
       headerName: "Ações",
-      width: 40,
+      width: 80,
       sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
       renderCell: (params) => (
-        <div className="flex">
-          <IconButton
-            onClick={() => handleDataDelete(params.row.id)}
-            color="error"
-            aria-label="delete"
-          >
-            <DeleteIcon />
-          </IconButton>
-        </div>
+        <IconButton
+          onClick={() => handleDataDelete(params.row.id)}
+          color="error"
+          aria-label="delete"
+        >
+          <DeleteIcon />
+        </IconButton>
       ),
     },
   ];
 
+  // Configuração do formulário
   const {
     control,
     register,
     handleSubmit,
+    reset,
     watch,
-    // setValue,
     formState: { errors },
-  } = useForm({
-    resolver: zodResolver(formSchema),
-    mode: "onChange",
+  } = useForm<StudentCreate>({
+    resolver: zodResolver(StudentCreateSchema),
+    defaultValues: {
+      name: faker.person.fullName(),
+      registration: faker.string.alphanumeric(8).toUpperCase(),
+      contact: faker.phone.number({ style: "national" }),
+      email: faker.internet.email(),
+      series: faker.helpers.arrayElement(["1º Ano", "2º Ano", "3º Ano"]),
+      shift: "matutino" as const,
+      url_profile: faker.image.avatar(),
+    },
   });
 
+  const urlProfile = watch("url_profile");
   return (
     <div className="w-full flex flex-col items-center justify-between border gap-3 rounded-lg p-4">
       <div className="w-full flex items-center justify-between">
-        <h1 className="font-Montserrat font-bold text-gray-400">
-          Cadastrar Aluno
-        </h1>
+        <h1 className="font-bold text-gray-400">Cadastrar Aluno</h1>
         <div className="flex gap-3">
           <Button onClick={openViewAdd} variant="contained" size="small">
             Adicionar
@@ -227,98 +185,84 @@ export default function CardAdminStudents() {
           </Button>
         </div>
       </div>
-      <Dialog open={isViewAdd} onClose={toggleViewAdd} fullWidth maxWidth="xs">
-        <div className="p-4 flex flex-col gap-3">
+
+      <Dialog open={isViewAdd} onClose={closeViewAdd} fullWidth maxWidth="sm">
+        <form
+          onSubmit={handleSubmit(handleDataPost)}
+          className="p-4 flex flex-col "
+        >
           {statusCode === 201 && (
-            <Alert severity="success">Aluno Cadastrado com Sucesso!</Alert>
+            <Alert severity="success">Aluno cadastrado com sucesso!</Alert>
           )}
 
-          <h1 className="w-full text-3xl font-bold font-Roboto text-center mb-3">
-            CADASTRE UM ESTUDANTE
+          <h1 className="w-full text-2xl font-bold text-center mb-3">
+            CADASTRO DE ESTUDANTE
           </h1>
-          <div className="grid grid-cols-12 gap-2">
+
+          <div className="grid grid-cols-12 grid-rows-3 gap-2">
             <TextField
-              fullWidth
-              required
+              label="Nome completo"
               size="small"
-              label="Nome do Aluno"
-              variant="outlined"
-              className="col-span-10"
               {...register("name")}
               error={!!errors.name}
               helperText={errors.name?.message}
+              className="col-span-9"
+              required
             />
-            <div className="h-full col-span-2 row-span-2 rounded-md shadow-sm shadow-black/30 flex items-center justify-center">
-              <PersonIcon sx={{ fontSize: 50 }} />
+
+            <div className="col-span-3 row-span-3 flex items-center justify-center">
+              {urlProfile !== "" ? (
+                <img className="w-full h-full object-cover rounded-xl" src={urlProfile} alt="" />
+              ) : (
+                <PersonIcon sx={{ fontSize: 60 }} />
+              )} 
             </div>
+
             <TextField
-              fullWidth
-              size="small"
-              required
-              label="Contato"
-              variant="outlined"
-              className="col-span-5"
-              {...register("contact")}
-              error={!!errors.contact}
-              helperText={errors.contact?.message}
-            />
-            <TextField
-              fullWidth
-              required
-              size="small"
+            size="small"
               label="Matrícula"
-              variant="outlined"
-              className="col-span-5"
               {...register("registration")}
               error={!!errors.registration}
               helperText={errors.registration?.message}
+              className="col-span-4"
+              required
             />
 
             <TextField
-              fullWidth
-              size="small"
-              required
+            size="small"
+              label="Contato"
+              {...register("contact")}
+              error={!!errors.contact}
+              helperText={errors.contact?.message}
+              className="col-span-5"
+            />
+
+            <TextField
+            size="small"
               label="Email"
-              variant="outlined"
-              className="col-span-12"
+              type="email"
               {...register("email")}
               error={!!errors.email}
               helperText={errors.email?.message}
+              className="col-span-9"
             />
+
             <TextField
-              fullWidth
-              size="small"
-              required
+            size="small"
               label="Série"
-              className="col-span-6"
-              variant="outlined"
               {...register("series")}
               error={!!errors.series}
               helperText={errors.series?.message}
-            />
-            <FormControl
-              required
-              size="small"
-              variant="outlined"
               className="col-span-6"
-              fullWidth
-              error={!!errors.shift}
-            >
-              <InputLabel>Turno</InputLabel>
+            />
+
+            <FormControl className="col-span-6" error={!!errors.shift}>
+              <InputLabel>Turno *</InputLabel>
               <Controller
                 name="shift"
                 control={control}
-                defaultValue=""
                 render={({ field }) => (
-                  <Select
-                    {...field}
-                    labelId="modalidade-label"
-                    label="Turno"
-                    onChange={(event) => field.onChange(event.target.value)}
-                  >
-                    <MenuItem value="" disabled>
-                      Selecione...
-                    </MenuItem>
+                  <Select {...field} size="small" label="Turno *">
                     <MenuItem value="matutino">Matutino</MenuItem>
                     <MenuItem value="vespertino">Vespertino</MenuItem>
                     <MenuItem value="noturno">Noturno</MenuItem>
@@ -328,33 +272,26 @@ export default function CardAdminStudents() {
               />
               <FormHelperText>{errors.shift?.message}</FormHelperText>
             </FormControl>
+
             <TextField
-              fullWidth
-              size="small"
-              label="Url Perfil"
-              variant="outlined"
-              className="col-span-12"
+            size="small"  
+              label="URL da Foto"
               {...register("url_profile")}
               error={!!errors.url_profile}
               helperText={errors.url_profile?.message}
+              className="col-span-12"
             />
           </div>
-          <div className="w-full flex items-center justify-end gap-3">
-            <Button
-              onClick={closeViewAdd}
-              size="small"
-              type="submit"
-              variant="outlined"
-              color="inherit"
-            >
-              Fechar
+
+          <div className="flex justify-end gap-3 mt-4">
+            <Button onClick={closeViewAdd} variant="outlined" color="inherit">
+              Cancelar
             </Button>
             <Button
-              onClick={handleSubmit(handleDataPost)}
-              size="small"
               type="submit"
               variant="contained"
               color="primary"
+              disabled={loading}
               startIcon={
                 loading ? (
                   <DataSaverOffIcon className="animate-spin" />
@@ -363,13 +300,14 @@ export default function CardAdminStudents() {
                 )
               }
             >
-              Cadastrar
+              {loading ? "Salvando..." : "Salvar"}
             </Button>
           </div>
-        </div>
+        </form>
       </Dialog>
-      <div className="w-full !h-96">
-        <DataGrid
+
+      <div className="w-full ">
+       <DataGrid
           rows={rows}
           columns={columns}
           rowHeight={50}
@@ -381,7 +319,7 @@ export default function CardAdminStudents() {
               paginationModel: { pageSize: 5 },
             },
           }}
-          processRowUpdate={handleDataPath}
+          processRowUpdate={handleDataUpdate}
           pageSizeOptions={[5, 10]}
           disableRowSelectionOnClick
         />

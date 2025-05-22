@@ -6,26 +6,14 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useBoolean } from "react-hooks-shareable";
-import { z } from "zod";
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import SaveIcon from "@mui/icons-material/Save";
-
-export type Interlocutor = {
-  id: string;
-  name: string;
-  email: string;
-  contact: string;
-  status: boolean;
-  created_at: string;
-  updated_at: string | null;
-  deleted_at: string | null;
-};
-
-const formSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  email: z.string().email().nonempty(),
-  contact: z.string().nonempty(),
-});
+import {
+  Interlocutor,
+  InterlocutorCreate,
+  InterlocutorCreateSchema,
+} from "./SchemaGremioAdmin";
+import { faker } from "@faker-js/faker";
 
 export default function CardAdminInterlocutors() {
   const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
@@ -149,16 +137,24 @@ export default function CardAdminInterlocutors() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    resolver: zodResolver(formSchema),
+  } = useForm<InterlocutorCreate>({
+    resolver: zodResolver(InterlocutorCreateSchema),
     mode: "onChange",
+    defaultValues: {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      contact: faker.phone.number({ style: "national" }),
+    },
   });
 
   const handleDataPost = async (data: any) => {
     setLoading(true);
     try {
       console.log(data);
-      const response = await axios.post<Interlocutor>(`${apiUrl}/interlocutors`, { ...data });
+      const response = await axios.post<Interlocutor>(
+        `${apiUrl}/interlocutors`,
+        { ...data }
+      );
 
       console.log(response.status);
       setStatusCode(response.status);

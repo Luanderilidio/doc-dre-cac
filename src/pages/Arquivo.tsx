@@ -437,7 +437,7 @@ export default function Arquivo() {
                     <div className="col-span-7 md:col-span-8 w-full  border-red-500  ">
                       <BorderLinearProgress
                         variant="determinate"
-                        value={documentTypeCounts.Histórico}
+                        value={90}
                       />
                     </div>
                     <p className="col-span-1 text-center  border-red-500 font-semibold">

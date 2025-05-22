@@ -1,36 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, Button, Dialog, IconButton, TextField } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete"; 
+import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useBoolean } from "react-hooks-shareable";
-import { z } from "zod";
+import { useBoolean } from "react-hooks-shareable"; 
 import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
 import SaveIcon from "@mui/icons-material/Save";
+import {
+  School,
+  SchoolCreate,
+  SchoolCreateSchema,
+} from "./SchemaGremioAdmin";
 
-export type School = {
-  id: string;
-  name: string;
-  city: string;
-  status: boolean;
-  created_at: string;
-  updated_at: string | null;
-  deleted_at: string | null;
-};
-
-const formSchema = z.object({
-  name: z
-    .string()
-    .nonempty("Campo Obrigatório")
-    .transform((nome) => nome.trim()),
-  city: z
-    .string()
-    .nonempty("Campo Obrigatório")
-    // .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome só pode conter letras")
-    .transform((nome) => nome.trim()),
-});
 
 export default function CardAdminSchools() {
   const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
@@ -153,8 +136,8 @@ export default function CardAdminSchools() {
     watch,
     // setValue,
     formState: { errors },
-  } = useForm({
-    resolver: zodResolver(formSchema),
+  } = useForm<SchoolCreate>({
+    resolver: zodResolver(SchoolCreateSchema),
     mode: "onChange",
   });
 
@@ -162,7 +145,9 @@ export default function CardAdminSchools() {
     setLoading(true);
     try {
       console.log(data);
-      const response = await axios.post<School>(`${apiUrl}/schools`, { ...data });
+      const response = await axios.post<School>(`${apiUrl}/schools`, {
+        ...data,
+      });
 
       console.log(response.status);
       setStatusCode(response.status);
@@ -249,23 +234,22 @@ export default function CardAdminSchools() {
         </div>
       </Dialog>
       <div className="w-full !h-96">
-
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        rowHeight={50}
-        getRowId={(row) => row.id}
-        loading={loading}
-        editMode="row"
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 5 },
-          },
-        }}
-        processRowUpdate={handleDataPath}
-        pageSizeOptions={[5, 10]}
-        disableRowSelectionOnClick
-      />
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          rowHeight={50}
+          getRowId={(row) => row.id}
+          loading={loading}
+          editMode="row"
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 5 },
+            },
+          }}
+          processRowUpdate={handleDataPath}
+          pageSizeOptions={[5, 10]}
+          disableRowSelectionOnClick
+        />
       </div>
     </div>
   );
