@@ -10,6 +10,9 @@ import { Transition } from "../../utils/transition";
 import FormsAddGremio from "./FormsAddGremio";
 import { SetStateAction } from "react";
 import FormsAddMember from "./FormsAddMember";
+import moment from "moment/min/moment-with-locales";
+moment.locale("pt-br");
+
 type Props = {
     data: Gremio;
 };
@@ -19,7 +22,7 @@ export default function CardGremio({ data }: Props) {
 
     const [isViewDialog, openViewDialog, closeViewDialog, toggleViewDialog] = useBoolean(false);
 
-    console.log('dados gremio', data)
+
     return (<div className="shadow-md rounded-xl font-Inter">
         <div style={{
             backgroundImage: `url(${data.url_folder})`,
@@ -91,14 +94,18 @@ export default function CardGremio({ data }: Props) {
                         throw new Error("Function not implemented.");
                     }} setViewFormsAddMembers={function (_value: SetStateAction<boolean>): void {
                         throw new Error("Function not implemented.");
-                    }} />
+                    }}
+                        gremioEditData={
+                            data
+                        }
+                    />
                 </div>
                 <div className="col-span-5 bg-gray-100/60 p-4 rounded-lg border ">
                     <h1 className="font-bold text-xl mb-3">Edite os membros do Grêmio</h1>
                     <FormsAddMember gremio_id="W3LFJ7" />
                 </div>
                 <div className="col-span-3 bg-gray-100/60 p-4 rounded-lg border ">
-                    
+
                 </div>
             </div>
         </Dialog>

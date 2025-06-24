@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import moment from "moment/min/moment-with-locales";
 import { z } from "zod";
+import moment from "moment/min/moment-with-locales";
 moment.locale("pt-br");
 
 const roles = [
@@ -47,6 +47,13 @@ export const ROLES_ARRAY = [
 
 export const RoleEnumZod = z.enum(roles);
 
+export const TimestampFields = {
+  created_at: z.date().nullable(),
+  updated_at: z.date().nullable(),
+  deleted_at: z.date().nullable(),
+  disabled_at: z.date().nullable(),
+};
+
 export const SchoolSchema = z.object({
   id: z.string(),
   name: z
@@ -60,10 +67,7 @@ export const SchoolSchema = z.object({
     .transform((nome) => nome.trim()),
   status: z.boolean().default(true),
 
-  created_at: z.string(),
-  disabled_at: z.string().nullable().optional(),
-  updated_at: z.string().nullable().optional(),
-  deleted_at: z.string().nullable().optional(),
+  ...TimestampFields
 });
 
 export const SchoolCreateSchema = SchoolSchema.omit({
@@ -86,10 +90,7 @@ export const InterlocutorSchema = z.object({
   contact: z.string(),
   status: z.boolean().default(true),
 
-  created_at: z.string(),
-  disabled_at: z.string().nullable().optional(),
-  updated_at: z.string().nullable().optional(),
-  deleted_at: z.string().nullable().optional(),
+  ...TimestampFields
 });
 
 export const InterlocutorCreateSchema = InterlocutorSchema.omit({
@@ -116,10 +117,7 @@ export const StudentSchema = z.object({
   shift: z.enum(["matutino", "vespertino", "noturno", "integral"]),
   url_profile: z.string().default(""),
 
-  created_at: z.string(), // ou z.date() se você converter
-  disabled_at: z.string().nullable().optional(), // ou z.date() se você converter
-  updated_at: z.string().nullable().optional(), // ou z.date()
-  deleted_at: z.string().nullable().optional(), // ou z.date()
+  ...TimestampFields
 });
 
 export const StudentCreateSchema = StudentSchema.omit({
@@ -142,10 +140,7 @@ export const MemberSchema = z.object({
   role: z.string(),
   status: z.boolean().default(true),
 
-  disabled_at: z.date().nullable().optional(),
-  created_at: z.date().nullable().optional(),
-  updated_at: z.date().nullable().optional(),
-  deleted_at: z.date().nullable().optional(),
+  ...TimestampFields
 });
 
 export const MemberViewSchema = z.object({
@@ -155,16 +150,13 @@ export const MemberViewSchema = z.object({
   status: z.boolean(),
   student: StudentSchema,
 
-  disabled_at: z.date().nullable().optional(),
-  created_at: z.date().nullable().optional(),
-  updated_at: z.date().nullable().optional(),
-  deleted_at: z.date().nullable().optional(),
+  ...TimestampFields
 });
 
 export const MemberCreateSchema = MemberSchema.omit({
-  id: true, 
+  id: true,
   status: true,
-  
+
   created_at: true,
   disabled_at: true,
   updated_at: true,
@@ -178,7 +170,8 @@ export type MemberView = z.infer<typeof MemberViewSchema>;
 export const MemberViewListSchema = z.array(MemberViewSchema);
 export type MemberViewList = z.infer<typeof MemberViewListSchema>;
 
-export const GremioCreateSchema = z.object({
+
+export const GremioBaseSchema = {
   name: z.string().min(1, "Nome é obrigatório").default(faker.animal.cow()),
   status: z.boolean().default(true),
   url_profile: z
@@ -195,38 +188,34 @@ export const GremioCreateSchema = z.object({
     .default(faker.image.avatar()),
   validity_date: z
     .string()
-    .transform((val) => moment(val))
-    .default(moment().add(1, "year").toISOString()),
+    .refine(val => moment(val).isValid(), "Data de vigência inválida")
+    .transform(val => moment(val).toISOString()),
   approval_date: z
     .string()
-    .transform((val) => moment(val))
-    .default(moment().toISOString()),
+    .refine(val => moment(val).isValid(), "Data de nomeação inválida")
+    .transform(val => moment(val).toISOString()),
+}
+export const GremioCreateSchema = z.object({
+  ...GremioBaseSchema,
   school_id: z.string().min(6, "ID da escola inválido").default(""),
   interlocutor_id: z.string().min(6, "ID do interlocutor inválido").default(""),
 });
 
-export const GremioViewSchema = z.object({
+export const GremioViewSchema = z.object({ 
   id: z.string().min(6),
-  name: z.string(),
-  status: z.boolean().default(true),
-  url_profile: z.string().nullable(),
-  url_folder: z.string().nullable(),
-  validity_date: z.date(),
-  approval_date: z.date(),
+  ...GremioBaseSchema, 
   school: SchoolSchema,
   interlocutor: InterlocutorSchema,
   members: z.array(MemberViewSchema),
 
-  created_at: z.date().nullable(),
-  updated_at: z.date().nullable(),
-  deleted_at: z.date().nullable(),
-  disabled_at: z.date().nullable(),
-});
+  ...TimestampFields
+
+})
 
 export interface ResponseCreateGremio {
   gremio_id: string;
 }
-
+ 
 export type Gremio = z.infer<typeof GremioViewSchema>;
 export type GremioCreate = z.infer<typeof GremioCreateSchema>;
 

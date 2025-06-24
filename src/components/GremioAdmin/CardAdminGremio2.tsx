@@ -17,6 +17,7 @@ import CardAdminGremios from "./CardAdminGremio";
 import FormsAddGremio from "./FormsAddGremio";
 import FormsAddMember from "./FormsAddMember";
 
+
 export default function AdminGremio() {
 
     const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
@@ -42,7 +43,7 @@ export default function AdminGremio() {
             const response = await axios.get<Gremio[]>(
                 `${apiUrl}/gremios?with_students=false`
             );
-            // console.log(response.data);
+            console.log('handleDataGetGremio', response.data);
             setData(response.data);
         } catch (error) {
             console.error("Erro ao buscar gremios:", error);
@@ -157,7 +158,7 @@ export default function AdminGremio() {
                                 <CloseIcon />
                             </IconButton>
                         </div>
-                        <FormsAddGremio setIdGremio={setIdGremio} setViewFormsAddMembers={setViewFormsAddMembers} />
+                        <FormsAddGremio setIdGremio={setIdGremio} setViewFormsAddMembers={setViewFormsAddMembers}  />
                     </div>
                 )}
                 {viewFormsAddMembers && (

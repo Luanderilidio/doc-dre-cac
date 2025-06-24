@@ -23,11 +23,13 @@ import {
     Interlocutor,
     School,
     ResponseCreateGremio,
+    Message,
+    Gremio, 
 } from "./SchemaGremioAdmin";
 import { faker } from "@faker-js/faker";
 moment.locale("pt-br");
 
-const defaultValues = {
+const defaultValues: GremioCreate = {
     name: faker.commerce.product(),
     status: true,
     url_profile: faker.image.avatar(),
@@ -41,16 +43,16 @@ const defaultValues = {
 type FormsAddGremioProps = {
     setIdGremio: (id: string) => void;
     setViewFormsAddMembers: React.Dispatch<React.SetStateAction<boolean>>;
+    gremioEditData?: Gremio;
 };
 
-export default function FormsAddGremio({ setIdGremio, setViewFormsAddMembers }: FormsAddGremioProps) {
+export default function FormsAddGremio({ setIdGremio, setViewFormsAddMembers, gremioEditData }: FormsAddGremioProps) {
 
     const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
 
     const [loading, setLoading] = useState(false);
     const [schools, setSchools] = useState<School[]>([]);
     const [interlocutors, setInterlocutors] = useState<Interlocutor[]>([]);
-
 
     const {
         register,
@@ -60,27 +62,66 @@ export default function FormsAddGremio({ setIdGremio, setViewFormsAddMembers }: 
     } = useForm<GremioCreate>({
         resolver: zodResolver(GremioCreateSchema),
         mode: "onChange",
-        defaultValues,
+        defaultValues: gremioEditData
+            ? {
+                ...gremioEditData, 
+            }
+            : defaultValues,
     });
 
 
-    const handleDataPost = async (data: any) => {
+    // const handleDataPost = async (data: any) => {
+    //     setLoading(true)
+    //     try {
+    //         const response = await axios.post<ResponseCreateGremio>(
+    //             `${apiUrl}/gremios`, {
+    //             data
+    //         }
+    //         );
+    //         setIdGremio(response.data.gremio_id)
+    //         setViewFormsAddMembers(true)
+    //         toast.success("Gremio Cadastado com Sucesso!");
+    //     } catch (error) {
+    //         console.error("Erro ao cadastrar Gremio:", error);
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // };
+
+
+    const createGremio = async (data: GremioCreate) => {
+        console.log('createGremio', data)
+        const response = await axios.post<ResponseCreateGremio>(
+            `${apiUrl}/gremios`, data)
+        return response.data;
+    };
+
+    const updateGremio = async (id: string, data: GremioCreate) => {
+        const response = await axios.put<Message>(`${apiUrl}/gremios/${id}`, data );
+        console.log(response.data.message)
+        return response.data;
+    };
+
+    const handleDataSubmit = async (data: GremioCreate) => {
         setLoading(true)
         try {
-            const response = await axios.post<ResponseCreateGremio>(
-                `${apiUrl}/gremios`, {
-                data
+            if (gremioEditData?.id) {
+                await updateGremio(gremioEditData.id, data)
+                toast.success('Gremio Atualizado com sucesso!')
+            } else {
+                console.log('chegou aqui')
+                const created = await createGremio(data);
+                setIdGremio(created.gremio_id)
+                setViewFormsAddMembers(true)
+                toast.success("Grêmio cadastrado com sucesso!");
             }
-            );
-            setIdGremio(response.data.gremio_id)
-            setViewFormsAddMembers(true)
-            toast.success("Gremio Cadastado com Sucesso!");
         } catch (error) {
-            console.error("Erro ao cadastrar Gremio:", error);
+            console.error("Erro ao salvar Grêmio:", error);
+            toast.error("Erro ao salvar Grêmio");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    };
+    }
 
     const handleDataGetSchools = async () => {
         try {
@@ -112,7 +153,7 @@ export default function FormsAddGremio({ setIdGremio, setViewFormsAddMembers }: 
 
     return (
         <form
-            onSubmit={handleSubmit(handleDataPost)}
+            onSubmit={handleSubmit(handleDataSubmit)}
             className="grid grid-cols-12 gap-2 !font-Inter"
         >
             <div className="col-span-12 mt-2">
@@ -317,7 +358,7 @@ export default function FormsAddGremio({ setIdGremio, setViewFormsAddMembers }: 
                         )
                     }
                 >
-                    Cadastrar
+                    {gremioEditData ? "Atualizar" : "Cadastrar"}
                 </Button>
             </div>
             <ToastContainer
