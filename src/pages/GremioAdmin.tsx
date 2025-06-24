@@ -1,29 +1,35 @@
-import { v4 as uuidv4 } from "uuid";
-// import { useBoolean } from "react-hooks-shareable";
-import CardAdminSchools from "../components/GremioAdmin/CardAdminSchools";
-import CardAdminInterlocutors from "../components/GremioAdmin/CardAdminInterlocutors";
-import CardAdminStudents from "../components/GremioAdmin/CardAdminStudents";
-import CardAdminGremios from "../components/GremioAdmin/CardAdminGremio";
-uuidv4();
+// src/MiniDrawer.tsx
+import React from 'react';
+import { Box, CssBaseline, useTheme } from '@mui/material'; 
+import Header from '../components/GremioAdmin/Header';
+import Sidebar from '../components/GremioAdmin/Sidebar';
+import ContentView from '../components/GremioAdmin/ContentView';
+type PageKey =
+  | 'inbox'
+  | 'starred'
+  | 'sendEmail'
+  | 'drafts'
+  | 'allMail'
+  | 'trash'
+  | 'spam';
 
 export default function GremioAdmin() {
-  // const [isViewAdd, openViewAdd, closeViewAdd, toggleViewAdd] =
-  //   useBoolean(false);
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
+  const [currentPage, setCurrentPage] = React.useState<PageKey>('inbox');
 
   return (
-    <div className="w-full grid grid-cols-12 gap-3 border-red-500 px-8 mt-10">
-      <div className="col-span-4">
-        <CardAdminSchools />
-      </div>
-      <div className="col-span-4">
-        <CardAdminInterlocutors />
-      </div>
-      <div className="col-span-4">
-        <CardAdminStudents />
-      </div>
-      <div className="col-span-12">
-      <CardAdminGremios />
-      </div>
-    </div>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <Header open={open} onOpen={() => setOpen(true)} />
+      <Sidebar
+        open={open}
+        onClose={() => setOpen(false)}
+        setCurrentPage={setCurrentPage}
+        currentPage={currentPage}
+        direction={theme.direction}
+      />
+      <ContentView currentPage={currentPage} />
+    </Box>
   );
 }

@@ -162,10 +162,8 @@ export const MemberViewSchema = z.object({
 });
 
 export const MemberCreateSchema = MemberSchema.omit({
-  id: true,
+  id: true, 
   status: true,
-  gremio_id: true,
-  role: true,
   
   created_at: true,
   disabled_at: true,
@@ -176,6 +174,9 @@ export const MemberCreateSchema = MemberSchema.omit({
 export type Member = z.infer<typeof MemberSchema>;
 export type MemberCreate = z.infer<typeof MemberCreateSchema>;
 export type MemberView = z.infer<typeof MemberViewSchema>;
+
+export const MemberViewListSchema = z.array(MemberViewSchema);
+export type MemberViewList = z.infer<typeof MemberViewListSchema>;
 
 export const GremioCreateSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório").default(faker.animal.cow()),
@@ -214,7 +215,7 @@ export const GremioViewSchema = z.object({
   approval_date: z.date(),
   school: SchoolSchema,
   interlocutor: InterlocutorSchema,
-  members: z.array(MemberViewSchema).optional(),
+  members: z.array(MemberViewSchema),
 
   created_at: z.date().nullable(),
   updated_at: z.date().nullable(),
@@ -228,3 +229,10 @@ export interface ResponseCreateGremio {
 
 export type Gremio = z.infer<typeof GremioViewSchema>;
 export type GremioCreate = z.infer<typeof GremioCreateSchema>;
+
+
+export const MessageSchema = z.object({
+  message: z.string()
+})
+
+export type Message = z.infer<typeof MessageSchema>;

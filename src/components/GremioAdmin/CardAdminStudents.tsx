@@ -12,10 +12,15 @@ import {
   TextField,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ptBR } from '@mui/x-data-grid/locales';
+import { bgBG as pickersBgBG } from '@mui/x-date-pickers/locales';
+import { bgBG as coreBgBG } from '@mui/material/locale';
 import axios from "axios";
 import { faker } from "@faker-js/faker";
-
+import { ToastContainer, toast } from 'react-toastify';
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useBoolean } from "react-hooks-shareable";
@@ -28,14 +33,37 @@ import {
   StudentCreateSchema,
 } from "./SchemaGremioAdmin";
 
+
+
 export default function CardAdminStudents() {
+
   const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
 
-  console.log(import.meta.env.VITE_BACK_END_API_DRE);
   const [isViewAdd, openViewAdd, closeViewAdd] = useBoolean(false);
   const [loading, setLoading] = useState(false);
   const [statusCode, setStatusCode] = useState<number>();
   const [rows, setRows] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<StudentCreate>({
+    resolver: zodResolver(StudentCreateSchema),
+    defaultValues: {
+      name: faker.person.fullName(),
+      registration: faker.string.alphanumeric(8).toUpperCase(),
+      contact: faker.phone.number({ style: "national" }),
+      email: faker.internet.email(),
+      series: faker.helpers.arrayElement(["1º Ano", "2º Ano", "3º Ano"]),
+      shift: "matutino",
+      url_profile: faker.image.avatar(),
+    },
+  });
 
   // Buscar estudantes
   const handleDataGet = async () => {
@@ -55,9 +83,10 @@ export default function CardAdminStudents() {
   const handleDataDelete = async (id: string) => {
     setLoading(true);
     try {
-      const response = await axios.delete(`${apiUrl}/students/${id}`);
+      await axios.delete(`${apiUrl}/students/${id}`);
       setRows((prev) => prev.filter((row) => row.id !== id));
-      setStatusCode(response.status);
+      setStatusCode(200);
+      toast.success("Estudante deletado com Sucesso!");
     } catch (error) {
       console.error("Erro ao deletar estudante:", error);
     } finally {
@@ -66,30 +95,30 @@ export default function CardAdminStudents() {
   };
 
   // Atualizar estudante
-  const handleDataUpdate = async (newRow: Student, oldRow: Student) => {
+  const handleDataUpdate = async (newRow: Student) => {
+    setLoading(true);
     try {
       await axios.patch(`${apiUrl}/students/${newRow.id}`, newRow);
       setRows((prev) =>
         prev.map((row) => (row.id === newRow.id ? newRow : row))
       );
-      return newRow;
+      toast.success("Estudante editado com Sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar estudante:", error);
-      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   // Cadastrar novo estudante
   const handleDataPost = async (data: StudentCreate) => {
-    console.log(data);
     setLoading(true);
     try {
       const response = await axios.post<Student>(`${apiUrl}/students`, data);
       setRows((prev) => [...prev, response.data]);
       setStatusCode(response.status);
-      
       reset();
-      console.log("POST ESTUDANTE", response.data);
+      toast.success("Estudante criado com Sucesso!");
     } catch (error) {
       console.error("Erro ao cadastrar estudante:", error);
     } finally {
@@ -101,81 +130,89 @@ export default function CardAdminStudents() {
     handleDataGet();
   }, []);
 
+  useEffect(() => {
+    if (selectedStudent) {
+      reset(selectedStudent);
+      openViewAdd();
+    }
+  }, [selectedStudent, reset, openViewAdd]);
+
   const columns: GridColDef<Student>[] = [
     { field: "id", headerName: "ID", width: 70 },
-    { field: "name", headerName: "Nome", width: 150, editable: true },
-    { field: "registration", headerName: "Matrícula", width: 120, editable: true },
-    { field: "contact", headerName: "Contato", width: 120, editable: true },
-    { field: "email", headerName: "Email", width: 180, editable: true },
-    { field: "series", headerName: "Série", width: 100, editable: true },
+    {
+      field: "url_profile",
+      headerName: "Foto",
+      width: 70,
+      renderCell: (params) => (
+        <div className="h-full flex items-center justify-center">
+          <img className="rounded-full w-10" src={params.value} alt="" />
+        </div>
+      ),
+    },
+    { field: "name", headerName: "Nome", width: 150 },
+    { field: "registration", headerName: "Matrícula", width: 120 },
+    { field: "contact", headerName: "Contato", width: 120 },
+    { field: "email", headerName: "Email", width: 180 },
+    { field: "series", headerName: "Série", width: 100 },
     {
       field: "shift",
       headerName: "Turno",
       width: 120,
-      editable: true,
-      type: "singleSelect",
-      valueOptions: ["matutino", "vespertino", "noturno", "integral"],
-    },
-    {
-      field: "url_profile",
-      headerName: "Foto",
-      width: 150,
-      editable: true,
-      renderCell: (params) => (
-        params.value ? <a href={params.value} target="_blank" rel="noopener noreferrer">Ver foto</a> : "Nenhuma"
-      ),
     },
     {
       field: "status",
       headerName: "Status",
       width: 100,
-      editable: true,
-      type: "boolean",
       renderCell: (params) => (params.value ? "Ativo" : "Inativo"),
     },
     {
       field: "actions",
       headerName: "Ações",
-      width: 80,
+      width: 120,
       sortable: false,
       renderCell: (params) => (
-        <IconButton
-          onClick={() => handleDataDelete(params.row.id)}
-          color="error"
-          aria-label="delete"
-        >
-          <DeleteIcon />
-        </IconButton>
+        <>
+          <IconButton
+            onClick={() => setSelectedStudent(params.row)}
+            color="primary"
+            aria-label="edit"
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => handleDataDelete(params.row.id)}
+            color="error"
+            aria-label="delete"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </>
       ),
     },
   ];
 
-  // Configuração do formulário
-  const {
-    control,
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<StudentCreate>({
-    resolver: zodResolver(StudentCreateSchema),
-    defaultValues: {
-      name: faker.person.fullName(),
-      registration: faker.string.alphanumeric(8).toUpperCase(),
-      contact: faker.phone.number({ style: "national" }),
-      email: faker.internet.email(),
-      series: faker.helpers.arrayElement(["1º Ano", "2º Ano", "3º Ano"]),
-      shift: "matutino" as const,
-      url_profile: faker.image.avatar(),
-    },
-  });
+
+
+  const onSubmit = (data: StudentCreate) => {
+    if (selectedStudent) {
+      const updatedStudent: Student = {
+        ...selectedStudent,
+        ...data,
+      };
+      handleDataUpdate(updatedStudent);
+      setSelectedStudent(null);
+    } else {
+      handleDataPost(data);
+    }
+    closeViewAdd();
+  };
 
   const urlProfile = watch("url_profile");
+
   return (
     <div className="w-full flex flex-col items-center justify-between border gap-3 rounded-lg p-4">
       <div className="w-full flex items-center justify-between">
-        <h1 className="font-bold text-gray-400">Cadastrar Aluno</h1>
+        <h1 className="font-bold text-gray-400">Gerenciar Estudantes</h1>
         <div className="flex gap-3">
           <Button onClick={openViewAdd} variant="contained" size="small">
             Adicionar
@@ -186,17 +223,10 @@ export default function CardAdminStudents() {
         </div>
       </div>
 
-      <Dialog open={isViewAdd} onClose={closeViewAdd} fullWidth maxWidth="sm">
-        <form
-          onSubmit={handleSubmit(handleDataPost)}
-          className="p-4 flex flex-col "
-        >
-          {statusCode === 201 && (
-            <Alert severity="success">Aluno cadastrado com sucesso!</Alert>
-          )}
-
+      <Dialog open={isViewAdd} onClose={() => { setSelectedStudent(null); closeViewAdd(); }} fullWidth maxWidth="sm">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 flex flex-col">
           <h1 className="w-full text-2xl font-bold text-center mb-3">
-            CADASTRO DE ESTUDANTE
+            {selectedStudent ? "Editar Estudante" : "Cadastrar Estudante"}
           </h1>
 
           <div className="grid grid-cols-12 grid-rows-3 gap-2">
@@ -211,15 +241,15 @@ export default function CardAdminStudents() {
             />
 
             <div className="col-span-3 row-span-3 flex items-center justify-center">
-              {urlProfile !== "" ? (
+              {urlProfile ? (
                 <img className="w-full h-full object-cover rounded-xl" src={urlProfile} alt="" />
               ) : (
                 <PersonIcon sx={{ fontSize: 60 }} />
-              )} 
+              )}
             </div>
 
             <TextField
-            size="small"
+              size="small"
               label="Matrícula"
               {...register("registration")}
               error={!!errors.registration}
@@ -229,7 +259,7 @@ export default function CardAdminStudents() {
             />
 
             <TextField
-            size="small"
+              size="small"
               label="Contato"
               {...register("contact")}
               error={!!errors.contact}
@@ -238,7 +268,7 @@ export default function CardAdminStudents() {
             />
 
             <TextField
-            size="small"
+              size="small"
               label="Email"
               type="email"
               {...register("email")}
@@ -248,7 +278,7 @@ export default function CardAdminStudents() {
             />
 
             <TextField
-            size="small"
+              size="small"
               label="Série"
               {...register("series")}
               error={!!errors.series}
@@ -274,7 +304,7 @@ export default function CardAdminStudents() {
             </FormControl>
 
             <TextField
-            size="small"  
+              size="small"
               label="URL da Foto"
               {...register("url_profile")}
               error={!!errors.url_profile}
@@ -284,7 +314,14 @@ export default function CardAdminStudents() {
           </div>
 
           <div className="flex justify-end gap-3 mt-4">
-            <Button onClick={closeViewAdd} variant="outlined" color="inherit">
+            <Button
+              onClick={() => {
+                setSelectedStudent(null);
+                closeViewAdd();
+              }}
+              variant="outlined"
+              color="inherit"
+            >
               Cancelar
             </Button>
             <Button
@@ -306,24 +343,36 @@ export default function CardAdminStudents() {
         </form>
       </Dialog>
 
-      <div className="w-full ">
-       <DataGrid
+      <div className="w-full">
+        <DataGrid
+          localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
           rows={rows}
           columns={columns}
           rowHeight={50}
           getRowId={(row) => row.id}
           loading={loading}
-          editMode="row"
+          pageSizeOptions={[5, 10]}
+          disableRowSelectionOnClick
           initialState={{
             pagination: {
               paginationModel: { pageSize: 5 },
             },
           }}
-          processRowUpdate={handleDataUpdate}
-          pageSizeOptions={[5, 10]}
-          disableRowSelectionOnClick
         />
       </div>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 }

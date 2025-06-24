@@ -57,6 +57,7 @@ export default function CardAdminMemberGremio({
   });
 
   const selectedStudentId = useWatch({ control, name: "student_id" });
+  
   const handleDataPost = async (data: MemberCreate) => {
     setLoading(true);
     console.log(data);
@@ -167,9 +168,7 @@ export default function CardAdminMemberGremio({
                         <strong>{option.name}</strong>
                         <p className="text-sm">{option.registration}</p>
                       </div>
-                      {/* <div className="text-xs">
-                                  <p>{option.city}</p>
-                                </div> */}
+               
                     </div>
                   </li>
                 )}

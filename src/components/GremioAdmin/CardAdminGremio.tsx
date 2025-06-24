@@ -4,14 +4,10 @@ import {
   Autocomplete,
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
   Divider,
-  FormControl,
-  FormHelperText,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -37,8 +33,10 @@ import {
   ResponseCreateGremio,
   Student,
   ROLES_ARRAY,
+  MemberView,
 } from "./SchemaGremioAdmin";
 import CardAdminMemberGremio from "./CardAdminMemberGremio";
+import GridAdminMember from "./GridAdminMember";
 
 moment.locale("pt-br");
 
@@ -77,6 +75,15 @@ export default function CardAdminGremios() {
     closeViewAddMember,
     toggleViewAddMember,
   ] = useBoolean(false);
+
+  const [
+    isViewEditMember,
+    openViewEditMember,
+    closeViewEditMember,
+    toggleViewEditMember,
+  ] = useBoolean(false);
+
+
   const [loading, setLoading] = useState(false);
   const [idGremio, setIdGremio] = useState("");
   const [statusCode, setStatusCode] = useState<number>();
@@ -87,10 +94,11 @@ export default function CardAdminGremios() {
   const [interlocutorSelected, setInterlocutorSelected] =
     useState<Interlocutor | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
+  const [members, setMembers] = useState<MemberView[]>([])
   const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
   const [rolesCopy, setRolesCopy] = useState<string[]>(rolesOriginal);
   const [rolesNoActive, setRolesNoActive] = useState<string[]>([]);
-  
+
 
   const handleDataGet = async () => {
     setLoading(true);
@@ -190,9 +198,9 @@ export default function CardAdminGremios() {
   const handleViewMember = (data: Gremio) => {
     handleDataGetStudents();
     setIdGremio(data.id);
-    console.log(data);
+    // console.log(data);
     const rolesAlreadyUsed = data.members?.map((role) => role.role);
-    console.log(rolesAlreadyUsed);
+    // console.log(rolesAlreadyUsed);
 
     const rolesNoActive = ROLES_ARRAY.filter(
       (item) => !rolesAlreadyUsed?.includes(item)
@@ -237,9 +245,24 @@ export default function CardAdminGremios() {
       field: "members",
       headerName: "Integrantes",
       width: 100,
+      editable: true,
       renderCell: (params) => {
         // console.log(params);
-        return <p>{params.value?.length}</p>;
+        return (
+          <div className=" w-full flex justify-end gap-2 ">
+            <p>{params.value?.length}</p>
+            <IconButton
+              color="primary"
+              onClick={() => {
+                console.log(params.value)
+                setMembers(params.value)
+                openViewEditMember()
+              }}
+            >
+              <EditNoteIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+          </div>
+        )
       },
     },
     {
@@ -265,12 +288,7 @@ export default function CardAdminGremios() {
             >
               <PersonAddIcon />
             </IconButton>
-            <IconButton
-              onClick={() => handleViewMember(params.row)}
-              color="primary"
-            >
-              <EditNoteIcon sx={{fontSize: 30}} />
-            </IconButton>
+            
             <IconButton
               onClick={() => handleDataDelete(params.row.id)}
               color="error"
@@ -293,7 +311,7 @@ export default function CardAdminGremios() {
 
   const handleRemoveRole = (role: string) => {
     const novaLista = rolesNoActive.filter((item) => item !== role);
-    console.log("novaLista de roles", novaLista);
+    // console.log("novaLista de roles", novaLista);
     setRolesCopy(novaLista);
   };
 
@@ -302,10 +320,6 @@ export default function CardAdminGremios() {
       (s) => !selectedStudents.some((sel) => sel.id === s.id)
     );
   };
-
-  // const handleAddMemberinGrid = (student: Student, gremio_id: string) => {
-
-  // }
 
   useEffect(() => {
     handleDataGet();
@@ -581,24 +595,35 @@ export default function CardAdminGremios() {
                 </Button>
               </div>
             </form>
-            {statusCode === 201 && (
-              <></>
-              // <>
-              //   {rolesCopy.map((role) => (
-              //     <CardAdminMemberGremio
-              //       key={role}
-              //       gremio_id={idGremio}
-              //       students={getAvailableStudents()}
-              //       role={role}
-              //       onStudentSelect={handleStudentSelect}
-              //       onRemoveRole={handleRemoveRole}
-              //     />
-              //   ))}
-              // </>
-            )}
+             
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={isViewEditMember}
+        onClose={closeViewEditMember}
+          // onClose={() => {
+          //   closeViewAddMember();
+          //   handleDataGet();
+          // }}
+        fullWidth
+        maxWidth="sm"
+        scroll="paper"
+      >
+        <DialogContent dividers >
+          <h1 className="text-center text-3xl font-bold mb-3">
+            EDITE OS MEMBROS DO GRÊMIO
+          </h1>
+          <GridAdminMember members={members} />
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={toggleViewEditMember}>
+            Fechar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
 
       <Dialog
         open={isViewAddMember}
@@ -626,18 +651,19 @@ export default function CardAdminGremios() {
           ))}
         </DialogContent>
       </Dialog>
+
       <div className="w-full !h-96">
         <DataGrid
           rows={rows}
           columns={columns}
           rowHeight={50}
+          pageSizeOptions={[5, 10]}
           getRowId={(row) => row.id}
           loading={loading}
           editMode="row"
           initialState={{
             pagination: { paginationModel: { pageSize: 5 } },
           }}
-          pageSizeOptions={[5, 10]}
           disableRowSelectionOnClick
         />
       </div>
