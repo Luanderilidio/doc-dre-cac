@@ -207,9 +207,7 @@ export const GremioViewSchema = z.object({
   school: SchoolSchema,
   interlocutor: InterlocutorSchema,
   members: z.array(MemberViewSchema),
-
   ...TimestampFields
-
 })
 
 export interface ResponseCreateGremio {
