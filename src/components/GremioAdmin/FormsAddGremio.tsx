@@ -290,7 +290,7 @@ export default function FormsAddGremio({
                 }}
                 slotProps={{
                   textField: {
-                    error: !!errors.approval_date,
+                    error: !!errors.approval_date?.message,
                     helperText: errors.approval_date?.message,
                   },
                 }}

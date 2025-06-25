@@ -197,8 +197,8 @@ export const GremioBaseSchema = {
 }
 export const GremioCreateSchema = z.object({
   ...GremioBaseSchema,
-  school_id: z.string().min(6, "ID da escola inválido").default(""),
-  interlocutor_id: z.string().min(6, "ID do interlocutor inválido").default(""),
+  school_id: z.string().min(6, "Campo vazio Inválido").default(""),
+  interlocutor_id: z.string().min(6, "Campo vazio Inválido").default(""),
 });
 
 export const GremioViewSchema = z.object({ 

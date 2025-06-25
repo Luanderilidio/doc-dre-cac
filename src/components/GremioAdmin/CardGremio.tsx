@@ -30,6 +30,8 @@ export default function CardGremio({ data }: Props) {
   const [isViewDialog, openViewDialog, closeViewDialog, toggleViewDialog] =
     useBoolean(false);
 
+    
+
   return (
     <div className="shadow-md rounded-xl font-Inter">
       <div
@@ -42,7 +44,7 @@ export default function CardGremio({ data }: Props) {
           {data.status === true ? "Ativo" : "Inativo"}
         </p>
         <div className="text-[0.7rem] font-bold absolute bottom-2 text-white z-50 right-3">
-          06/25 até 06/26
+          {moment(data.approval_date).format("MM/YY")} até {moment(data.validity_date).format("MM/YY")}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-b-lg" />
       </div>
@@ -129,7 +131,7 @@ export default function CardGremio({ data }: Props) {
             <h1 className="font-bold text-xl mb-3">
               Edite os membros do Grêmio
             </h1>
-            <FormsAddMember gremio_id="W3LFJ7" />
+            <FormsAddMember gremio_id={data.id} />
           </div>
           <div className="col-span-3 bg-gray-100/60 p-4 rounded-lg border "></div>
         </div>
