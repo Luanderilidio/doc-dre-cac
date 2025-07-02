@@ -20,6 +20,7 @@ import FormsAddGremio from "./FormsAddGremio";
 import { SetStateAction } from "react";
 import FormsAddMember from "./FormsAddMember";
 import moment from "moment/min/moment-with-locales";
+import FormsAddProcessRedefinition from "./FormsAddProcessRedefinition";
 moment.locale("pt-br");
 
 type Props = {
@@ -29,8 +30,6 @@ type Props = {
 export default function CardGremio({ data }: Props) {
   const [isViewDialog, openViewDialog, closeViewDialog, toggleViewDialog] =
     useBoolean(false);
-
-    
 
   return (
     <div className="shadow-md rounded-xl font-Inter">
@@ -112,7 +111,7 @@ export default function CardGremio({ data }: Props) {
             </IconButton>
           </Toolbar>
         </AppBar>
-        <div className="grid grid-cols-12 gap-5 p-5">
+        <div className="grid grid-cols-13 gap-3 p-5">
           <div className="col-span-4 bg-gray-100/60 p-4 rounded-lg border ">
             <h1 className="font-bold text-xl mb-3">Edite os Dados do Grêmio</h1>
             <FormsAddGremio
@@ -133,7 +132,10 @@ export default function CardGremio({ data }: Props) {
             </h1>
             <FormsAddMember gremio_id={data.id} />
           </div>
-          <div className="col-span-3 bg-gray-100/60 p-4 rounded-lg border "></div>
+          <div className="col-span-4 ">
+          
+          <FormsAddProcessRedefinition gremio_id={data.id} />
+          </div>
         </div>
       </Dialog>
     </div>
