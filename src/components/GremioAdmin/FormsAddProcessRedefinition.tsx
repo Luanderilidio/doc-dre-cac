@@ -18,6 +18,8 @@ import {
 import axios from "axios";
 import FormsAddRedefinitionStages from "./StepperProcessRedefinitionStages";
 import StepperProcessRedefinitionStages from "./StepperProcessRedefinitionStages";
+import CardProcessRedefinition from "./CardProcessRedefinition";
+import { CollectionsOutlined } from "@mui/icons-material";
 
 type Props = {
   gremio_id: string;
@@ -27,6 +29,8 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
   const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
 
   const [gremioProcessId, setGremioProcessId] = useState<string>("");
+
+  const [gremioProcess, setGremioProcess] = useState<ProcessRedefinition>()
 
   const {
     control,
@@ -72,9 +76,11 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
         }
       );
 
-      setGremioProcessId(response.data.id)
+      setGremioProcess(response.data)
+      toast.success("Processo de redefinição já existe!");
+      setGremioProcessId(response.data.id);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -83,8 +89,10 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
   },[])
 
   return (
-    <div className="gap-2">
-      <form
+    <div className="w-full border">
+      asdasdw
+     <CardProcessRedefinition data={gremioProcess!} />
+      {/* <form
         className="grid grid-cols-12 grid-rows-2 gap-2 bg-gray-100/60 p-4 rounded-lg border"
         action=""
         onSubmit={handleSubmit(handleDataSubmit)}
@@ -156,7 +164,7 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
         draggable
         pauseOnHover
         theme="colored"
-      />
+      /> */}
     </div>
   );
 }
