@@ -1,124 +1,167 @@
-// FormsAddRedefinitionStages.tsx
+import { Button, TextField } from "@mui/material";
+import {
+  GetGremioProcessRedefinitionStagesSchema,
+  GremioProcessRedefinitionStagesBaseSchema,
+  Message,
+  ProcessRedefinitionStages,
+  ProcessRedefinitionStagesCreate,
+} from "./SchemaGremioAdmin";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, TextField } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import moment from "moment";
-import { ProcessRedefinitionStagesCreate, GremioProcessRedefinitionStagesBaseSchema, Stage, Message } from "./SchemaGremioAdmin";
+import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import moment from "moment";
+import "moment/locale/pt-br";
+moment.locale("pt-br");
 
 type Props = {
-  gremio_process_id: string;
-  stage: Stage;
-  steps: { label: Stage; description: string }[];
-  activeStep: number;
-  index: number;
-  onNext: () => void;
-  onBack: () => void;
-  onReset: () => void;
+  data: ProcessRedefinitionStages;
 };
 
-export default function FormsAddRedefinitionStages({
-  gremio_process_id,
-  stage,
-  onNext,
-  onBack,
-  index,
-}: Props) {
+export default function FormsAddRedefinitionStages({ data }: Props) {
   const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
 
-  const { control, handleSubmit, formState: { errors } } = useForm<ProcessRedefinitionStagesCreate>({
+  console.log('FormsAddRedefinitionStages', {
+    gremio_process_id: data.gremio_process_id,
+    status: data.status,
+    stage: data.stage,
+    observation: data.observation,
+    started_at: data.started_at,
+    finished_at: data.finished_at,
+  });
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ProcessRedefinitionStagesCreate>({
     resolver: zodResolver(GremioProcessRedefinitionStagesBaseSchema),
     mode: "onChange",
     defaultValues: {
-      gremio_process_id,
-      stage,
+      gremio_process_id: data.gremio_process_id,
       status: true,
-      observation: "",
+      stage: data.stage,
+      observation: data.observation ?? "",
+      started_at: data.started_at ?? null,
+      finished_at: data.finished_at ?? null,
     },
   });
 
-  const handleDataSubmit = async (data: ProcessRedefinitionStagesCreate) => {
+  const handleDataSubmit = async (
+    formData: ProcessRedefinitionStagesCreate
+  ) => {
+    console.log("Dados recebidos no handleSubmit:", formData);
+
     try {
       const response = await axios.post<Message>(
         `${apiUrl}/gremio-process-redefinition-stages`,
-        {
-          ...data,
-          started_at: data.started_at,
-          finished_at: data.finished_at,
-        }
+        formData
       );
-      toast.success(response.data.message);
-      onNext();
-    } catch (error) {
+
+      console.log("Resposta da API:", response.data);
+      toast.success("Estágio cadastrado com sucesso");
+      reset(); // Limpa o formulário após sucesso
+    } catch (error: unknown) {
       console.error(error);
+      toast.error("Ocorreu um erro ao salvar o estágio.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(handleDataSubmit)} className="grid grid-cols-12 gap-3">
+    <form
+      onSubmit={handleSubmit(handleDataSubmit)}
+      className="grid grid-cols-12 gap-3"
+      noValidate
+    >
       <TextField
         fullWidth
-        size="small"
+        required
         label="Observação"
-        {...control.register("observation")}
+        variant="outlined"
+        className="col-span-12"
+        {...register("observation")}
         error={!!errors.observation}
         helperText={errors.observation?.message}
-        className="col-span-12"
       />
 
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <Controller
           name="started_at"
           control={control}
-          render={({ field }) => (
-            <DatePicker
-              label="Início"
-              value={field.value ? moment(field.value) : null}
-              onChange={(date) => field.onChange(date?.toISOString())}
-              slotProps={{
-                textField: {
-                  error: !!errors.started_at,
-                  helperText: errors.started_at?.message,
-                  size: "small",
-                },
-              }}
-            />
-          )}
+          render={({ field }) => {
+            const value = field.value ? moment(field.value) : null;
+
+            return (
+              <DatePicker
+                label="Data Início"
+                className="col-span-6"
+                value={value}
+                onChange={(newValue) => {
+                  field.onChange(newValue ? newValue.toISOString() : null);
+                }}
+                slotProps={{
+                  textField: {
+                    error: !!errors.started_at,
+                    helperText: errors.started_at?.message,
+                    fullWidth: true,
+                  },
+                }}
+              />
+            );
+          }}
         />
 
         <Controller
           name="finished_at"
           control={control}
-          render={({ field }) => (
-            <DatePicker
-              label="Fim"
-              value={field.value ? moment(field.value) : null}
-              onChange={(date) => field.onChange(date?.toISOString())}
-              minDate={moment()}
-              slotProps={{
-                textField: {
-                  error: !!errors.finished_at,
-                  helperText: errors.finished_at?.message,
-                  size: "small",
-                },
-              }}
-            />
-          )}
+          render={({ field }) => {
+            const value = field.value ? moment(field.value) : null;
+
+            return (
+              <DatePicker
+                label="Data Início"
+                className="col-span-6"
+                value={value}
+                onChange={(newValue) => {
+                  field.onChange(newValue ? newValue.toISOString() : null);
+                }}
+                slotProps={{
+                  textField: {
+                    error: !!errors.finished_at,
+                    helperText: errors.finished_at?.message,
+                    fullWidth: true,
+                  },
+                }}
+              />
+            );
+          }}
         />
       </LocalizationProvider>
 
-      <div className="col-span-12 flex justify-end">
-        <Button type="submit" variant="contained" size="small">
+      <div className="col-span-12 flex items-center justify-end gap-3">
+        <Button type="submit" variant="contained">
           Salvar
         </Button>
-        <Button size="small" disabled={index === 0} onClick={onBack} sx={{ ml: 1 }}>
-          Voltar
+        <Button type="button" variant="outlined" onClick={() => reset()}>
+          Limpar
         </Button>
       </div>
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </form>
   );
 }
