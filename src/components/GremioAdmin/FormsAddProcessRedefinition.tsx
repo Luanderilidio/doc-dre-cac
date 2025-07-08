@@ -14,12 +14,10 @@ import {
   ProcessRedefinition,
   ProcessRedefinitionBaseSchema,
   ProcessRedefinitionCreate,
+  ProcessRedefinitionWithStages,
 } from "./SchemaGremioAdmin";
 import axios from "axios";
-import FormsAddRedefinitionStages from "./StepperProcessRedefinitionStages";
-import StepperProcessRedefinitionStages from "./StepperProcessRedefinitionStages";
 import CardProcessRedefinition from "./CardProcessRedefinition";
-import { CollectionsOutlined } from "@mui/icons-material";
 
 type Props = {
   gremio_id: string;
@@ -30,7 +28,7 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
 
   const [gremioProcessId, setGremioProcessId] = useState<string>("");
 
-  const [gremioProcess, setGremioProcess] = useState<ProcessRedefinition>()
+  const [gremioProcess, setGremioProcess] = useState<ProcessRedefinitionWithStages>()
 
   const {
     control,
@@ -48,7 +46,6 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
   });
 
   const handleDataSubmit = async (data: ProcessRedefinitionCreate) => {
-    console.log(data);
     try {
       const response = await axios.post<MessageWithId>(
         `${apiUrl}/gremio-process-redefinition`,
@@ -61,12 +58,12 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
       );
       setGremioProcessId(response.data.id);
       toast.success(response.data.message);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const getProcessRefefinition = async () => {
     try {
-      const response = await axios.get<ProcessRedefinition>(
+      const response = await axios.get<ProcessRedefinitionWithStages>(
         `${apiUrl}/gremio-process-redefinition`,
         {
           params: {
@@ -76,8 +73,8 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
         }
       );
 
+      console.log(response.data)
       setGremioProcess(response.data)
-      toast.success("Processo de redefinição já existe!");
       setGremioProcessId(response.data.id);
     } catch (error) {
       console.log(error);
@@ -86,12 +83,15 @@ export default function FormsAddProcessRedefinition({ gremio_id }: Props) {
 
   useEffect(() => {
     getProcessRefefinition()
-  },[])
+  }, [])
 
   return (
-    <div className="w-full border">
-      asdasdw
-     <CardProcessRedefinition data={gremioProcess!} />
+    <div className="w-full">
+
+      {gremioProcessId && (
+
+        <CardProcessRedefinition data={gremioProcess} />
+      )}
       {/* <form
         className="grid grid-cols-12 grid-rows-2 gap-2 bg-gray-100/60 p-4 rounded-lg border"
         action=""

@@ -142,10 +142,8 @@ export default function FormsDocument() {
         rgFrenteVerso: "",
         comprovanteEndereco: "",
       };
-
-      console.log("addNewDocument", paramsUrl);
-      const response = await axios.get(apiUrl, { params: paramsUrl });
-      console.log(response.data);
+  
+      const response = await axios.get(apiUrl, { params: paramsUrl }); 
     } catch (error) {
       console.error("Erro ao adicionar documento:", error);
     } finally {

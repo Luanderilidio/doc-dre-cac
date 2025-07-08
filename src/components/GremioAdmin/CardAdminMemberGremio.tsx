@@ -42,7 +42,7 @@ export default function CardAdminMemberGremio({
   const [statusCode, setStatusCode] = useState<number>();
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
-  console.log(role, students);
+ 
 
   const {
     control,
@@ -59,14 +59,8 @@ export default function CardAdminMemberGremio({
   const selectedStudentId = useWatch({ control, name: "student_id" });
   
   const handleDataPost = async (data: MemberCreate) => {
-    setLoading(true);
-    console.log(data);
+    setLoading(true); 
     try {
-      console.log("data Post Membros", {
-        gremio_id: gremio_id,
-        student_id: data.student_id,
-        role: role,
-      });
       const response = await axios.post<Member>(`${apiUrl}/members-gremio`, {
         gremio_id: gremio_id,
         student_id: data.student_id,
@@ -77,17 +71,8 @@ export default function CardAdminMemberGremio({
       setSelectedStudent(
         students.find((s) => s.id === data.student_id) || null
       );
-
-      console.log("data Post Membros", response.status);
+ 
       onRemoveRole(role);
-
-      console.log("set member", {
-        gremio_id: gremio_id,
-        student_id: data.student_id,
-        role: role,
-        status: true,
-        // student: data.student,
-      });
 
       setStatusCode(response.status);
       onStudentSelect(selectedStudent);

@@ -73,8 +73,7 @@ export default function FormsAddMember({ gremio_id }: FormsAddMemberProps) {
         role: data.role,
         status: true,
       });
-      toast.success("Membro Cadastado com Sucesso!");
-      console.log("handleDataPost member", response.data);
+      toast.success("Membro Cadastado com Sucesso!"); 
 
       handleDataGetMembers();
     } catch (error) {
@@ -102,12 +101,10 @@ export default function FormsAddMember({ gremio_id }: FormsAddMemberProps) {
     try {
       const response = await axios.get<string[]>(
         `${apiUrl}/members-gremio?only_roles=true&gremio_id=${gremio_id}`
-      );
-      console.log("only_roles", response.data);
+      ); 
       const rolesNotActive = rolesOriginal.filter(
         (role) => !response.data.includes(role)
-      );
-      console.log("rolesNotActive", rolesNotActive);
+      ); 
       setRolesNoActive(rolesNotActive);
       return response.data;
     } catch (error) {
@@ -119,8 +116,7 @@ export default function FormsAddMember({ gremio_id }: FormsAddMemberProps) {
     try {
       const response = await axios.get<MemberView[]>(
         `${apiUrl}/members-gremio?gremio_id=${gremio_id}`
-      );
-      console.log("handleDataGetMembers", response.status, response.data);
+      );  
       setMembers(response.data);
     } catch (error) {
       console.log(error);

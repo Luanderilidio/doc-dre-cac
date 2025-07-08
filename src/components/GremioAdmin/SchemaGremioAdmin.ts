@@ -308,6 +308,7 @@ export type ProcessRedefinition = z.infer<typeof ProcessRedefinitionViewSchema>;
 export type ProcessRedefinitionCreate = z.infer<
   typeof ProcessRedefinitionBaseSchema
 >;
+export type ProcessRedefinitionWithStages = z.infer<typeof GetProcessRedefinitionWithStagesSchema>;
 
 export const MessageSchema = z.object({
   message: z.string(),

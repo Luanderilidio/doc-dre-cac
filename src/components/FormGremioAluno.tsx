@@ -50,10 +50,8 @@ export default function FormGremioAluno({ dadosAluno }: FormGremioAlunoProps) {
         action: "alterEstudante",
         ...aluno,
       };
-
-      console.log("handleDataStudent", paramsUrl);
-      const response = await axios.get(apiUrl, { params: paramsUrl });
-      console.log(response);
+ 
+      const response = await axios.get(apiUrl, { params: paramsUrl }); 
     } catch (error) {
       console.error("Erro ao atualizar aluno:", error);
     } finally {

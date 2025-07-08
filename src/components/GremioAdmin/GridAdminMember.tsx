@@ -37,10 +37,7 @@ export default function GridAdminMember({
 }) {
 
 
-    const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
-
-
-    console.log(import.meta.env.VITE_BACK_END_API_DRE);
+    const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string; 
     const [isViewAdd, openViewAdd, closeViewAdd] = useBoolean(false);
     const [loading, setLoading] = useState(false);
     const [rows, setRows] = useState<MemberView[]>(members);
@@ -93,8 +90,7 @@ export default function GridAdminMember({
 
     const columns: GridColDef<MemberView>[] = [
         {
-            field: "id", headerName: "ID", width: 40, renderCell: (params) => {
-                console.log("params", params.row)
+            field: "id", headerName: "ID", width: 40, renderCell: (params) => { 
                 return <>
                     {params.row.id}
                 </>
@@ -109,8 +105,7 @@ export default function GridAdminMember({
             ),
         },
         {
-            field: "name", headerName: "Nome", width: 150, editable: true, renderCell: (params) => {
-                console.log("params", params.row.student.name)
+            field: "name", headerName: "Nome", width: 150, editable: true, renderCell: (params) => { 
                 return <>
                     {params.row.student.name}
                 </>

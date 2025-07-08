@@ -8,7 +8,6 @@ interface Props {
 }
 
 export default function ProtectedRoute({ children }: Props) {
-  const { user } = useAuth();
-  console.log(user);
+  const { user } = useAuth(); 
   return user ? children : <Navigate to="/" />;
 }

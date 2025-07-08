@@ -20,13 +20,10 @@ export default function Solicitacao() {
     try {
       const response = await api.get<{ output: CardDocumentProps[] }>(apiUrl, {
         params: { action: "slugCpf", cpf: id },
-      });
-
-      console.log("response.data", response.data);
+      }); 
 
       if (response.data.output.length > 0) {
-        setData(response.data.output[0]); // Pega o primeiro item do array
-        console.log(response.data.output[0].status);
+        setData(response.data.output[0]); // Pega o primeiro item do array 
       } else {
         setData(null);
       }

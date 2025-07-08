@@ -253,8 +253,7 @@ export default function CardAdminGremios() {
             <p>{params.value?.length}</p>
             <IconButton
               color="primary"
-              onClick={() => {
-                console.log(params.value)
+              onClick={() => { 
                 setMembers(params.value)
                 openViewEditMember()
               }}

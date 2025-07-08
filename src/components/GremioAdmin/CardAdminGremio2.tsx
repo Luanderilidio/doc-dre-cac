@@ -42,8 +42,7 @@ export default function AdminGremio() {
     try {
       const response = await axios.get<Gremio[]>(
         `${apiUrl}/gremios?with_students=false`
-      );
-      console.log("handleDataGetGremio", response.data);
+      ); 
       setData(response.data);
     } catch (error) {
       console.error("Erro ao buscar gremios:", error);

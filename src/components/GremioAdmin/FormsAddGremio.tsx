@@ -123,8 +123,7 @@ export default function FormsAddGremio({
     try {
       const response = await axios.get<School[]>(`${apiUrl}/schools?free=true`);
       if (gremioEditData?.id) {
-        setSchools([gremioEditData.school, ...response.data]);
-        console.log([gremioEditData.school, ...response.data]);
+        setSchools([gremioEditData.school, ...response.data]); 
       } else {
         setSchools(response.data);
       }
@@ -140,8 +139,7 @@ export default function FormsAddGremio({
         `${apiUrl}/interlocutors?free=true`
       );
       if (gremioEditData?.id) {
-        setInterlocutors([gremioEditData.interlocutor, ...response.data]);
-        console.log([gremioEditData.interlocutor, ...response.data]);
+        setInterlocutors([gremioEditData.interlocutor, ...response.data]); 
       } else {
         setInterlocutors(response.data);
       }

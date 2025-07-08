@@ -41,8 +41,7 @@ export default function CardAdminInterlocutors() {
 
   const handleDataDelete = async (id: string) => {
     setLoading(true);
-    try {
-      console.log(id);
+    try { 
       const response = await axios.delete(`${apiUrl}/interlocutors/${id}`);
       setRows((prev) => prev.filter((row) => row.id !== id));
       setStatusCode(response.status);
@@ -149,16 +148,13 @@ export default function CardAdminInterlocutors() {
 
   const handleDataPost = async (data: any) => {
     setLoading(true);
-    try {
-      console.log(data);
+    try { 
       const response = await axios.post<Interlocutor>(
         `${apiUrl}/interlocutors`,
         { ...data }
       );
-
-      console.log(response.status);
-      setStatusCode(response.status);
-      console.log(response.data);
+ 
+      setStatusCode(response.status); 
       setRows((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Erro ao cadastrar interlocutor:", error);

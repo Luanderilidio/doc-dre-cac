@@ -129,13 +129,11 @@ export default function CardDocument({
         reason: reason,
         id: id + 1,
       };
-
-      console.log(id, status, employee, reason);
+ 
       const response = await api.get(apiUrl, { params });
 
       toggleView();
-      setLoanding(false);
-      console.log(response);
+      setLoanding(false); 
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -167,8 +165,7 @@ export default function CardDocument({
         return 2;
       case "finished":
         return 3;
-      default:
-        console.log("Ação desconhecida:");
+      default: 
         return null;
     }
   };

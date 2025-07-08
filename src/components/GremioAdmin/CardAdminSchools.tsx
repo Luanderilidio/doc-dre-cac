@@ -39,8 +39,7 @@ export default function CardAdminSchools() {
 
   const handleDataDelete = async (id: string) => {
     setLoading(true);
-    try {
-      console.log(id);
+    try { 
       const response = await axios.delete(`${apiUrl}/schools/${id}`);
       setRows((prev) => prev.filter((row) => row.id !== id));
       setStatusCode(response.status);
@@ -143,15 +142,12 @@ export default function CardAdminSchools() {
 
   const handleDataPost = async (data: any) => {
     setLoading(true);
-    try {
-      console.log(data);
+    try { 
       const response = await axios.post<School>(`${apiUrl}/schools`, {
         ...data,
       });
-
-      console.log(response.status);
-      setStatusCode(response.status);
-      console.log(response.data);
+ 
+      setStatusCode(response.status); 
       setRows((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Erro ao cadastrar Escola:", error);

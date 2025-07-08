@@ -87,9 +87,7 @@ export default function Arquivo() {
           action: "get",
           sheet: "DadosFormulario",
         },
-      });
-
-      console.log(response.data);
+      }); 
       setData(response.data.output);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -104,9 +102,7 @@ export default function Arquivo() {
         params: {
           action: "deliveryAndDenied",
         },
-      });
-
-      console.log("fetchData2", response.data);
+      }); 
       setDataFinishedAndDenied(response.data.output);
     } catch (error) {
       console.error("Error fetching data:", error);

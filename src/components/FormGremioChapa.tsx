@@ -58,10 +58,8 @@ export default function FormGremioChapa({
         action: "alterChapa",
         ...chapa,
       };
-
-      console.log("alterChapa", paramsUrl);
-      const response = await axios.get(apiUrl, { params: paramsUrl });
-      console.log(response.data);
+ 
+      const response = await axios.get(apiUrl, { params: paramsUrl }); 
     } catch (error) {
       console.error("Erro ao atualizar Professor:", error);
     } finally {

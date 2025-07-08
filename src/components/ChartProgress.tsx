@@ -17,11 +17,8 @@ export default function ChartProgress({ data }: ChartProgressPropsComponent) {
     if (a.enviou === "Sim" && b.enviou === "nao") return 1;
     if (a.enviou === "nao" && b.enviou === "Sim") return -1;
     return 0;
-  });
-  console.log("data", data);
-
-  console.log("sortedData", sortedData);
-  console.log("qtdEnviou", qtdEnviou.length);
+  }); 
+ 
 
   return (
     <div className="">

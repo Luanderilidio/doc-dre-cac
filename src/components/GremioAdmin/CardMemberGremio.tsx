@@ -36,8 +36,7 @@ export default function CardMemberGremio({
       const response = await axios.delete<Message>(
         `${apiUrl}/members-gremio/${member.id}`
       );
-      toast.success(response.data.message);
-      console.log(response.status, response.data);
+      toast.success(response.data.message); 
       onDelete(member.id);
     } catch (error) {
       console.log(error);

@@ -73,9 +73,7 @@ export default function Gremios() {
     try {
       const response = await axios.get<GremioCardProps[]>(apiUrl, {
         params: { action: "get" },
-      });
-
-      console.log(response.data);
+      });  
       setData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
