@@ -16,8 +16,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
+  Button,
+  DialogActions,
 } from "@mui/material";
 import {
+  Message,
   ProcessRedefinitionStages,
   ProcessRedefinitionWithStages,
   Stage,
@@ -28,6 +31,9 @@ import { generateShortId } from "../../utils/generate-id";
 import moment from "moment";
 import { useBoolean } from "react-hooks-shareable";
 import FormsAddRedefinitionStages from "./FormsProcessRedefinitionStages";
+import { toast } from "react-toastify";
+import { useDeleteProcessRedefinition } from "../../services/ProcessRedefinition";
+import FormProcessRedefinition from "./FormsAddProcessRedefinition";
 
 type Props = {
   data?: ProcessRedefinitionWithStages;
@@ -42,7 +48,7 @@ const stagesBase = [
     status: false,
     started_at: "2025-07-01T08:00:00.000Z",
     finished_at: "2025-07-01T12:00:00.000Z",
-    observation: "Defina as datas",
+    observation: "Defina as Datas",
     created_at: "2025-06-26T08:00:00.000Z",
     updated_at: "2025-06-30T08:00:00.000Z",
   },
@@ -121,6 +127,8 @@ const stagesBase = [
 ];
 
 export default function CardProcessRedefinition({ data }: Props) {
+  const mutationDeleteProcess = useDeleteProcessRedefinition(data?.gremio_id!);
+
   const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
   const [expanded, setExpanded] = useState(false);
 
@@ -129,13 +137,21 @@ export default function CardProcessRedefinition({ data }: Props) {
     useState<ProcessRedefinitionStages>();
   const [stagesFromApi, setStagesFromApi] = useState<string[]>([]);
   const [isDialog, openDialog, closeDialog, toggleDialog] = useBoolean(false);
+  const [
+    isDeleteDialog,
+    openDeleteDialog,
+    closeDeleteDialog,
+    toggleDeleteDialog,
+  ] = useBoolean(false);
+  const [isPatchDialog, openPatchDialog, closePatchDialog, togglePatchDialog] =
+    useBoolean(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
   const getProcessRefefinitionStages = async () => {
-    console.log(data);
+    // console.log(data);
     try {
       const response = await axios.get<ProcessRedefinitionStages[]>(
         `${apiUrl}/gremio-process-redefinition-stages/${data?.id}`
@@ -156,11 +172,22 @@ export default function CardProcessRedefinition({ data }: Props) {
         };
       });
 
-      // console.log(mergedArray);
       setRedefinitionStages(mergedArray);
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleDelete = () => {
+    mutationDeleteProcess.mutate(data?.id!, {
+      onSuccess: (response) => {
+        toast.success(response.message);
+        closeDeleteDialog();
+      },
+      onError: () => {
+        toast.error("Erro ao excluir processo!");
+      },
+    });
   };
 
   useEffect(() => {
@@ -168,7 +195,7 @@ export default function CardProcessRedefinition({ data }: Props) {
   }, []);
 
   return (
-    <div className="p-4 rounded-lg bg-gray-300/30 border">
+    <div className={`p-4 rounded-lg border bg-gray-300/30 cursor-pointer`}>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center justify-start gap-3">
           <h1 className="text-xl font-bold">{data?.observation}</h1>
@@ -223,7 +250,7 @@ export default function CardProcessRedefinition({ data }: Props) {
                     <IconButton
                       onClick={() => {
                         setRedefinitionStage(stage);
-                        toggleDialog();
+                        openDialog();
                       }}
                     >
                       <EditIcon fontSize="small" />
@@ -235,14 +262,62 @@ export default function CardProcessRedefinition({ data }: Props) {
             )
           )}
         </List>
+        <div className="w-full flex justify-end gap-3">
+          <Button
+            variant="outlined"
+            size="small"
+            color="secondary"
+            onClick={openPatchDialog}
+          >
+            Editar
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            color="error"
+            onClick={openDeleteDialog}
+          >
+            Excluir
+          </Button>
+        </div>
       </Collapse>
+
+      <Dialog open={isDeleteDialog} onClose={closeDeleteDialog}>
+        <DialogTitle id="alert-dialog-title">
+          Excluir processo de redefinição {data?.observation} do ano{" "}
+          {data?.year}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Tem certeza que deseja excluir esse processo de redefinição?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={closeDeleteDialog}>
+            Fechar
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            autoFocus
+            onClick={handleDelete}
+          >
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={isDialog} onClose={closeDialog}>
         <DialogTitle className="flex items-center justify-between">
           <IconButton className="invisible">
             <CloseIcon />
           </IconButton>
           {redefinitionStage?.stage}
-          <IconButton onClick={closeDialog}>
+          <IconButton
+            onClick={() => {
+              closeDialog();
+              getProcessRefefinitionStages();
+            }}
+          >
             <CloseIcon color="error" />
           </IconButton>
         </DialogTitle>
@@ -251,7 +326,34 @@ export default function CardProcessRedefinition({ data }: Props) {
             Escreva uma observação e defina as datas de começo e fim desse
             estágio.
           </DialogContentText>
+
           <FormsAddRedefinitionStages data={redefinitionStage!} />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isPatchDialog} onClose={closePatchDialog}>
+        <DialogTitle className="flex items-center justify-between">
+          <IconButton className="invisible">
+            <CloseIcon />
+          </IconButton>
+          <p>Edite o Processo de Redefinição</p>
+          <IconButton className="" onClick={togglePatchDialog}>
+            <CloseIcon color="error" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <div className="py-4">
+
+          
+          <FormProcessRedefinition
+            gremio_id={data?.gremio_id!}
+            process_gremio_id={data?.id}
+            defaultValues={{
+              observation: data?.observation,
+              year: data?.year,
+              status: data?.status,
+            }}
+          />
+          </div>
         </DialogContent>
       </Dialog>
     </div>

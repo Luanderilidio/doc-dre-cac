@@ -4,6 +4,7 @@ import {
   AvatarGroup,
   Button,
   Dialog,
+  Divider,
   IconButton,
   Toolbar,
   Typography,
@@ -21,6 +22,7 @@ import { SetStateAction } from "react";
 import FormsAddMember from "./FormsAddMember";
 import moment from "moment/min/moment-with-locales";
 import FormsAddProcessRedefinition from "./FormsAddProcessRedefinition";
+import ListProcessRedefinition from "./ListProcessRedefinition";
 moment.locale("pt-br");
 
 type Props = {
@@ -43,7 +45,8 @@ export default function CardGremio({ data }: Props) {
           {data.status === true ? "Ativo" : "Inativo"}
         </p>
         <div className="text-[0.7rem] font-bold absolute bottom-2 text-white z-50 right-3">
-          {moment(data.approval_date).format("MM/YY")} até {moment(data.validity_date).format("MM/YY")}
+          {moment(data.approval_date).format("MM/YY")} até{" "}
+          {moment(data.validity_date).format("MM/YY")}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-b-lg" />
       </div>
@@ -97,6 +100,7 @@ export default function CardGremio({ data }: Props) {
       </div>
       <Dialog
         fullScreen
+        className=""
         open={isViewDialog}
         onClose={closeViewDialog}
         TransitionComponent={Transition}
@@ -111,7 +115,7 @@ export default function CardGremio({ data }: Props) {
             </IconButton>
           </Toolbar>
         </AppBar>
-        <div className="grid grid-cols-13 gap-3 p-5">
+        <div className="grid grid-cols-13 gap-3 p-5 !h-full overflow-y-auto">
           <div className="col-span-4 bg-gray-100/60 p-4 rounded-lg border ">
             <h1 className="font-bold text-xl mb-3">Edite os Dados do Grêmio</h1>
             <FormsAddGremio
@@ -133,8 +137,12 @@ export default function CardGremio({ data }: Props) {
             <FormsAddMember gremio_id={data.id} />
           </div>
           <div className="col-span-4 ">
-          
-          <FormsAddProcessRedefinition gremio_id={data.id} />
+            <div className="flex flex-col gap-3 bg-gray-300/30 rounded-xl  p-4  h-fit">
+              <h1 className="font-bold text-xl">Cadastre um novo processo</h1>
+              <FormsAddProcessRedefinition gremio_id={data.id} />
+            </div>
+            
+            <ListProcessRedefinition gremio_id={data.id} />
           </div>
         </div>
       </Dialog>

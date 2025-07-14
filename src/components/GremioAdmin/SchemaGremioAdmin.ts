@@ -77,8 +77,7 @@ export const STAGES_ARRAY = [
 
 export const StagesEnumZod = z.enum(stages);
 
-export type Stage = typeof stages[number];
-
+export type Stage = (typeof stages)[number];
 
 export const RoleEnumZod = z.enum(roles);
 
@@ -289,6 +288,9 @@ export const ProcessRedefinitionBaseSchema = z.object({
   year: z.number().min(2000).max(2100),
 });
 
+export const ProcessRedefinitionPatchSchema =
+  ProcessRedefinitionBaseSchema.partial();
+
 export const ProcessRedefinitionViewSchema = z
   .object({
     id: z.string().min(6),
@@ -308,16 +310,21 @@ export type ProcessRedefinition = z.infer<typeof ProcessRedefinitionViewSchema>;
 export type ProcessRedefinitionCreate = z.infer<
   typeof ProcessRedefinitionBaseSchema
 >;
-export type ProcessRedefinitionWithStages = z.infer<typeof GetProcessRedefinitionWithStagesSchema>;
+export type ProcessRedefinitionPatch = z.infer<
+  typeof ProcessRedefinitionPatchSchema
+>;
+
+export type ProcessRedefinitionWithStages = z.infer<
+  typeof GetProcessRedefinitionWithStagesSchema
+>;
 
 export const MessageSchema = z.object({
   message: z.string(),
 });
 
-
 export const MessageWithIdSchema = z.object({
   message: z.string(),
-  id: z.string().min(6)
+  id: z.string().min(6),
 });
 
 export type Message = z.infer<typeof MessageSchema>;

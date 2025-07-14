@@ -12,7 +12,8 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import moment from "moment";
+import { ptBR } from "@mui/x-date-pickers/locales";
+import moment from "moment/min/moment-with-locales";
 import "moment/locale/pt-br";
 moment.locale("pt-br");
 
@@ -23,14 +24,6 @@ type Props = {
 export default function FormsAddRedefinitionStages({ data }: Props) {
   const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
 
-  console.log('FormsAddRedefinitionStages', {
-    gremio_process_id: data.gremio_process_id,
-    status: data.status,
-    stage: data.stage,
-    observation: data.observation,
-    started_at: data.started_at,
-    finished_at: data.finished_at,
-  });
   const {
     register,
     control,
@@ -44,16 +37,13 @@ export default function FormsAddRedefinitionStages({ data }: Props) {
       gremio_process_id: data.gremio_process_id,
       status: true,
       stage: data.stage,
-      observation: data.observation ?? "",
-      started_at: data.started_at ?? null,
-      finished_at: data.finished_at ?? null,
     },
   });
 
   const handleDataSubmit = async (
     formData: ProcessRedefinitionStagesCreate
   ) => {
-    console.log("Dados recebidos no handleSubmit:", formData);
+    // console.log("Dados recebidos no handleSubmit:", formData);
 
     try {
       const response = await axios.post<Message>(
@@ -61,9 +51,9 @@ export default function FormsAddRedefinitionStages({ data }: Props) {
         formData
       );
 
-      console.log("Resposta da API:", response.data);
+      // console.log("Resposta da API:", response.data);
       toast.success("Estágio cadastrado com sucesso");
-      reset(); // Limpa o formulário após sucesso
+      reset();
     } catch (error: unknown) {
       console.error(error);
       toast.error("Ocorreu um erro ao salvar o estágio.");
@@ -79,6 +69,7 @@ export default function FormsAddRedefinitionStages({ data }: Props) {
       <TextField
         fullWidth
         required
+        placeholder="Escreva uma obsevação"
         label="Observação"
         variant="outlined"
         className="col-span-12"
@@ -86,8 +77,13 @@ export default function FormsAddRedefinitionStages({ data }: Props) {
         error={!!errors.observation}
         helperText={errors.observation?.message}
       />
-
-      <LocalizationProvider dateAdapter={AdapterMoment}>
+      <LocalizationProvider
+        dateAdapter={AdapterMoment}
+        adapterLocale="pt-br"
+        localeText={
+          ptBR.components.MuiLocalizationProvider.defaultProps.localeText
+        }
+      >
         <Controller
           name="started_at"
           control={control}
@@ -98,6 +94,7 @@ export default function FormsAddRedefinitionStages({ data }: Props) {
               <DatePicker
                 label="Data Início"
                 className="col-span-6"
+                format="DD/MM/YYYY"
                 value={value}
                 onChange={(newValue) => {
                   field.onChange(newValue ? newValue.toISOString() : null);
@@ -107,6 +104,7 @@ export default function FormsAddRedefinitionStages({ data }: Props) {
                     error: !!errors.started_at,
                     helperText: errors.started_at?.message,
                     fullWidth: true,
+                    required: true,
                   },
                 }}
               />
@@ -124,6 +122,7 @@ export default function FormsAddRedefinitionStages({ data }: Props) {
               <DatePicker
                 label="Data Início"
                 className="col-span-6"
+                format="DD/MM/YYYY"
                 value={value}
                 onChange={(newValue) => {
                   field.onChange(newValue ? newValue.toISOString() : null);
@@ -133,6 +132,7 @@ export default function FormsAddRedefinitionStages({ data }: Props) {
                     error: !!errors.finished_at,
                     helperText: errors.finished_at?.message,
                     fullWidth: true,
+                    required: true,
                   },
                 }}
               />
