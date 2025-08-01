@@ -187,9 +187,9 @@ export const MemberViewSchema = z
   })
   .merge(TimestampsMetadata);
 
+
 export const MemberCreateSchema = MemberSchema.omit({
   id: true,
-  status: true,
 
   created_at: true,
   disabled_at: true,
@@ -197,9 +197,13 @@ export const MemberCreateSchema = MemberSchema.omit({
   deleted_at: true,
 });
 
+const PatchMemberSchema = MemberCreateSchema.partial()
+
+
 export type Member = z.infer<typeof MemberSchema>;
 export type MemberCreate = z.infer<typeof MemberCreateSchema>;
 export type MemberView = z.infer<typeof MemberViewSchema>;
+export type PatchMember = z.infer<typeof PatchMemberSchema>
 
 export const MemberViewListSchema = z.array(MemberViewSchema);
 export type MemberViewList = z.infer<typeof MemberViewListSchema>;

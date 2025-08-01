@@ -142,7 +142,7 @@ export default function CardGremio({ data }: Props) {
               <FormsAddProcessRedefinition gremio_id={data.id} />
             </div>
             
-            <ListProcessRedefinition gremio_id={data.id} />
+            {/* <ListProcessRedefinition gremio_id={data.id} /> */}
           </div>
         </div>
       </Dialog>
