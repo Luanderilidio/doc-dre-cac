@@ -114,8 +114,13 @@ export const SchoolCreateSchema = SchoolSchema.omit({
   deleted_at: true,
 });
 
+const PatchSchoolSchema = SchoolCreateSchema.partial();
+const SchoolListSchema = z.array(SchoolSchema);
+
 export type School = z.infer<typeof SchoolSchema>;
 export type SchoolCreate = z.infer<typeof SchoolCreateSchema>;
+export type PatchSchool = z.infer<typeof PatchSchoolSchema>;
+export type SchoolList = z.infer<typeof SchoolListSchema>;
 
 export const InterlocutorSchema = z
   .object({
@@ -137,7 +142,12 @@ export const InterlocutorCreateSchema = InterlocutorSchema.omit({
   deleted_at: true,
 });
 
+const InterlocutorListSchema = z.array(InterlocutorSchema);
+const PatchInterlocutorSchema = InterlocutorCreateSchema.partial();
+
 export type Interlocutor = z.infer<typeof InterlocutorSchema>;
+export type InterlocutorList = z.infer<typeof InterlocutorListSchema>;
+export type InterlocutorPatch = z.infer<typeof PatchInterlocutorSchema>;
 export type InterlocutorCreate = z.infer<typeof InterlocutorCreateSchema>;
 
 export const StudentSchema = z
@@ -164,31 +174,83 @@ export const StudentCreateSchema = StudentSchema.omit({
   deleted_at: true,
 });
 
+const PatchStudentSchema = StudentCreateSchema.partial();
+const StudentListSchema = z.array(StudentSchema);
+
 export type Student = z.infer<typeof StudentSchema>;
+export type StudentList = z.infer<typeof StudentListSchema>;
+export type StudentPatch = z.infer<typeof PatchStudentSchema>;
 export type StudentCreate = z.infer<typeof StudentCreateSchema>;
 
-export const MemberSchema = z
+export const MemberBaseSchema = z
   .object({
     id: z.string().min(6),
-    student_id: z.string(),
-    gremio_id: z.string(),
-    role: z.string(),
-    status: z.boolean().default(true),
-  })
-  .merge(TimestampsMetadata);
-
-export const MemberViewSchema = z
-  .object({
-    id: z.string().min(6),
-    gremio_id: z.string().min(6),
     role: RoleEnumZod,
     status: z.boolean(),
-    student: StudentSchema,
+    gremio_id: z.string().min(6),
+    student_id: z.string().min(6),
   })
   .merge(TimestampsMetadata);
 
+export const MemberCreateSchema = MemberBaseSchema.omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+  deleted_at: true,
+  disabled_at: true,
+});
 
-export const MemberCreateSchema = MemberSchema.omit({
+export const PatchMemberSchema = MemberCreateSchema.partial();
+
+export const AllMemberSchema = z.array(MemberBaseSchema);
+
+export const MemberWithStudentSchema = MemberBaseSchema.extend({
+  student: StudentSchema,
+});
+export const AllMemberWithStudentsSchema = z.array(MemberWithStudentSchema);
+
+export type Member = z.infer<typeof MemberBaseSchema>;
+export type MemberWithStudent = z.infer<typeof MemberWithStudentSchema>;
+
+export type MemberCreate = z.infer<typeof MemberCreateSchema>;
+export type MemberPatch = z.infer<typeof PatchMemberSchema>;
+
+export type MemberList = z.infer<typeof AllMemberSchema>;
+export type MemberWithStudentList = z.infer<typeof AllMemberWithStudentsSchema>;
+
+export const GremioBaseSchema = z
+  .object({
+    id: z.string().min(6),
+    name: z.string().min(1, "Nome é obrigatório").default(faker.animal.cow()),
+    status: z.boolean().default(true),
+    url_profile: z
+      .string()
+      .url("URL inválida")
+      .nullable()
+      .optional()
+      .default(faker.image.avatar()),
+    url_folder: z
+      .string()
+      .url("URL inválida")
+      .nullable()
+      .optional()
+      .default(faker.image.avatar()),
+    validity_date: z
+      .string()
+      .refine((val) => moment(val).isValid(), "Data de vigência inválida")
+      .transform((val) => moment(val).toISOString()),
+    approval_date: z
+      .string()
+      .refine((val) => moment(val).isValid(), "Data de nomeação inválida")
+      .transform((val) => moment(val).toISOString()),
+    url_action_plan: z.string().url(),
+
+    interlocutor_id: z.string().min(6),
+    school_id: z.string().min(6),
+  })
+  .merge(TimestampsMetadata);
+
+export const GremioCreateSchema = GremioBaseSchema.omit({
   id: true,
 
   created_at: true,
@@ -197,63 +259,34 @@ export const MemberCreateSchema = MemberSchema.omit({
   deleted_at: true,
 });
 
-const PatchMemberSchema = MemberCreateSchema.partial()
+export const PatchGremioSchema = GremioCreateSchema.partial();
 
+export const AllGremioSchema = z.array(GremioBaseSchema);
 
-export type Member = z.infer<typeof MemberSchema>;
-export type MemberCreate = z.infer<typeof MemberCreateSchema>;
-export type MemberView = z.infer<typeof MemberViewSchema>;
-export type PatchMember = z.infer<typeof PatchMemberSchema>
-
-export const MemberViewListSchema = z.array(MemberViewSchema);
-export type MemberViewList = z.infer<typeof MemberViewListSchema>;
-
-export const GremioBaseSchema = {
-  name: z.string().min(1, "Nome é obrigatório").default(faker.animal.cow()),
-  status: z.boolean().default(true),
-  url_profile: z
-    .string()
-    .url("URL inválida")
-    .nullable()
-    .optional()
-    .default(faker.image.avatar()),
-  url_folder: z
-    .string()
-    .url("URL inválida")
-    .nullable()
-    .optional()
-    .default(faker.image.avatar()),
-  validity_date: z
-    .string()
-    .refine((val) => moment(val).isValid(), "Data de vigência inválida")
-    .transform((val) => moment(val).toISOString()),
-  approval_date: z
-    .string()
-    .refine((val) => moment(val).isValid(), "Data de nomeação inválida")
-    .transform((val) => moment(val).toISOString()),
-};
-export const GremioCreateSchema = z.object({
-  ...GremioBaseSchema,
-  school_id: z.string().min(6, "Campo vazio Inválido").default(""),
-  interlocutor_id: z.string().min(6, "Campo vazio Inválido").default(""),
+export const GremioWithMember = GremioBaseSchema.omit({
+  school_id: true,
+  interlocutor_id: true,
+}).extend({
+  interlocutor: InterlocutorSchema,
+  school: SchoolSchema,
+  members: AllMemberWithStudentsSchema,
 });
 
-export const GremioViewSchema = z
-  .object({
-    id: z.string().min(6),
-    ...GremioBaseSchema,
-    school: SchoolSchema,
-    interlocutor: InterlocutorSchema,
-    members: z.array(MemberViewSchema),
-  })
-  .merge(TimestampsMetadata);
+export const AllGremioWithMembersSchema = z.array(GremioWithMember);
 
 export interface ResponseCreateGremio {
   gremio_id: string;
 }
 
-export type Gremio = z.infer<typeof GremioViewSchema>;
+export type Gremio = z.infer<typeof GremioBaseSchema>;
 export type GremioCreate = z.infer<typeof GremioCreateSchema>;
+
+export type GremioWithMember = z.infer<typeof GremioWithMember>;
+
+export type GremioPatch = z.infer<typeof PatchGremioSchema>;
+
+export type GremioList = z.infer<typeof AllGremioSchema>;
+export type GremioWithMembersList = z.infer<typeof AllGremioWithMembersSchema>;
 
 export const GremioProcessRedefinitionStagesBaseSchema = z.object({
   gremio_process_id: z.string().min(6),

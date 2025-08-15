@@ -1,141 +1,45 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Alert,
+  Autocomplete,
   Button,
   Dialog,
-  FormControl,
-  FormHelperText,
   IconButton,
   InputLabel,
+  Menu,
   MenuItem,
   Select,
   TextField,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { ptBR } from '@mui/x-data-grid/locales';
-import { bgBG as pickersBgBG } from '@mui/x-date-pickers/locales';
-import { bgBG as coreBgBG } from '@mui/material/locale';
-import axios from "axios";
-import { faker } from "@faker-js/faker";
-import { ToastContainer, toast } from 'react-toastify';
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { ptBR } from "@mui/x-data-grid/locales";
+import { ToastContainer, toast } from "react-toastify";
+import { useState } from "react";
 import { useBoolean } from "react-hooks-shareable";
-import PersonIcon from "@mui/icons-material/Person";
-import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
-import SaveIcon from "@mui/icons-material/Save";
+import { Student } from "./SchemaGremioAdmin";
+import { useAllStudents, useDeleteStudent } from "../../services/Students";
 import {
-  Student,
-  StudentCreate,
-  StudentCreateSchema,
-} from "./SchemaGremioAdmin";
-
-
+  usePopupState,
+  bindTrigger,
+  bindMenu,
+} from "material-ui-popup-state/hooks";
+import FormStudent from "./Forms/FormStudent";
 
 export default function CardAdminStudents() {
+  const [isView, openView, closeView, toggleView] = useBoolean(false);
+  const [isDialog, openDialog, closeDialog, toggleDialog] = useBoolean(false);
+  const [student, setStudent] = useState<Student>();
 
-  const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
+  const { data, isLoading, error } = useAllStudents();
+  const deleteMutation = useDeleteStudent();
 
-  const [isViewAdd, openViewAdd, closeViewAdd] = useBoolean(false);
-  const [loading, setLoading] = useState(false);
-  const [statusCode, setStatusCode] = useState<number>();
-  const [rows, setRows] = useState<Student[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-
-  const {
-    control,
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<StudentCreate>({
-    resolver: zodResolver(StudentCreateSchema),
-    defaultValues: {
-      name: faker.person.fullName(),
-      registration: faker.string.alphanumeric(8).toUpperCase(),
-      contact: faker.phone.number({ style: "national" }),
-      email: faker.internet.email(),
-      series: faker.helpers.arrayElement(["1º Ano", "2º Ano", "3º Ano"]),
-      shift: "matutino",
-      url_profile: faker.image.avatar(),
-    },
+  const [filters, setFilters] = useState({
+    name: "",
+    registration: "",
+    series: "",
+    shift: "all",
   });
-
-  // Buscar estudantes
-  const handleDataGet = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get<Student[]>(`${apiUrl}/students`);
-      setRows(response.data);
-      setStatusCode(response.status);
-    } catch (error) {
-      console.error("Erro ao buscar estudantes:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Deletar estudante
-  const handleDataDelete = async (id: string) => {
-    setLoading(true);
-    try {
-      await axios.delete(`${apiUrl}/students/${id}`);
-      setRows((prev) => prev.filter((row) => row.id !== id));
-      setStatusCode(200);
-      toast.success("Estudante deletado com Sucesso!");
-    } catch (error) {
-      console.error("Erro ao deletar estudante:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Atualizar estudante
-  const handleDataUpdate = async (newRow: Student) => {
-    setLoading(true);
-    try {
-      await axios.patch(`${apiUrl}/students/${newRow.id}`, newRow);
-      setRows((prev) =>
-        prev.map((row) => (row.id === newRow.id ? newRow : row))
-      );
-      toast.success("Estudante editado com Sucesso!");
-    } catch (error) {
-      console.error("Erro ao atualizar estudante:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Cadastrar novo estudante
-  const handleDataPost = async (data: StudentCreate) => {
-    setLoading(true);
-    try {
-      const response = await axios.post<Student>(`${apiUrl}/students`, data);
-      setRows((prev) => [...prev, response.data]);
-      setStatusCode(response.status);
-      reset();
-      toast.success("Estudante criado com Sucesso!");
-    } catch (error) {
-      console.error("Erro ao cadastrar estudante:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    handleDataGet();
-  }, []);
-
-  useEffect(() => {
-    if (selectedStudent) {
-      reset(selectedStudent);
-      openViewAdd();
-    }
-  }, [selectedStudent, reset, openViewAdd]);
 
   const columns: GridColDef<Student>[] = [
     { field: "id", headerName: "ID", width: 70 },
@@ -171,186 +75,169 @@ export default function CardAdminStudents() {
       width: 120,
       sortable: false,
       renderCell: (params) => (
-        <>
+        <div className="flex">
           <IconButton
-            onClick={() => setSelectedStudent(params.row)}
-            color="primary"
-            aria-label="edit"
+            onClick={() => {
+              setStudent(params.row);
+              openDialog();
+            }}
+            color="info"
+            aria-label="delete"
           >
-            <EditIcon />
+            <EditNoteIcon />
           </IconButton>
           <IconButton
-            onClick={() => handleDataDelete(params.row.id)}
+            onClick={() => {
+              setStudent(params.row);
+              openView();
+            }}
+            color="info"
+            aria-label="delete"
+          >
+            <VisibilityIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => handleDelete(params.row.id)}
             color="error"
             aria-label="delete"
           >
             <DeleteIcon />
           </IconButton>
-        </>
+        </div>
       ),
     },
   ];
 
-
-
-  const onSubmit = (data: StudentCreate) => {
-    if (selectedStudent) {
-      const updatedStudent: Student = {
-        ...selectedStudent,
-        ...data,
-      };
-      handleDataUpdate(updatedStudent);
-      setSelectedStudent(null);
-    } else {
-      handleDataPost(data);
-    }
-    closeViewAdd();
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        toast.success("Interlocutor removido com sucesso!");
+      },
+      onError: () => {
+        toast.error("Erro ao deletar Estudante!");
+      },
+    });
   };
 
-  const urlProfile = watch("url_profile");
+  const filteredData = (data ?? []).filter((student) => {
+    const nameMatch =
+      filters.name === "" ||
+      student.name.toLowerCase().includes(filters.name.toLowerCase());
+
+    const registrationMatch =
+      filters.registration === "" ||
+      student.registration
+        .toLowerCase()
+        .includes(filters.registration.toLowerCase());
+
+    const seriesMatch =
+      filters.series === "" ||
+      student.series.toLowerCase().includes(filters.series.toLowerCase());
+
+    const shiftMatch =
+      filters.shift === "all" ||
+      (filters.shift === "matutino" && student.shift === "matutino") ||
+      (filters.shift === "vespertino" && student.shift === "vespertino") ||
+      (filters.shift === "noturno" && student.shift === "noturno") ||
+      (filters.shift === "integral" && student.shift === "integral");
+
+    // const statusMatch =
+    //   filters.status === "all" ||
+    //   (filters.status === "active" && student.status === true) ||
+    //   (filters.status === "inactive" && student.status === false);
+
+    return nameMatch && registrationMatch && seriesMatch && shiftMatch;
+  });
+
+  const unique = (arr: string[]) => [...new Set(arr)];
+
+  const popupState = usePopupState({ variant: "popover", popupId: "demoMenu" });
+
+
+  if (isLoading) return <>Carregando</>;
 
   return (
-    <div className="w-full flex flex-col items-center justify-between border gap-3 rounded-lg p-4">
-      <div className="w-full flex items-center justify-between">
-        <h1 className="font-bold text-gray-400">Gerenciar Estudantes</h1>
-        <div className="flex gap-3">
-          <Button onClick={openViewAdd} variant="contained" size="small">
+    <div className="w-full h-full grid grid-cols-12 gap-4">
+      <div className="col-span-9 p-4 gap-4 bg-gray-300/20 rounded-xl border">
+        <p className="  text-xl font-Inter font-bold mb-3">Filtros</p>
+        <div className="grid grid-cols-13 gap-4">
+          <Autocomplete
+            className="col-span-4"
+            options={unique(
+              (data ?? []).map((interlocutor) => interlocutor.name)
+            )}
+            value={filters.name}
+            onChange={(_, value) =>
+              setFilters((prev) => ({ ...prev, name: value || "" }))
+            }
+            renderInput={(params) => <TextField {...params} label="Nome" />}
+          />
+          <Autocomplete
+            className="col-span-3"
+            options={unique(
+              (data ?? []).map((student) => student.registration)
+            )}
+            value={filters.registration}
+            onChange={(_, value) =>
+              setFilters((prev) => ({ ...prev, registration: value || "" }))
+            }
+            renderInput={(params) => (
+              <TextField {...params} label="Matrícula" />
+            )}
+          />
+
+          <Autocomplete
+            className="col-span-2"
+            options={unique((data ?? []).map((student) => student.series))}
+            value={filters.series}
+            onChange={(_, value) =>
+              setFilters((prev) => ({ ...prev, series: value || "" }))
+            }
+            renderInput={(params) => <TextField {...params} label="Série" />}
+          />
+          <TextField
+            className="col-span-2"
+            select
+            label="Turno"
+            value={filters.shift}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, shift: e.target.value }))
+            }
+          >
+            <MenuItem value="all">Todos</MenuItem>
+            <MenuItem value="matutino">Matutino</MenuItem>
+            <MenuItem value="vespertino">Vespertino</MenuItem>
+            <MenuItem value="noturno">Noturno</MenuItem>
+            <MenuItem value="Integral">integral</MenuItem>
+          </TextField>
+          <Button className="col-span-2" {...bindTrigger(popupState)}>
             Adicionar
           </Button>
-          <Button onClick={handleDataGet} variant="outlined" size="small">
-            Atualizar
-          </Button>
+          <Menu
+            className="!p-4"
+            MenuListProps={{
+              sx: { p: 0, borderRadius: "12px" }, // padding = 0
+            }}
+            PaperProps={{
+              sx: {
+                p: 0, // remove padding do Paper
+              },
+            }}
+            {...bindMenu(popupState)}
+          >
+            <FormStudent />
+          </Menu>
         </div>
       </div>
 
-      <Dialog open={isViewAdd} onClose={() => { setSelectedStudent(null); closeViewAdd(); }} fullWidth maxWidth="sm">
-        <form onSubmit={handleSubmit(onSubmit)} className="p-4 flex flex-col">
-          <h1 className="w-full text-2xl font-bold text-center mb-3">
-            {selectedStudent ? "Editar Estudante" : "Cadastrar Estudante"}
-          </h1>
-
-          <div className="grid grid-cols-12 grid-rows-3 gap-2">
-            <TextField
-              label="Nome completo"
-              size="small"
-              {...register("name")}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-              className="col-span-9"
-              required
-            />
-
-            <div className="col-span-3 row-span-3 flex items-center justify-center">
-              {urlProfile ? (
-                <img className="w-full h-full object-cover rounded-xl" src={urlProfile} alt="" />
-              ) : (
-                <PersonIcon sx={{ fontSize: 60 }} />
-              )}
-            </div>
-
-            <TextField
-              size="small"
-              label="Matrícula"
-              {...register("registration")}
-              error={!!errors.registration}
-              helperText={errors.registration?.message}
-              className="col-span-4"
-              required
-            />
-
-            <TextField
-              size="small"
-              label="Contato"
-              {...register("contact")}
-              error={!!errors.contact}
-              helperText={errors.contact?.message}
-              className="col-span-5"
-            />
-
-            <TextField
-              size="small"
-              label="Email"
-              type="email"
-              {...register("email")}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              className="col-span-9"
-            />
-
-            <TextField
-              size="small"
-              label="Série"
-              {...register("series")}
-              error={!!errors.series}
-              helperText={errors.series?.message}
-              className="col-span-6"
-            />
-
-            <FormControl className="col-span-6" error={!!errors.shift}>
-              <InputLabel>Turno *</InputLabel>
-              <Controller
-                name="shift"
-                control={control}
-                render={({ field }) => (
-                  <Select {...field} size="small" label="Turno *">
-                    <MenuItem value="matutino">Matutino</MenuItem>
-                    <MenuItem value="vespertino">Vespertino</MenuItem>
-                    <MenuItem value="noturno">Noturno</MenuItem>
-                    <MenuItem value="integral">Integral</MenuItem>
-                  </Select>
-                )}
-              />
-              <FormHelperText>{errors.shift?.message}</FormHelperText>
-            </FormControl>
-
-            <TextField
-              size="small"
-              label="URL da Foto"
-              {...register("url_profile")}
-              error={!!errors.url_profile}
-              helperText={errors.url_profile?.message}
-              className="col-span-12"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 mt-4">
-            <Button
-              onClick={() => {
-                setSelectedStudent(null);
-                closeViewAdd();
-              }}
-              variant="outlined"
-              color="inherit"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={loading}
-              startIcon={
-                loading ? (
-                  <DataSaverOffIcon className="animate-spin" />
-                ) : (
-                  <SaveIcon />
-                )
-              }
-            >
-              {loading ? "Salvando..." : "Salvar"}
-            </Button>
-          </div>
-        </form>
-      </Dialog>
-
-      <div className="w-full">
+      <div className="col-span-12">
         <DataGrid
           localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-          rows={rows}
+          rows={filteredData}
           columns={columns}
           rowHeight={50}
           getRowId={(row) => row.id}
-          loading={loading}
+          loading={isLoading}
           pageSizeOptions={[5, 10]}
           disableRowSelectionOnClick
           initialState={{
@@ -373,6 +260,21 @@ export default function CardAdminStudents() {
         pauseOnHover
         theme="colored"
       />
+
+      <Dialog open={isDialog} onClose={closeDialog}>
+        <FormStudent
+          initialDate={{
+            name: student?.name,
+            registration: student?.registration,
+            email: student?.email,
+            contact: student?.contact,
+            series: student?.series,
+            shift: student?.shift,
+            url_profile: student?.url_profile,
+          }}
+          student_id={student?.id}
+        />
+      </Dialog>
     </div>
   );
 }

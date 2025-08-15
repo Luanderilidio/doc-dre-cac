@@ -1,87 +1,47 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Button, Dialog, IconButton, TextField } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { useBoolean } from "react-hooks-shareable";
-import DataSaverOffIcon from "@mui/icons-material/DataSaverOff";
-import SaveIcon from "@mui/icons-material/Save";
 import {
-  Interlocutor,
-  InterlocutorCreate,
-  InterlocutorCreateSchema,
-} from "./SchemaGremioAdmin";
-import { faker } from "@faker-js/faker";
+  Autocomplete,
+  Button,
+  Dialog,
+  IconButton,
+  Menu,
+  MenuItem,
+  TextField,
+} from "@mui/material";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useState } from "react";
+import { useBoolean } from "react-hooks-shareable";
+import { toast } from "react-toastify";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
+import moment from "moment/min/moment-with-locales";
+import "moment/locale/pt-br";
+import { Interlocutor, InterlocutorCreate } from "./SchemaGremioAdmin";
+import {
+  useAllInterlocutors,
+  useDeleteInterlocutor,
+} from "../../services/Interlocutors";
+import FormInterlocutor from "./Forms/FormInterlocutor";
+import {
+  usePopupState,
+  bindTrigger,
+  bindMenu,
+} from "material-ui-popup-state/hooks";
 
 export default function CardAdminInterlocutors() {
-  const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
-  const [isViewAdd, openViewAdd, closeViewAdd, toggleViewAdd] =
-    useBoolean(false);
+  const [isView, openView, closeView, toggleView] = useBoolean(false);
+  const [isDialog, openDialog, closeDialog, toggleDialog] = useBoolean(false);
+  const [interlocutor, setInterlocutor] = useState<Interlocutor>();
 
-  const [loading, setLoading] = useState(false);
-  const [statusCode, setStatusCode] = useState<number>();
-  const [rows, setRows] = useState<Interlocutor[]>([]);
+  const { data, isLoading, error } = useAllInterlocutors();
+  const deleteMutation = useDeleteInterlocutor();
 
-  const handleDataGet = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get<Interlocutor[]>(
-        `${apiUrl}/interlocutors`
-      );
-      setRows(response.data);
-      setStatusCode(response.status);
-    } catch (error) {
-      console.error("Erro ao buscar Interlocutores:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDataDelete = async (id: string) => {
-    setLoading(true);
-    try { 
-      const response = await axios.delete(`${apiUrl}/interlocutors/${id}`);
-      setRows((prev) => prev.filter((row) => row.id !== id));
-      setStatusCode(response.status);
-    } catch (error) {
-      console.error("Erro ao deletar interlocutor:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDataPath = async (
-    newRow: Interlocutor,
-    _oldRow: Interlocutor,
-    _params: { rowId: GridRowId }
-  ): Promise<Interlocutor> => {
-    try {
-      // Chama sua API para atualizar o backend
-      await axios.patch(`${apiUrl}/interlocutors/${newRow.id}`, {
-        name: newRow.name,
-        email: newRow.email,
-        contact: newRow.contact,
-        status: newRow.status,
-      });
-
-      // Atualiza localmente
-      const updatedRows = rows.map((row) =>
-        row.id === newRow.id ? newRow : row
-      );
-      setRows(updatedRows);
-
-      return newRow;
-    } catch (error) {
-      console.error("Erro ao atualizar interlocutor:", error);
-      throw error;
-    }
-  };
-
-  useEffect(() => {
-    handleDataGet();
-  }, []);
+  const [filters, setFilters] = useState({
+    name: "",
+    email: "",
+    status: "all",
+  });
 
   const columns: GridColDef<Interlocutor>[] = [
     { field: "id", headerName: "ID", width: 30 },
@@ -94,34 +54,38 @@ export default function CardAdminInterlocutors() {
       width: 70,
       editable: true,
       renderCell: (params) => (params.value ? "Ativo" : "Inativo"),
-      renderEditCell: (params) => (
-        <select
-          value={params.value ? "true" : "false"}
-          onChange={(e) => {
-            const value = e.target.value === "true";
-            params.api.setEditCellValue(
-              { id: params.id, field: params.field, value },
-              e
-            );
-          }}
-          autoFocus
-        >
-          <option value="true">Ativo</option>
-          <option value="false">Inativo</option>
-        </select>
-      ),
     },
     {
       field: "actions",
       headerName: "Ações",
-      width: 40,
+      width: 150,
       sortable: false,
       filterable: false,
       disableColumnMenu: true,
       renderCell: (params) => (
         <div className="flex">
           <IconButton
-            onClick={() => handleDataDelete(params.row.id)}
+            onClick={() => {
+              setInterlocutor(params.row);
+              openDialog();
+            }}
+            color="info"
+            aria-label="delete"
+          >
+            <EditNoteIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              setInterlocutor(params.row);
+              openView();
+            }}
+            color="info"
+            aria-label="delete"
+          >
+            <VisibilityIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => handleDelete(params.row.id)}
             color="error"
             aria-label="delete"
           >
@@ -132,147 +96,201 @@ export default function CardAdminInterlocutors() {
     },
   ];
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<InterlocutorCreate>({
-    resolver: zodResolver(InterlocutorCreateSchema),
-    mode: "onChange",
-    defaultValues: {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      contact: faker.phone.number({ style: "national" }),
-    },
-  });
-
-  const handleDataPost = async (data: any) => {
-    setLoading(true);
-    try { 
-      const response = await axios.post<Interlocutor>(
-        `${apiUrl}/interlocutors`,
-        { ...data }
-      );
- 
-      setStatusCode(response.status); 
-      setRows((prev) => [...prev, response.data]);
-    } catch (error) {
-      console.error("Erro ao cadastrar interlocutor:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        toast.success("Interlocutor removido com sucesso!");
+      },
+      onError: () => {
+        toast.error("Erro ao deletar Interlocutor!");
+      },
+    });
   };
 
+  const filteredData = (data ?? []).filter((interlocutor) => {
+    const nameMatch =
+      filters.name === "" ||
+      interlocutor.name.toLowerCase().includes(filters.name.toLowerCase());
+
+    const emailMatch =
+      filters.email === "" ||
+      interlocutor.email.toLowerCase().includes(filters.email.toLowerCase());
+
+    const statusMatch =
+      filters.status === "all" ||
+      (filters.status === "active" && interlocutor.status === true) ||
+      (filters.status === "inactive" && interlocutor.status === false);
+
+    return nameMatch && emailMatch && statusMatch;
+  });
+
+  const unique = (arr: string[]) => [...new Set(arr)];
+
+  const popupState = usePopupState({ variant: "popover", popupId: "demoMenu" });
+
+  if (error) return <>deu pau!</>;
+  if (isLoading) return <>Carregando</>;
+
   return (
-    <div className="w-full flex flex-col items-center justify-between border gap-3 rounded-lg p-4">
-      <div className="w-full flex items-center justify-between">
-        <h1 className="font-Montserrat font-bold text-gray-400">
-          Cadastrar Interlocutor
-        </h1>
-        <div className="flex gap-3">
-          <Button onClick={openViewAdd} variant="contained" size="small">
+    <div className="w-full h-full grid grid-cols-12 gap-4">
+      <div className="col-span-8 p-4 gap-4 bg-gray-300/20 rounded-xl border">
+        <p className="  text-xl font-Inter font-bold mb-3">Filtros</p>
+        <div className="grid grid-cols-12 gap-4">
+          <Autocomplete
+            className="col-span-4"
+            options={unique(
+              (data ?? []).map((interlocutor) => interlocutor.name)
+            )}
+            value={filters.name}
+            onChange={(_, value) =>
+              setFilters((prev) => ({ ...prev, name: value || "" }))
+            }
+            renderInput={(params) => (
+              <TextField {...params} label="Nome do Interlocutor" />
+            )}
+          />
+          <Autocomplete
+            className="col-span-3"
+            options={unique(
+              (data ?? []).map((interlocutor) => interlocutor.email)
+            )}
+            value={filters.email}
+            onChange={(_, value) =>
+              setFilters((prev) => ({ ...prev, city: value || "" }))
+            }
+            renderInput={(params) => <TextField {...params} label="Email" />}
+          />
+          <TextField
+            className="col-span-3"
+            select
+            label="Status"
+            value={filters.status}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, status: e.target.value }))
+            }
+          >
+            <MenuItem value="all">Todos</MenuItem>
+            <MenuItem value="active">Ativos</MenuItem>
+            <MenuItem value="inactive">Inativos</MenuItem>
+          </TextField>
+          <Button className="col-span-2" {...bindTrigger(popupState)}>
             Adicionar
           </Button>
-          <Button onClick={handleDataGet} variant="outlined" size="small">
-            Atualizar
-          </Button>
-        </div>
-      </div>
-      <Dialog open={isViewAdd} onClose={toggleViewAdd} fullWidth maxWidth="xs">
-        <div className="p-4 flex flex-col gap-3">
-          {statusCode === 201 && (
-            <Alert severity="success">
-              Interlocutor Cadastrado com Sucesso!
-            </Alert>
-          )}
-
-          <h1 className="w-full text-3xl font-bold font-Roboto text-center mb-3">
-            CADASTRE UM INTERLOCUTOR
-          </h1>
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Nome"
-            variant="outlined"
-            {...register("name")}
-            error={!!errors.name}
-            helperText={errors.name?.message}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Email"
-            variant="outlined"
-            {...register("email")}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            required
-            label="Contato"
-            variant="outlined"
-            {...register("contact")}
-            error={!!errors.contact}
-            helperText={errors.contact?.message}
-          />
-
-          <div className="w-full flex items-center justify-end gap-3">
-            <Button
-              onClick={() => {
-                closeViewAdd();
-                handleDataGet();
-              }}
-              size="small"
-              type="submit"
-              variant="outlined"
-              color="inherit"
-            >
-              Fechar
-            </Button>
-            <Button
-              onClick={handleSubmit(handleDataPost)}
-              size="small"
-              type="submit"
-              variant="contained"
-              color="primary"
-              startIcon={
-                loading ? (
-                  <DataSaverOffIcon className="animate-spin" />
-                ) : (
-                  <SaveIcon />
-                )
-              }
-            >
-              Cadastrar
-            </Button>
-          </div>
-        </div>
-      </Dialog>
-
-      <div className="w-full">
-        <div className="w-full !h-96">
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            rowHeight={50}
-            getRowId={(row) => row.id}
-            loading={loading}
-            editMode="row"
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 5 },
+          <Menu
+            className="!p-4"
+            MenuListProps={{
+              sx: { p: 0, borderRadius: "12px" }, // padding = 0
+            }}
+            PaperProps={{
+              sx: {
+                p: 0, // remove padding do Paper
               },
             }}
-            processRowUpdate={handleDataPath}
-            pageSizeOptions={[5, 10]}
-            disableRowSelectionOnClick
-          />
+            {...bindMenu(popupState)}
+          >
+            <FormInterlocutor />
+          </Menu>
         </div>
       </div>
+
+      <div className="col-span-8">
+        <DataGrid
+          rows={filteredData}
+          columns={columns}
+          rowHeight={50}
+          getRowId={(row) => row.id}
+          loading={isLoading}
+          editMode="row"
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 5 },
+            },
+          }}
+          pageSizeOptions={[5, 10]}
+          disableRowSelectionOnClick
+        />
+      </div>
+      {isView && (
+        <div className="col-span-4 rounded-xl bg-gray-300/10 p-4 h-fit border">
+          <div className="flex items-center justify-between">
+            <IconButton className="invisible">
+              <CloseIcon />
+            </IconButton>
+            <h1 className="w-full text-xl font-bold text-center">
+              Visualização
+            </h1>
+            <IconButton onClick={closeView}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+
+          <div className="">
+            <h1 className="text-xl font-bold">ID</h1>
+            <h1 className="text-sm">{interlocutor?.id}</h1>
+          </div>
+          <div className="flex gap-3 mt-2">
+            <div>
+              <h1 className="text-xl font-bold">Interlocutor</h1>
+              <h1 className="text-sm">{interlocutor?.name}</h1>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">Contato</h1>
+              <h1 className="text-sm">{interlocutor?.contact}</h1>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">Status</h1>
+              <h1 className="text-sm">
+                {interlocutor?.status ? "Ativo" : "Inativo"}
+              </h1>
+            </div>
+          </div>
+          <div className="mt-6 flex justify-evenly opacity-70">
+            <div>
+              <h1 className="text-xs font-bold">Criado em</h1>
+              <h1 className="text-xs">
+                {interlocutor?.created_at
+                  ? moment(interlocutor?.created_at).format("L")
+                  : ""}
+              </h1>
+            </div>
+            <div>
+              <h1 className="text-xs font-bold">Alterado em</h1>
+              <h1 className="text-xs">
+                {interlocutor?.updated_at
+                  ? moment(interlocutor?.updated_at).format("L")
+                  : ""}
+              </h1>
+            </div>
+            <div>
+              <h1 className="text-xs font-bold">Desabilitado em</h1>
+              <h1 className="text-xs">
+                {interlocutor?.disabled_at
+                  ? moment(interlocutor?.disabled_at).format("L")
+                  : ""}
+              </h1>
+            </div>
+            <div>
+              <h1 className="text-xs font-bold">Excluído em</h1>
+              <h1 className="text-xs">
+                {interlocutor?.deleted_at
+                  ? moment(interlocutor?.deleted_at).format("L")
+                  : ""}
+              </h1>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Dialog open={isDialog} onClose={closeDialog}>
+        <FormInterlocutor
+          initialDate={{
+            name: interlocutor?.name,
+            email: interlocutor?.email,
+            contact: interlocutor?.contact,
+          }}
+          interlocutor_id={interlocutor?.id}
+        />
+      </Dialog>
     </div>
   );
 }

@@ -15,7 +15,7 @@ import PlaceIcon from "@mui/icons-material/Place";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import { faker } from "@faker-js/faker";
 import CloseIcon from "@mui/icons-material/Close";
-import { Gremio } from "./SchemaGremioAdmin";
+import { Gremio, GremioWithMember } from "./SchemaGremioAdmin";
 import { Transition } from "../../utils/transition";
 import FormsAddGremio from "./FormsAddGremio";
 import { SetStateAction } from "react";
@@ -26,7 +26,7 @@ import ListProcessRedefinition from "./ListProcessRedefinition";
 moment.locale("pt-br");
 
 type Props = {
-  data: Gremio;
+  data: GremioWithMember;
 };
 
 export default function CardGremio({ data }: Props) {
@@ -52,8 +52,7 @@ export default function CardGremio({ data }: Props) {
       </div>
       <div className="rounded-b-md border p-4 flex flex-col gap-3 bg-gray-200/30">
         <div className="flex items-center justify-start gap-2 text-[.7rem] font-bold">
-          <h1 className="flex items-center justify-start">
-            {" "}
+          <h1 className="flex items-center justify-start"> 
             <PlaceIcon sx={{ fontSize: 13 }} /> {data.school.city}
           </h1>
           <h1 className="flex items-center justify-start gap-1">
@@ -118,7 +117,7 @@ export default function CardGremio({ data }: Props) {
         <div className="grid grid-cols-13 gap-3 p-5 !h-full overflow-y-auto">
           <div className="col-span-4 bg-gray-100/60 p-4 rounded-lg border ">
             <h1 className="font-bold text-xl mb-3">Edite os Dados do Grêmio</h1>
-            <FormsAddGremio
+            {/* <FormsAddGremio
               setIdGremio={function (_id: string): void {
                 throw new Error("Function not implemented.");
               }}
@@ -128,7 +127,7 @@ export default function CardGremio({ data }: Props) {
                 throw new Error("Function not implemented.");
               }}
               gremioEditData={data}
-            />
+            /> */}
           </div>
           <div className="col-span-5 bg-gray-100/60 p-4 rounded-lg border ">
             <h1 className="font-bold text-xl mb-3">

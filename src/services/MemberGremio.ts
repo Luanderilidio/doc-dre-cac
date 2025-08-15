@@ -97,14 +97,14 @@ export const usePatchMemberGremio = (gremio_id: string) => {
   });
 };
 
-export const useDeleteMemberGremio = (id: string) => {
+export const useDeleteMemberGremio = (gremio_id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) => DeleteMemberGremio(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["memberGremio", id],
+        queryKey: ["memberGremio", gremio_id],
       });
     },
   });

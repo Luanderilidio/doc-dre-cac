@@ -7,55 +7,31 @@ import {
   TextField,
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { useEffect, useState } from "react";
-import CardGremio from "./CardGremio";
-import { Gremio } from "./SchemaGremioAdmin";
-import axios from "axios";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import { useState } from "react";
+import CardGremio from "./CardGremio"; 
 import CloseIcon from "@mui/icons-material/Close";
-import CardAdminMemberGremio from "./CardAdminMemberGremio";
-import CardAdminGremios from "./CardAdminGremio";
-import FormsAddGremio from "./FormsAddGremio";
 import FormsAddMember from "./FormsAddMember";
+import { useAllGremiosWithMembers } from "../../services/Gremios";
+import FormGremio from "./Forms/FormGremio";
 
 export default function AdminGremio() {
-  const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
-
   const [filters, setFilters] = useState({
     name: "",
     city: "",
     school: "",
-    status: "all",
     interlocutor: "",
+    status: "all",
   });
-  const [data, setData] = useState<Gremio[]>([]);
-  const [status, setStatus] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+
+  const { data, isLoading, error } = useAllGremiosWithMembers();
+
   const [idGremio, setIdGremio] = useState<string | null>(null);
 
   const [viewFormsAddGremio, setViewFormsAddGremio] = useState<boolean>(false);
   const [viewFormsAddMembers, setViewFormsAddMembers] =
     useState<boolean>(false);
 
-  const handleDataGetGremio = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get<Gremio[]>(
-        `${apiUrl}/gremios?with_students=true`
-      ); 
-      setData(response.data);
-    } catch (error) {
-      console.error("Erro ao buscar gremios:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    handleDataGetGremio();
-  }, []);
-
-  const filteredData = data.filter((gremio) => {
+  const filteredData = (data ?? []).filter((gremio) => {
     const nameMatch =
       filters.name === "" ||
       gremio.name.toLowerCase().includes(filters.name.toLowerCase());
@@ -65,7 +41,7 @@ export default function AdminGremio() {
     const schoolMatch =
       filters.school === "" ||
       gremio.school.name.toLowerCase().includes(filters.school.toLowerCase());
-    const teacherMatch =
+    const interlocutorMatch =
       filters.interlocutor === "" ||
       gremio.interlocutor.name
         .toLowerCase()
@@ -75,10 +51,15 @@ export default function AdminGremio() {
       (filters.status === "active" && gremio.status) ||
       (filters.status === "inactive" && !gremio.status);
 
-    return nameMatch && cityMatch && schoolMatch && teacherMatch && statusMatch;
+    return (
+      nameMatch && cityMatch && schoolMatch && interlocutorMatch && statusMatch
+    );
   });
 
   const unique = (arr: string[]) => [...new Set(arr)];
+
+  if (error) return <>deu pau!</>;
+  if (isLoading) return <>Carregando</>;
 
   return (
     <div className="h-full grid grid-cols-12 gap-5  ">
@@ -86,7 +67,7 @@ export default function AdminGremio() {
         <p className="col-span-12 text-xl font-bold">Filtros</p>
         <Autocomplete
           className="col-span-3"
-          options={unique(data.map((gremio) => gremio.name))}
+          options={unique(data?.map((gremio) => gremio.name) ?? [])}
           value={filters.name}
           onChange={(_, value) =>
             setFilters((prev) => ({ ...prev, name: value || "" }))
@@ -98,7 +79,7 @@ export default function AdminGremio() {
 
         <Autocomplete
           className="col-span-2"
-          options={unique(data.map((gremio) => gremio.school.city))}
+          options={unique(data?.map((gremio) => gremio.school.city) ?? [])}
           value={filters.city}
           onChange={(_, value) =>
             setFilters((prev) => ({ ...prev, city: value || "" }))
@@ -108,7 +89,7 @@ export default function AdminGremio() {
 
         <Autocomplete
           className="col-span-2"
-          options={unique(data.map((gremio) => gremio.school.name))}
+          options={unique(data?.map((gremio) => gremio.school.name) ?? [])}
           value={filters.school}
           onChange={(_, value) =>
             setFilters((prev) => ({ ...prev, school: value || "" }))
@@ -118,7 +99,9 @@ export default function AdminGremio() {
 
         <Autocomplete
           className="col-span-2"
-          options={unique(data.map((gremio) => gremio.interlocutor.name))}
+          options={unique(
+            data?.map((gremio) => gremio.interlocutor.name) ?? []
+          )}
           value={filters.interlocutor}
           onChange={(_, value) =>
             setFilters((prev) => ({ ...prev, teacher: value || "" }))
@@ -141,18 +124,6 @@ export default function AdminGremio() {
           <MenuItem value="active">Ativos</MenuItem>
           <MenuItem value="inactive">Inativos</MenuItem>
         </TextField>
-        {/* <Button
-                    // onClick={() => fetchData()}
-                    className="col-span-1"
-                    variant="contained"
-                    color="primary"
-                >
-                    {loading ? (
-                        <DataSaverOffIcon className="animate-spin" />
-                    ) : (
-                        <RefreshIcon sx={{ fontSize: 30 }} />
-                    )}
-                </Button> */}
 
         <Button
           onClick={() => setViewFormsAddGremio(true)}
@@ -167,7 +138,7 @@ export default function AdminGremio() {
         {viewFormsAddGremio && (
           <div className="bg-gray-100/60 p-4 rounded-lg border">
             <div className="flex items-center justify-between">
-              <p className="col-span-12 text-xl font-bold">Adicionar Grêmio</p>
+              <p className="col-span-12 text-xl font-bold">Cadastrar Grêmio</p>
               <IconButton
                 aria-label=""
                 onClick={() => setViewFormsAddGremio(false)}
@@ -175,10 +146,7 @@ export default function AdminGremio() {
                 <CloseIcon />
               </IconButton>
             </div>
-            <FormsAddGremio
-              setIdGremio={setIdGremio}
-              setViewFormsAddMembers={setViewFormsAddMembers}
-            />
+            <FormGremio />
           </div>
         )}
         {viewFormsAddMembers && (
@@ -204,21 +172,21 @@ export default function AdminGremio() {
           <Divider />
         </div>
         <Button
-          onClick={handleDataGetGremio}
+          // onClick={handleDataGetGremio}
           variant="text"
-          endIcon={loading ? <RestartAltIcon className="animate-spin" /> : null}
+          // endIcon={loading ? <RestartAltIcon className="animate-spin" /> : null}
         >
           Atualizar
         </Button>
       </div>
-      {filteredData.map((item) => (
+      {filteredData?.map((item) => (
         <div className="col-span-3">
           <CardGremio data={item} />
         </div>
       ))}
-      <div className="col-span-12 border">
+      {/* <div className="col-span-12 border">
         <CardAdminGremios />
-      </div>
+      </div> */}
     </div>
   );
 }
