@@ -15,56 +15,60 @@ import PlaceIcon from "@mui/icons-material/Place";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import { faker } from "@faker-js/faker";
 import CloseIcon from "@mui/icons-material/Close";
-import { Gremio, GremioWithMember } from "./SchemaGremioAdmin";
-import { Transition } from "../../utils/transition";
-import FormsAddGremio from "./FormsAddGremio";
-import { SetStateAction } from "react";
-import FormsAddMember from "./FormsAddMember";
+import {  GremioWithMember } from "./SchemaGremioAdmin";
+import { Transition } from "../../utils/transition"; 
 import moment from "moment/min/moment-with-locales";
-import FormsAddProcessRedefinition from "./FormsAddProcessRedefinition";
-import ListProcessRedefinition from "./ListProcessRedefinition";
+import FormsAddProcessRedefinition from "./FormsAddProcessRedefinition"; 
+import FormGremio from "./Forms/FormGremio";
+import FormMember from "./Forms/FormMember";
+import CardMemberGremio from "./CardMemberGremio";
+import { useAllMembersGremioWithStudentsByGremioId } from "../../services/MemberGremio";
 moment.locale("pt-br");
 
 type Props = {
-  data: GremioWithMember;
+  initialDate: GremioWithMember;
 };
 
-export default function CardGremio({ data }: Props) {
+export default function CardGremio({ initialDate }: Props) {
   const [isViewDialog, openViewDialog, closeViewDialog, toggleViewDialog] =
     useBoolean(false);
+
+  const { data: members } = useAllMembersGremioWithStudentsByGremioId(
+    initialDate.id
+  );
 
   return (
     <div className="shadow-md rounded-xl font-Inter">
       <div
         style={{
-          backgroundImage: `url(${data.url_folder})`,
+          backgroundImage: `url(${initialDate.url_folder})`,
         }}
         className="!h-28 bg-cover w-full relative  rounded-t-xl"
       >
         <p className=" font-bold text-[0.7rem] text-white z-50 capitalize top-3  right-3 absolute bg-green-500 px-2 py-1 rounded-md">
-          {data.status === true ? "Ativo" : "Inativo"}
+          {initialDate.status === true ? "Ativo" : "Inativo"}
         </p>
         <div className="text-[0.7rem] font-bold absolute bottom-2 text-white z-50 right-3">
-          {moment(data.approval_date).format("MM/YY")} até{" "}
-          {moment(data.validity_date).format("MM/YY")}
+          {moment(initialDate.approval_date).format("MM/YY")} até{" "}
+          {moment(initialDate.validity_date).format("MM/YY")}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-b-lg" />
       </div>
       <div className="rounded-b-md border p-4 flex flex-col gap-3 bg-gray-200/30">
         <div className="flex items-center justify-start gap-2 text-[.7rem] font-bold">
-          <h1 className="flex items-center justify-start"> 
-            <PlaceIcon sx={{ fontSize: 13 }} /> {data.school.city}
+          <h1 className="flex items-center justify-start">
+            <PlaceIcon sx={{ fontSize: 13 }} /> {initialDate.school.city}
           </h1>
           <h1 className="flex items-center justify-start gap-1">
-            <HomeWorkIcon sx={{ fontSize: 13 }} /> {data.school.name}
+            <HomeWorkIcon sx={{ fontSize: 13 }} /> {initialDate.school.name}
           </h1>
         </div>
         <div className="w-full flex items-center justify-between">
-          <h1 className="text-3xl font-bold">{data.name}</h1>
-          {data.members && (
+          <h1 className="text-3xl font-bold">{initialDate.name}</h1>
+          {initialDate.members && (
             <>
               <AvatarGroup max={3}>
-                {data.members.map((member) => (
+                {initialDate.members.map((member) => (
                   <Avatar alt="Remy Sharp" src={member.student.url_profile} />
                 ))}
               </AvatarGroup>
@@ -81,10 +85,10 @@ export default function CardGremio({ data }: Props) {
             />
             <div className="flex flex-col">
               <h1 className="text-xs font-semibold">
-                {data.interlocutor.name.split(" ")[0]}
+                {initialDate.interlocutor.name.split(" ")[0]}
               </h1>
               <h1 className="text-[.6rem] font-semibold">
-                {data.interlocutor.contact}
+                {initialDate.interlocutor.contact}
               </h1>
             </div>
           </div>
@@ -117,30 +121,21 @@ export default function CardGremio({ data }: Props) {
         <div className="grid grid-cols-13 gap-3 p-5 !h-full overflow-y-auto">
           <div className="col-span-4 bg-gray-100/60 p-4 rounded-lg border ">
             <h1 className="font-bold text-xl mb-3">Edite os Dados do Grêmio</h1>
-            {/* <FormsAddGremio
-              setIdGremio={function (_id: string): void {
-                throw new Error("Function not implemented.");
-              }}
-              setViewFormsAddMembers={function (
-                _value: SetStateAction<boolean>
-              ): void {
-                throw new Error("Function not implemented.");
-              }}
-              gremioEditData={data}
-            /> */}
+            <FormGremio gremio_id={initialDate.id} initialDate={initialDate} />
           </div>
           <div className="col-span-5 bg-gray-100/60 p-4 rounded-lg border ">
             <h1 className="font-bold text-xl mb-3">
               Edite os membros do Grêmio
             </h1>
-            <FormsAddMember gremio_id={data.id} />
+            <FormMember gremio_id={initialDate.id} />
+            <CardMemberGremio gremio_id={initialDate.id} />
           </div>
           <div className="col-span-4 ">
             <div className="flex flex-col gap-3 bg-gray-300/30 rounded-xl  p-4  h-fit">
               <h1 className="font-bold text-xl">Cadastre um novo processo</h1>
-              <FormsAddProcessRedefinition gremio_id={data.id} />
+              <FormsAddProcessRedefinition gremio_id={initialDate.id} />
             </div>
-            
+
             {/* <ListProcessRedefinition gremio_id={data.id} /> */}
           </div>
         </div>

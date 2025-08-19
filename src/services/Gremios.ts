@@ -17,7 +17,7 @@ export const CreateGremios = async (data: GremioCreate) => {
 
 export const GetAllGremiosWithMembers = async (): Promise<GremioWithMembersList> => {
   const response = await axios.get<GremioWithMembersList>(`${apiUrl}/gremios`);
-  console.log(response.data)
+  // console.log(response.data)
   return response.data;
 };
 

@@ -8,44 +8,118 @@ import {
   DialogTitle,
   IconButton,
 } from "@mui/material";
+import { ptBR } from "@mui/x-data-grid/locales";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import EmailIcon from "@mui/icons-material/Email";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { MemberView, Message } from "./SchemaGremioAdmin";
+import { MemberWithStudent, Student } from "./SchemaGremioAdmin";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
 
 import { ToastContainer, toast } from "react-toastify";
 import { useBoolean } from "react-hooks-shareable";
+import {
+  useAllMembersGremioWithStudentsByGremioId,
+  useDeleteMemberGremio,
+} from "../../services/MemberGremio";
 
 interface MemberViewProps {
-  member: MemberView;
-  onDelete: (id: string) => void;
+  gremio_id: string;
 }
 
-export default function CardMemberGremio({
-  member,
-  onDelete,
-}: MemberViewProps) {
-  const apiUrl = import.meta.env.VITE_BACK_END_API_DRE as string;
+export default function CardMemberGremio({ gremio_id }: MemberViewProps) {
+  const deleteMutation = useDeleteMemberGremio(gremio_id);
+
+  const { data, refetch, isLoading } =
+    useAllMembersGremioWithStudentsByGremioId(gremio_id);
+
+  console.log(data);
 
   const [isViewDialog, openViewDialog, closeViewDialog, toggleViewDialog] =
     useBoolean(false);
 
-  const handleDeleteMember = async () => {
-    try {
-      const response = await axios.delete<Message>(
-        `${apiUrl}/members-gremio/${member.id}`
-      );
-      toast.success(response.data.message); 
-      onDelete(member.id);
-    } catch (error) {
-      console.log(error);
-    }
+  const handleDelete = (id: string) => {
+    refetch();
+    deleteMutation.mutate(id, {
+      onSuccess: async () => {
+        toast.success("Membro removido com sucesso!");
+        await refetch();
+      },
+      onError: () => {
+        toast.error("Erro ao deletar Membro!");
+      },
+    });
   };
+
+  const columns: GridColDef<MemberWithStudent>[] = [
+    // { field: "id", headerName: "ID", width: 30 },
+    {
+      field: "url_photo",
+      headerName: "Foto",
+      width: 70,
+      renderCell: (params) => (
+        <div className="h-full flex items-center justify-center">
+          <img
+            className="rounded-full w-10 h-10"
+            src={params.row.student.url_profile}
+            alt=""
+          />
+        </div>
+      ),
+    },
+    {
+      field: "name",
+      headerName: "Nome",
+      width: 120,
+      renderCell: (params) => <p>{params.row.student.name}</p>,
+    },
+    {
+      field: "role",
+      headerName: "Cargo",
+      width: 160,
+      renderCell: (params) => <p>{params.row.role}</p>,
+    },
+    {
+      field: "actions",
+      headerName: "Ações",
+      width: 60,
+      sortable: false,
+      renderCell: (params) => (
+        <div className="flex">
+          <IconButton
+            onClick={() => handleDelete(params.row.id)}
+            color="error"
+            aria-label="delete"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
-      <div className="flex items-center justify-between p-4 bg-gray-300/30 rounded-lg border shadow-md font-Inter">
+      {/* <Button onClick={() => refetch()}>Atualizar</Button> */}
+      <div className="w-full">
+      <DataGrid
+        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+        rows={data}
+        columns={columns}
+        rowHeight={50}
+        getRowId={(row) => row.id}
+        loading={isLoading}
+        pageSizeOptions={[5, 10]}
+        disableRowSelectionOnClick
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize: 5 },
+          },
+        }}
+      />
+      </div>
+      {/* <div className="flex items-center justify-between p-4 bg-gray-300/30 rounded-lg border shadow-md font-Inter">
         <div className="flex items-center gap-4">
           <Avatar
             src={member.student.url_profile}
@@ -98,25 +172,28 @@ export default function CardMemberGremio({
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Tem certeza que deseja excluir o membro(a) <span className="font-bold">{member.student.name}</span>  do
-            Grêmio?
+            Tem certeza que deseja excluir o membro(a){" "}
+            <span className="font-bold">{member.student.name}</span> do Grêmio?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button variant="outlined" onClick={closeViewDialog}>Fechar</Button>
+          <Button variant="outlined" onClick={closeViewDialog}>
+            Fechar
+          </Button>
           <Button
-          color="error"
-          variant="contained"
+            color="error"
+            variant="contained"
             onClick={() => {
-              handleDeleteMember();
+              handleDelete(member.id);
               toggleViewDialog();
+              refetch()
             }}
             autoFocus
           >
             Excluir
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

@@ -57,6 +57,7 @@ export const PatchProcessRedefinition = async (
 /* ===== HOOKS ===== */
 
 export const useProcessRedefinitions = (gremio_id: string) => {
+  console.log(gremio_id)
   return useQuery<ProcessRedefinitionWithStages[]>({
     queryKey: ["processRedefinitions", gremio_id],
     queryFn: () => AllProcessRedefinitionByGremioId(gremio_id),
@@ -94,6 +95,8 @@ export const usePatchProcessRedefinition = (gremio_id: string) => {
 
 export const useDeleteProcessRedefinition = (gremio_id: string) => {
   const queryClient = useQueryClient();
+
+  console.log(gremio_id)
 
   return useMutation({
     mutationFn: (id: string) => DeleteProcessRedefinition(id),

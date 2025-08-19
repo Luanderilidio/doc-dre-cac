@@ -4,9 +4,8 @@ import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CardAdminStudents from './CardAdminStudents';
 import CardAdminInterlocutors from './CardAdminInterlocutors';
-import CardAdminSchools from './CardAdminSchools';
-import CardAdminGremios from './CardAdminGremio';
-import AdminGremio from './CardAdminGremio2';
+import CardAdminSchools from './CardAdminSchools'; 
+import AdminGremio from './CardAdminGremio';
 
 type PageKey =
   | 'estudantes'

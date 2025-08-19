@@ -21,7 +21,9 @@ export const GetAllStudents = async (): Promise<StudentList> => {
 };
 
 export const GetAllStudentsFree = async (): Promise<StudentList> => {
-  const response = await axios.get<StudentList>(`${apiUrl}/students?free=true`);
+  const response = await axios.get<StudentList>(
+    `${apiUrl}/students?not_participate_gremio=true`
+  );
   return response.data;
 };
 

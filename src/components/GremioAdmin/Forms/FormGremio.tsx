@@ -19,6 +19,7 @@ import {
   GremioCreate,
   GremioCreateSchema,
   GremioPatch,
+  GremioWithMember,
 } from "../SchemaGremioAdmin";
 import { useCreateGremio, usePatchGremio } from "../../../services/Gremios";
 import moment from "moment/min/moment-with-locales";
@@ -26,11 +27,12 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useAllInterlocutorsFree } from "../../../services/Interlocutors";
 import { useAllSchoolsFree } from "../../../services/School";
+import { useEffect } from "react";
 moment.locale("pt-br");
 
 type FormGremioForms = {
   gremio_id?: string;
-  initialDate?: GremioPatch;
+  initialDate?: GremioWithMember;
 };
 
 export default function FormGremio({
@@ -44,7 +46,7 @@ export default function FormGremio({
   const { data: schools } = useAllSchoolsFree();
 
   const {
-    watch,
+    setValue,
     control,
     register,
     handleSubmit,
@@ -62,8 +64,8 @@ export default function FormGremio({
       approval_date: initialDate?.approval_date || moment().toISOString(),
       url_action_plan:
         initialDate?.url_action_plan || faker.image.urlPicsumPhotos(),
-      school_id: initialDate?.school_id || "",
-      interlocutor_id: initialDate?.interlocutor_id || "",
+      school_id: initialDate?.school.id || "",
+      interlocutor_id: initialDate?.interlocutor.id || "",
     },
   });
 
@@ -97,17 +99,26 @@ export default function FormGremio({
   const selectedSchoolId = useWatch({ control, name: "school_id" });
   const selectedInterlocutorId = useWatch({ control, name: "interlocutor_id" });
 
+  useEffect(() => {
+    if (initialDate?.school) {
+      setValue("school_id", initialDate.school.id);
+    }
+    if (initialDate?.interlocutor) {
+      setValue("interlocutor_id", initialDate.interlocutor.id);
+    }
+  }, [initialDate, setValue]);
+
   return (
     <form
       onSubmit={handleSubmit(handleDataSubmit)}
-      className="   flex flex-col gap-3  "
+      className="flex flex-col gap-3  "
     >
       <div className="col-span-12 mt-3">
         <Divider>
           <p className="text-sm font-semibold">Informações</p>
         </Divider>
       </div>
-      <div className="grid grid-cols-12 gap-2"> 
+      <div className="grid grid-cols-12 gap-2">
         <TextField
           required
           {...control.register("name")}
@@ -121,85 +132,66 @@ export default function FormGremio({
         <Controller
           name="school_id"
           control={control}
-          render={({ field }) => (
-            <Autocomplete
-              className="col-span-6"
-              options={schools ?? []}
-              getOptionLabel={(option) => option.name || ""}
-              isOptionEqualToValue={(option, value) => option.id === value?.id}
-              value={schools?.find((i) => i.id === selectedSchoolId) || null}
-              onChange={(_, newValue) => {
-                field.onChange(newValue?.id || "");
-              }}
-              renderInput={(params) => (
-                <TextField
-                  className="col-span-6"
-                  {...params}
-                  label="Escola"
-                  error={!!errors.school_id}
-                  helperText={errors.school_id?.message}
-                  required
-                />
-              )}
-              renderOption={(props, option) => (
-                <li {...props} key={option.id}>
-                  <div>
-                    <div className="flex items-start justify-start gap-1">
-                      <MapsHomeWorkIcon sx={{ fontSize: 15 }} />
-                      <strong className="text-sm leading-none">
-                        {option.name}
-                      </strong>
-                    </div>
-                    <div className="text-xs flex items-center justify-start ">
-                      <PlaceIcon sx={{ fontSize: 11 }} />
-                      <p className="leading-none">{option.city}</p>
-                    </div>
-                  </div>
-                </li>
-              )}
-            />
-          )}
-        />
+          render={({ field }) => {
+            const currentValue =
+              schools?.find((s) => s.id === field.value) ||
+              initialDate?.school ||
+              null;
 
+            return (
+              <Autocomplete
+                className="col-span-6"
+                options={schools ?? []}
+                getOptionLabel={(option) => option.name || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option.id === value?.id
+                }
+                value={currentValue}
+                onChange={(_, newValue) => field.onChange(newValue?.id || "")}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Escola"
+                    error={!!errors.school_id}
+                    helperText={errors.school_id?.message}
+                    required
+                  />
+                )}
+              />
+            );
+          }}
+        />
         <Controller
           name="interlocutor_id"
           control={control}
-          render={({ field }) => (
-            <Autocomplete
-              className="col-span-6"
-              options={interlocutors ?? []}
-              getOptionLabel={(option) => option.name || ""}
-              isOptionEqualToValue={(option, value) => option.id === value?.id}
-              value={
-                interlocutors?.find((i) => i.id === selectedInterlocutorId) ||
-                null
-              }
-              onChange={(_, newValue) => {
-                field.onChange(newValue?.id || "");
-              }}
-              renderInput={(params) => (
-                <TextField
-                  className="col-span-6"
-                  {...params}
-                  label="Interlocutor"
-                  error={!!errors.interlocutor_id}
-                  helperText={errors.interlocutor_id?.message}
-                  required
-                />
-              )}
-              renderOption={(props, option) => (
-                <li {...props} key={option.id}>
-                  <div>
-                    <strong>{option.name}</strong>
-                    <div className="text-xs">
-                      <p>{option.email}</p>
-                      <p>{option.contact}</p>
-                    </div>
-                  </div>
-                </li>
-              )}
-            />
-          )}
+          render={({ field }) => {
+            const currentValue =
+              interlocutors?.find((i) => i.id === field.value) ||
+              initialDate?.interlocutor ||
+              null;
+
+            return (
+              <Autocomplete
+                className="col-span-6"
+                options={interlocutors ?? []}
+                getOptionLabel={(option) => option.name || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option.id === value?.id
+                }
+                value={currentValue}
+                onChange={(_, newValue) => field.onChange(newValue?.id || "")}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Interlocutor"
+                    error={!!errors.interlocutor_id}
+                    helperText={errors.interlocutor_id?.message}
+                    required
+                  />
+                )}
+              />
+            );
+          }}
         />
 
         <div className="col-span-12 mt-3">

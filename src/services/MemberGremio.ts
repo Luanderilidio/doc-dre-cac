@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   MemberCreate,
-  MemberView,
-  MemberViewList,
+  MemberPatch,
+  MemberWithStudent,
+  MemberWithStudentList,
   Message,
-  PatchMember,
 } from "../components/GremioAdmin/SchemaGremioAdmin";
 import axios from "axios";
 
@@ -15,69 +15,85 @@ export const CreateMemberGremio = async (data: MemberCreate) => {
   return response.data;
 };
 
-export const GetAllMembers = async (
-): Promise<MemberViewList[]> => {
-  const response = await axios.get<MemberViewList[]>(
-    `${apiUrl}/members-gremio`
+export const GetAllMembersWithStudentsByGremoId = async (
+  id: string
+): Promise<MemberWithStudentList> => {
+  const response = await axios.get<MemberWithStudentList>(
+    `${apiUrl}/members-gremio?only_roles=false&gremio_id=${id}`
+  );
+  console.log(response.data);
+
+  if (response.status === 404) {
+    return [];
+  }
+  return response.data;
+};
+
+export const GetAllRolesFreeByGremioId = async (
+  id: string
+): Promise<String[]> => {
+  const response = await axios.get<String[]>(
+    `${apiUrl}/members-gremio?only_roles=true&gremio_id=${id}`
   );
   return response.data;
 };
 
-export const GetAllMembersById = async (
+export const GetMemberGremioWithStudentById = async (
   id: string
-): Promise<MemberView> => {
-  const response = await axios.get<MemberView>(
+): Promise<MemberWithStudent> => {
+  const response = await axios.get<MemberWithStudent>(
     `${apiUrl}/members-gremio/${id}`
   );
   return response.data;
 };
 
-export const GetAllMembersByGremioId = async (
-  gremio_id: string
-): Promise<MemberViewList[]> => {
-  const response = await axios.get<MemberViewList[]>(
-    `${apiUrl}/members-gremio?gremio_id=${gremio_id}`
-  );
+ 
+
+export const PathMemberGremio = async (id: string, data: MemberPatch) => {
+  const response = await axios.patch(`${apiUrl}/members-gremio/${id}`, data);
   return response.data;
 };
 
-export const PathMemberGremio = async (id: string, data: PatchMember) => {
-    const response = await axios.patch(`${apiUrl}/members-gremio/${id}`, data)
-    return response.data
-}
-
 export const DeleteMemberGremio = async (id: string) => {
-    const response = await axios.delete(`${apiUrl}/members-gremio/${id}`)
-    return response.data
-}
-
+  const response = await axios.delete(`${apiUrl}/members-gremio/${id}`);
+  return response.data;
+};
 
 /* ==================== HOOKS ==================== */
 
-export const useAllMembersGremio = () => {
-  return useQuery<MemberViewList[]>({
-    queryKey: ["AllMemberGremio"],
-    queryFn: () => GetAllMembers()
+export const useAllMembersGremioWithStudentsByGremioId = (
+  gremio_id: string
+) => {
+  return useQuery<MemberWithStudentList>({
+    queryKey: ["AllMembersGremio"],
+    queryFn: () => GetAllMembersWithStudentsByGremoId(gremio_id),
   });
 };
 
-export const useMembersGremioByGremioId = (gremio_id: string) => {
-  return useQuery<MemberViewList[]>({
-    queryKey: ["memberGremio"],
-    queryFn: () => GetAllMembersByGremioId(gremio_id)
+export const useAllRolesFreeByGremioId = (gremio_id: string) => {
+  return useQuery<String[]>({
+    queryKey: ["AllRolesByGremio", gremio_id],
+    queryFn: () => GetAllRolesFreeByGremioId(gremio_id),
   });
 };
 
-
-export const useCreateMemberGremio = () => {
+export const useCreateMemberGremio = (gremio_id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: MemberCreate) =>
-      CreateMemberGremio(data),
+    mutationFn: (data: MemberCreate) => CreateMemberGremio(data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["memberGremio", variables.gremio_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["AllMembersGremio"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["AllRolesByGremio", gremio_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["AllStudentsFree"],
       });
     },
   });
@@ -87,11 +103,14 @@ export const usePatchMemberGremio = (gremio_id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: PatchMember }) =>
+    mutationFn: ({ id, data }: { id: string; data: MemberPatch }) =>
       PathMemberGremio(id, data),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["memberGremio", gremio_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["AllMembersGremio"],
       });
     },
   });
@@ -106,6 +125,13 @@ export const useDeleteMemberGremio = (gremio_id: string) => {
       queryClient.invalidateQueries({
         queryKey: ["memberGremio", gremio_id],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["AllMembersGremio"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["AllRolesByGremio", gremio_id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["AllStudentsFree"] });
     },
   });
 };
