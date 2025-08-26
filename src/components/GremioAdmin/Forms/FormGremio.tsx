@@ -57,13 +57,13 @@ export default function FormGremio({
     defaultValues: {
       name: initialDate?.name || faker.commerce.product(),
       status: initialDate?.status || true,
-      url_profile: initialDate?.url_profile || faker.image.avatar(),
-      url_folder: initialDate?.url_folder || faker.image.avatar(),
+      url_profile: initialDate?.url_profile || faker.image.url(),
+      url_folder: initialDate?.url_folder || faker.image.url(),
       validity_date:
         initialDate?.validity_date || moment().add(1, "year").toISOString(),
       approval_date: initialDate?.approval_date || moment().toISOString(),
       url_action_plan:
-        initialDate?.url_action_plan || faker.image.urlPicsumPhotos(),
+        initialDate?.url_action_plan || "",
       school_id: initialDate?.school.id || "",
       interlocutor_id: initialDate?.interlocutor.id || "",
     },
@@ -200,7 +200,7 @@ export default function FormGremio({
             <p className="text-sm font-semibold">Datas</p>
           </Divider>
         </div>
-        <LocalizationProvider dateAdapter={AdapterMoment}>
+        <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="pt-br">
           <Controller
             name="approval_date"
             control={control}
@@ -215,6 +215,7 @@ export default function FormGremio({
                 <DatePicker
                   label="Data de Nomeação"
                   className="col-span-6"
+                  format="DD/MM/YYYY"
                   value={value || null}
                   onChange={(newValue) => {
                     // Armazena como string ISO
@@ -244,6 +245,7 @@ export default function FormGremio({
                 <DatePicker
                   label="Data de Vigência"
                   className="col-span-6"
+                  format="DD/MM/YYYY"
                   value={value || null}
                   onChange={(newValue) => {
                     field.onChange(newValue?.toISOString());

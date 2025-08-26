@@ -150,34 +150,32 @@ export type InterlocutorList = z.infer<typeof InterlocutorListSchema>;
 export type InterlocutorPatch = z.infer<typeof PatchInterlocutorSchema>;
 export type InterlocutorCreate = z.infer<typeof InterlocutorCreateSchema>;
 
-export const StudentSchema = z
-  .object({
-    id: z.string().min(6),
-    registration: z.string(),
-    name: z.string().min(1),
-    contact: z.string(),
-    email: z.string().email(),
-    status: z.boolean(),
-    series: z.string(),
-    shift: z.enum(["matutino", "vespertino", "noturno", "integral"]),
-    url_profile: z.string().default(""),
-  })
-  .merge(TimestampsMetadata);
+export const StudentSchema = z.object({
+  id: z.string().min(6),
+  registration: z.string(),
+  name: z.string().min(1),
+  contact: z.string(),
+  email: z.string().email(),
+  status: z.boolean().default(true),
+  series: z.string(),
+  school_id: z.string().min(6),
+  shift: z.enum(["matutino", "vespertino", "noturno", "integral"]),
+  url_profile: z.string().default(""),
+});
 
 export const StudentCreateSchema = StudentSchema.omit({
   id: true,
   status: true,
-
-  created_at: true,
-  disabled_at: true,
-  updated_at: true,
-  deleted_at: true,
 });
 
+const StudentWithSchoolSchema = StudentSchema.omit({ school_id: true }).extend({
+  school: SchoolSchema,
+});
 const PatchStudentSchema = StudentCreateSchema.partial();
-const StudentListSchema = z.array(StudentSchema);
+const StudentListSchema = z.array(StudentWithSchoolSchema.merge(TimestampsMetadata));
 
 export type Student = z.infer<typeof StudentSchema>;
+export type StudentWithSchool = z.infer<typeof StudentWithSchoolSchema>;
 export type StudentList = z.infer<typeof StudentListSchema>;
 export type StudentPatch = z.infer<typeof PatchStudentSchema>;
 export type StudentCreate = z.infer<typeof StudentCreateSchema>;
@@ -228,13 +226,13 @@ export const GremioBaseSchema = z
       .url("URL inválida")
       .nullable()
       .optional()
-      .default(faker.image.avatar()),
+      .default(faker.image.urlPicsumPhotos()),
     url_folder: z
       .string()
       .url("URL inválida")
       .nullable()
       .optional()
-      .default(faker.image.avatar()),
+      .default(faker.image.urlPicsumPhotos()),
     validity_date: z
       .string()
       .refine((val) => moment(val).isValid(), "Data de vigência inválida")

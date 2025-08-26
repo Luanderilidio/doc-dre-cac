@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import {
-  MemberView,
+import { 
   Message,
   PatchSchool,
   School,

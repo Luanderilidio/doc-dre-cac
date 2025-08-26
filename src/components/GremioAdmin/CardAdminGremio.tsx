@@ -96,7 +96,7 @@ export default function AdminGremio() {
     {
       field: "school",
       headerName: "Escola",
-      width: 120,
+      width: 180,
       renderCell: (params) => <p>{params.value?.name}</p>,
     },
     {
@@ -171,6 +171,7 @@ export default function AdminGremio() {
 
   return (
     <div className="h-full grid grid-cols-12 gap-5  ">
+      <p className="col-span-12 text-start text-3xl font-bold">Grêmios Estudantis</p>
       <div className="col-span-12 border grid grid-cols-12 gap-3 bg-gray-100/60 p-4 rounded-lg">
         <p className="col-span-12 text-xl font-bold">Filtros</p>
         <Autocomplete

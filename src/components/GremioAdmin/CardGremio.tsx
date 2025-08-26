@@ -38,12 +38,12 @@ export default function CardGremio({ initialDate }: Props) {
   );
 
   return (
-    <div className="shadow-md rounded-xl font-Inter">
+    <div className="shadow-md rounded-xl font-Inter ">
       <div
         style={{
           backgroundImage: `url(${initialDate.url_folder})`,
         }}
-        className="!h-28 bg-cover w-full relative  rounded-t-xl"
+        className="!h-28 bg-cover w-full relative  !rounded-t-xl"
       >
         <p className=" font-bold text-[0.7rem] text-white z-50 capitalize top-3  right-3 absolute bg-green-500 px-2 py-1 rounded-md">
           {initialDate.status === true ? "Ativo" : "Inativo"}
@@ -52,20 +52,21 @@ export default function CardGremio({ initialDate }: Props) {
           {moment(initialDate.approval_date).format("MM/YY")} até{" "}
           {moment(initialDate.validity_date).format("MM/YY")}
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-b-lg" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-t-lg" />
       </div>
-      <div className="rounded-b-md border p-4 flex flex-col gap-3 bg-gray-200/30">
-        <div className="flex items-center justify-start gap-2 text-[.7rem] font-bold">
-          <h1 className="flex items-center justify-start">
+      <div className="rounded-b-md h-48 border p-4 flex flex-col justify-around gap-3 bg-gray-200/30">
+        <div className="flex items-center justify-start gap-2 text-[.6rem] font-bold   h-10">
+          <h1 className="flex items-center justify-start whitespace-nowrap overflow-hidden text-ellipsis">
             <PlaceIcon sx={{ fontSize: 13 }} /> {initialDate.school.city}
           </h1>
-          <h1 className="flex items-center justify-start gap-1">
-            <HomeWorkIcon sx={{ fontSize: 13 }} /> {initialDate.school.name}
+          <h1 className="flex items-center justify-start gap-1 whitespace-nowrap overflow-hidden text-ellipsis">
+            <HomeWorkIcon sx={{ fontSize: 13 }} />{" "}
+            {initialDate.school.name.slice(0, 25)}
           </h1>
         </div>
-        <div className="w-full flex items-center justify-between">
-          <h1 className="text-3xl font-bold">{initialDate.name}</h1>
-          {initialDate.members && (
+        <div className="w-full flex items-start justify-start h-40">
+          <h1 className="text-2xl font-bold leading-none">{initialDate.name}</h1>
+          {/* {initialDate.members && (
             <>
               <AvatarGroup max={3}>
                 {initialDate.members.map((member) => (
@@ -73,7 +74,7 @@ export default function CardGremio({ initialDate }: Props) {
                 ))}
               </AvatarGroup>
             </>
-          )}
+          )} */}
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-start gap-2">

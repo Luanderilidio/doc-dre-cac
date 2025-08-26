@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useCreateSchool, usePatchSchool } from "../../../services/School";
+import { useAllSchools, useCreateSchool, usePatchSchool } from "../../../services/School";
 import {
   PatchSchool,
   SchoolCreate,
@@ -20,6 +20,7 @@ export default function FormSchool({
 }: FormSchoolForms) {
   const createMutation = useCreateSchool();
   const updateMutation = usePatchSchool();
+  const {data: schools} = useAllSchools()
 
   const {
     register,

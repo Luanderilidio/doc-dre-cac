@@ -133,6 +133,7 @@ export default function CardAdminInterlocutors() {
 
   return (
     <div className="w-full h-full grid grid-cols-12 gap-4">
+      <p className="col-span-12 text-start text-3xl font-bold">Interlocutores</p>
       <div className="col-span-8 p-4 gap-4 bg-gray-300/20 rounded-xl border">
         <p className="  text-xl font-Inter font-bold mb-3">Filtros</p>
         <div className="grid grid-cols-12 gap-4">

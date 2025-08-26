@@ -1,12 +1,14 @@
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import {
   StudentCreate,
   StudentCreateSchema,
   StudentPatch,
+  StudentWithSchool,
 } from "../SchemaGremioAdmin";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast, ToastContainer } from "react-toastify";
 import {
+  Autocomplete,
   Button,
   FormControl,
   FormHelperText,
@@ -19,10 +21,12 @@ import { faker } from "@faker-js/faker";
 import PersonIcon from "@mui/icons-material/Person";
 
 import { useCreateStudent, usePatchStudent } from "../../../services/Students";
+import { useEffect } from "react";
+import { useAllSchools } from "../../../services/School";
 
 type FormStudentForms = {
   student_id?: string;
-  initialDate?: StudentPatch;
+  initialDate?: StudentWithSchool;
 };
 
 export default function FormStudent({
@@ -32,9 +36,12 @@ export default function FormStudent({
   const createMutation = useCreateStudent();
   const updateMutation = usePatchStudent();
 
+  const { data: schools } = useAllSchools();
+
   const {
     watch,
     control,
+    setValue,
     register,
     handleSubmit,
     formState: { errors },
@@ -43,6 +50,7 @@ export default function FormStudent({
     mode: "onChange",
     defaultValues: {
       name: initialDate?.name || faker.person.fullName(),
+      school_id: initialDate?.school.id || "",
       registration:
         initialDate?.registration || faker.string.alphanumeric(8).toUpperCase(),
       contact:
@@ -91,6 +99,13 @@ export default function FormStudent({
   };
 
   const urlProfile = watch("url_profile");
+  const selectedSchoolId = useWatch({ control, name: "school_id" });
+
+  useEffect(() => {
+    if (initialDate?.school) {
+      setValue("school_id", initialDate.school.id);
+    }
+  }, [initialDate, setValue]);
 
   return (
     <form
@@ -101,7 +116,7 @@ export default function FormStudent({
         {student_id ? "Editar Estudante" : "Cadastrar Estudante"}
       </p>
 
-      <div className="grid grid-cols-12 grid-rows-3 gap-2">
+      <div className="grid grid-cols-12 grid-rows-4 gap-2">
         <TextField
           label="Nome completo"
           size="small"
@@ -152,7 +167,39 @@ export default function FormStudent({
           helperText={errors.email?.message}
           className="col-span-9"
         />
+        <Controller
+          name="school_id"
+          control={control}
+          render={({ field }) => {
+            const currentValue =
+              schools?.find((s) => s.id === field.value) ||
+              initialDate?.school ||
+              null;
 
+            return (
+              <Autocomplete
+                className="col-span-12"
+                options={schools ?? []}
+                getOptionLabel={(option) => option.name || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option.id === value?.id
+                }
+                value={currentValue}
+                onChange={(_, newValue) => field.onChange(newValue?.id || "")}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Escola"
+                    size="small"
+                    error={!!errors.school_id}
+                    helperText={errors.school_id?.message}
+                    required
+                  />
+                )}
+              />
+            );
+          }}
+        />
         <TextField
           size="small"
           label="Série"
