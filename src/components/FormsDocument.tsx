@@ -335,10 +335,13 @@ export default function FormsDocument() {
               <MenuItem value="" disabled>
                 Selecione...
               </MenuItem>
-              <MenuItem value="Histórico">Histórico</MenuItem>
-              <MenuItem value="Certificado">Certificado</MenuItem>
-              <MenuItem value="Declaração">Declaração</MenuItem>
-              <MenuItem value="Atestado">Atestado</MenuItem>
+              <MenuItem value="Histórico Ensino Fundamental">Histórico Ensino Fundamental</MenuItem>
+              <MenuItem value="Histórico Ensino Médio">Histórico Ensino Médio</MenuItem>
+              <MenuItem value="Certificado de Conclusão Ensino Médio">Certificado de Conclusão Ensino Médio</MenuItem>
+              <MenuItem value="Diploma Curso Profissionalizante">Diploma Curso Profissionalizante</MenuItem>
+              <MenuItem value="Atestado de Autenticidade">Atestado de Autenticidade</MenuItem>
+              <MenuItem value="Declaração de Escolaridade">Declaração de Escolaridade</MenuItem>
+              <MenuItem value="Ficha Funcional">Ficha Funcional</MenuItem>
             </Select>
           )}
         />
@@ -416,7 +419,7 @@ export default function FormsDocument() {
               </MenuItem>
               <MenuItem value="Graciane">Graciane</MenuItem>
               <MenuItem value="Carmelito">Carmelito</MenuItem>
-              <MenuItem value="Luander">Luander</MenuItem>
+              <MenuItem value="Vagner">Vagner</MenuItem>
             </Select>
           )}
         />

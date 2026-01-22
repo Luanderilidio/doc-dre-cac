@@ -78,7 +78,7 @@ export default function Arquivo() {
     Declaração: 0,
   });
 
-  const documentTypes = ["Histórico", "Certificado", "Declaração", "Atestado"];
+  const documentTypes = ["Histórico Ensino Fundamental", "Histórico Ensino Médio", "Certificado de Conclusão Ensino Médio", "Diploma Curso Profissionalizante", "Atestado de Autenticidade", "Declaração de Escolaridade", "Ficha Funcional"];
 
   const fetchData = async () => {
     try {
@@ -245,11 +245,11 @@ export default function Arquivo() {
                     onChange={(event) => setStatus(event.target.value)}
                     label="Status"
                   >
-                    <MenuItem value="in_service">Em Atendimento</MenuItem>
                     <MenuItem value="no_service">Sem Atendimento</MenuItem>
-                    <MenuItem value="denied">Negado</MenuItem>
-                    <MenuItem value="finished">Finalizado</MenuItem>
+                    <MenuItem value="in_service">Em Atendimento</MenuItem>
                     <MenuItem value="delivery">Liberado</MenuItem>
+                    <MenuItem value="finished">Finalizado</MenuItem>
+                    <MenuItem value="denied">Negado</MenuItem>
                   </Select>
                   {status && (
                     <IconButton
@@ -277,7 +277,7 @@ export default function Arquivo() {
                     onChange={(event) => setEmployee(event.target.value)}
                     label="Funcionário"
                   >
-                    <MenuItem value="Luciano">Luciano</MenuItem>
+                    <MenuItem value="Vagner">Vagner</MenuItem>
                     <MenuItem value="Carmelito">Carmelito</MenuItem>
                     <MenuItem value="Graciane">Graciane</MenuItem>
                   </Select>
