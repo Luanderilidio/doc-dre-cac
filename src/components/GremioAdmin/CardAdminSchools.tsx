@@ -146,11 +146,9 @@ export default function CardAdminSchools() {
     },
   ];
 
-  const {
-    control,
+  const { 
     register,
     handleSubmit,
-    watch,
     // setValue,
     formState: { errors },
   } = useForm({
