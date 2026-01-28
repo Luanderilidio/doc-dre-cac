@@ -1,13 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { linearProgressClasses } from "@mui/material/LinearProgress";
 import ClearIcon from "@mui/icons-material/Clear";
+import ArticleIcon from '@mui/icons-material/Article';
 import { Swiper, SwiperSlide } from "swiper/react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { ptBR } from "@mui/x-date-pickers/locales";
 
 import {
   Autocomplete,
@@ -37,6 +42,12 @@ import { useBoolean } from "react-hooks-shareable";
 import FormsDocument from "../components/FormsDocument";
 import GradientText from "../components/reactbits/GradientText";
 import { ExpandMore } from "../utils/colappse";
+import moment from 'moment/min/moment-with-locales';
+import "moment/locale/pt-br";
+import GridRelatorio from "../components/Arquivo/GridRelatorio";
+
+
+moment.locale("pt-br");
 
 export default function Arquivo() {
   const apiUrl = import.meta.env.VITE_BACK_END_URL as string;
@@ -53,6 +64,8 @@ export default function Arquivo() {
   const [status, setStatus] = useState<string>("");
   const [employee, setEmployee] = useState<string>("");
   const [documentType, setDocumetType] = useState<string>("");
+  const [dateStart, setDateStart] = useState<moment.Moment | null>(null);
+  const [dateEnd, setDateEnd] = useState<moment.Moment | null>(null);
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
@@ -61,6 +74,9 @@ export default function Arquivo() {
   const [isMobile, setIsMobile] = useState(false);
 
   const [isViewAdd, openViewAdd, closeViewAdd, toggleViewAdd] =
+    useBoolean(false);
+
+  const [isViewReport, openViewReport, closeViewReport, toggleViewReport] =
     useBoolean(false);
 
   const [statusCounts, setStatusCounts] = useState({
@@ -89,7 +105,7 @@ export default function Arquivo() {
         },
       });
 
-      console.log(response.data);
+      // console.log(response.data);
       setData(response.data.output);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -106,7 +122,7 @@ export default function Arquivo() {
         },
       });
 
-      console.log("fetchData2", response.data);
+      // console.log("fetchData2", response.data);
       setDataFinishedAndDenied(response.data.output);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -127,19 +143,52 @@ export default function Arquivo() {
 
   useEffect(() => {
     const combinedData = [...data, ...dataFinishedAndDenied];
+
     const filtro = combinedData.filter((item) => {
+      const dataItem = moment(item.timestamp);
+
+      const dentroPeriodo =
+        (!dateStart || dataItem.isSameOrAfter(dateStart, "day")) &&
+        (!dateEnd || dataItem.isSameOrBefore(dateEnd, "day"));
+
       return (
         (nome === null ||
           item.nomeCompleto.toLowerCase().includes(nome.toLowerCase())) &&
         (status === "" || item.status === status) &&
         (documentType === "" || item.tipoDocumento === documentType) &&
-        (employee === "" || item.funcionario === employee)
+        (employee === "" || item.funcionario === employee) &&
+        dentroPeriodo
       );
     });
+
     setFilteredData(filtro);
-  }, [nome, status, documentType, employee, data]);
+  }, [
+    nome,
+    status,
+    documentType,
+    employee,
+    dateStart,
+    dateEnd,
+    data,
+    dataFinishedAndDenied,
+  ]);
 
   const combinedData = [...data, ...dataFinishedAndDenied];
+  const minDate = useMemo<moment.Moment | undefined>(() => {
+    if (combinedData.length === 0) return undefined;
+
+    return moment.min(
+      combinedData.map((item) => moment(item.timestamp))
+    );
+  }, [data, dataFinishedAndDenied]);
+
+  const maxDate = useMemo<moment.Moment | undefined>(() => {
+    if (combinedData.length === 0) return undefined;
+
+    return moment.max(
+      combinedData.map((item) => moment(item.timestamp))
+    );
+  }, [data, dataFinishedAndDenied]);
 
   useEffect(() => {
     const combinedData = [...data, ...dataFinishedAndDenied];
@@ -208,7 +257,7 @@ export default function Arquivo() {
           </GradientText>
           <div className="col-span-12 mt-5 md:mt-10 bg-gray-100/60 p-4 rounded-lg border">
             <div className="flex justify-between items-center md:mb-3">
-              <p className="col-span-12 font-bold">Filtros</p>
+
               <div className="block md:hidden">
                 <ExpandMore
                   expand={openFilter}
@@ -223,9 +272,47 @@ export default function Arquivo() {
               timeout="auto"
               unmountOnExit
             >
-              <div className="grid grid-cols-12 gap-2 md:gap-2  ">
+              <div className="grid grid-cols-15 gap-2 md:gap-2  ">
+                <div className="col-span-10">
+                  <p className="text-left font-bold">Filtros</p>
+                </div>
+                <Button
+                  onClick={() => fetchData()}
+                  className="col-span-3 md:col-span-1"
+                  variant="contained"
+                  color="primary"
+                >
+                  {loading ? (
+                    <DataSaverOffIcon className="animate-spin" />
+                  ) : (
+                    <RefreshIcon sx={{ fontSize: 30 }} />
+                  )}
+                </Button>
+
+                <Button
+                  className="col-span-3 md:col-span-2"
+                  variant="outlined"
+                  color="primary"
+                  onClick={openViewAdd}
+                >
+                  <div className="flex items-center justify-evenly gap-0 md:gap-3">
+                    <AddCircleOutlineIcon sx={{ fontSize: 30 }} />
+                    <p className="hidden md:block">Adicionar</p>
+                  </div>
+                </Button>
+                <Button
+                  className="col-span-3 md:col-span-2"
+                  variant="outlined"
+                  color="secondary"
+                  onClick={openViewReport}
+                >
+                  <div className="flex items-center justify-evenly gap-0 md:gap-3">
+                    <ArticleIcon sx={{ fontSize: 30 }} />
+                    <p className="hidden md:block">Relatório</p>
+                  </div>
+                </Button>
                 <Autocomplete
-                  className="col-span-12 md:col-span-3"
+                  className="col-span-15 md:col-span-3"
                   fullWidth
                   value={nome}
                   options={data.map((item) => item.nomeCompleto)}
@@ -234,10 +321,9 @@ export default function Arquivo() {
                     <TextField {...params} label="Nome Aluno" />
                   )}
                 />
-
                 <FormControl
                   variant="outlined"
-                  className="col-span-6 md:col-span-2"
+                  className="col-span-6 md:col-span-3"
                 >
                   <InputLabel>Status</InputLabel>
                   <Select
@@ -299,7 +385,7 @@ export default function Arquivo() {
 
                 <FormControl
                   variant="outlined"
-                  className="col-span-6 md:col-span-2"
+                  className="col-span-6 md:col-span-3"
                 >
                   <InputLabel>Tipo de Documento</InputLabel>
                   <Select
@@ -329,34 +415,35 @@ export default function Arquivo() {
                   )}
                 </FormControl>
 
-                <Button
-                  onClick={() => fetchData()}
-                  className="col-span-3 md:col-span-1"
-                  variant="contained"
-                  color="primary"
-                >
-                  {loading ? (
-                    <DataSaverOffIcon className="animate-spin" />
-                  ) : (
-                    <RefreshIcon sx={{ fontSize: 30 }} />
-                  )}
-                </Button>
+                <div className="col-span-2">
+                  <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="pt-br"
+                    localeText={ptBR.components.MuiLocalizationProvider.defaultProps.localeText}>
+                    <DatePicker
+                      label="Data início"
+                      value={dateStart}
+                      onChange={(newValue) => setDateStart(newValue)}
+                      format="DD/MM/YYYY"
 
-                <Button
-                  className="col-span-3 md:col-span-2"
-                  variant="outlined"
-                  color="primary"
-                  onClick={openViewAdd}
-                >
-                  <div className="flex items-center justify-evenly gap-0 md:gap-3">
-                    <AddCircleOutlineIcon sx={{ fontSize: 30 }} />
-                    <p className="hidden md:block">Adicionar</p>
-                  </div>
-                </Button>
+                      minDate={minDate}
+                      maxDate={maxDate}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div className="col-span-2">
+                  <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="pt-br" localeText={ptBR.components.MuiLocalizationProvider.defaultProps.localeText}>
+                    <DatePicker
+                      label="Data Fim"
+                      value={dateEnd}
+                      onChange={(newValue) => setDateEnd(newValue)}
+                      format="DD/MM/YYYY"
+                      minDate={minDate}
+                      maxDate={maxDate}
+                    />
+                  </LocalizationProvider>
+                </div>
               </div>
             </Collapse>
           </div>
-
           <div className="col-span-12 bg-gray-100/60 p-4 rounded-lg border">
             <div className="flex justify-between items-center md:mb-3">
               <p className="font-bold">Dashboard</p>
@@ -544,6 +631,14 @@ export default function Arquivo() {
             </div>
           </DialogContentText>
         </DialogContent>
+      </Dialog>
+      <Dialog open={isViewReport} onClose={toggleViewReport} fullScreen>
+        <div className="w-full flex justify-end">
+          <IconButton onClick={closeViewReport}>
+              <CloseIcon sx={{ fontSize: 30 }} />
+            </IconButton>
+        </div>
+        <GridRelatorio data={filteredData} />
       </Dialog>
     </>
   );

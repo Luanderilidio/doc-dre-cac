@@ -185,7 +185,7 @@ export default function CardDocument({
         <p className="w-8/12 text-sm md:text-md font-semibold capitalize leading-none">
           {nomeEscolaExtinta}
         </p>
-        <p className="text-md font-semibold">{tipoDocumento}</p>
+        <p className="text-md font-semibold text-right ">{tipoDocumento}</p>
       </div>
 
       <div className="flex items-center justify-between">
