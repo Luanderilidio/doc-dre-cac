@@ -2,15 +2,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import moment from 'moment/min/moment-with-locales';
 import "moment/locale/pt-br";
-import { Container } from '@mui/material';
-import StatusChip from '../StatusChip';
-import { useEffect, useMemo, useState } from 'react';
-
-interface DocumentoResumo {
-    id: string;
-    tipoDocumento: string;
-    total: number;
-}
+import { Container } from '@mui/material'; 
 
 const getStatusLabel = (status: string) => {
     switch (status) {
